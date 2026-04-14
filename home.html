@@ -438,12 +438,11 @@ function renderKey(key){
   tert+=`</tbody></table>`;
 
   // Chord rows: open then barre then dominant 7ths
-  let openRow='<div class="cpair">',barreRow='<div class="cpair">',seventhRow='<div class="cpair">';
+  let openRow='<div class="cpair">',seventhRow='<div class="cpair">';
   kd.chords.forEach(ch=>{
     const col=gc(ch.name.split(' ')[0],cmap2);
     const title=`<div class="cgtitle" style="color:${col};margin-bottom:4px">${ch.name}<span class="cgtag">· ${ch.tag}</span></div>`;
     openRow +=`<div class="citem">${title}<div class="citemsub">${ch.open.lbl}</div>${chordSVG(ch.open,cmap2)}</div>`;
-    barreRow+=`<div class="citem">${title}<div class="citemsub">${ch.barre.lbl}</div>${chordSVG(ch.barre,cmap2)}</div>`;
   });
   kd.sevenths.forEach(ch=>{
     const col=gc(ch.name.replace(/\d/g,'').trim(),cmap2);
