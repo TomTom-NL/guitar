@@ -437,7 +437,7 @@ function renderKey(key){
   });
   tert+=`</tbody></table>`;
 
-  // Chord rows: open then barre then dominant 7ths
+  // Chord rows: open then dominant 7ths
   let openRow='<div class="cpair">',seventhRow='<div class="cpair">';
   kd.chords.forEach(ch=>{
     const col=gc(ch.name.split(' ')[0],cmap2);
@@ -449,7 +449,7 @@ function renderKey(key){
     const title=`<div class="cgtitle" style="color:${col};margin-bottom:4px">${ch.name}<span class="cgtag">· ${ch.tag}</span></div>`;
     seventhRow+=`<div class="citem">${title}<div class="citemsub">${ch.lbl}</div>${chordSVG(ch,cmap2)}</div>`;
   });
-  openRow+='</div>';barreRow+='</div>';seventhRow+='</div>';
+  openRow+='</div>';seventhRow+='</div>';
 
   // Comparison table
   let comp=`<table class="ct"><thead><tr><th class="cdeg">Deg</th><th>${key} major pent</th><th>${key} minor pent</th><th>Note</th></tr></thead><tbody>`;
@@ -490,8 +490,6 @@ function renderKey(key){
   <div class="sh"><span class="sn">§2</span><span class="st">Chord Shapes — 1 · 4 · 5</span></div>
   <div class="sl" style="margin-bottom:8px">Open positions</div>
   ${openRow}
-  <div class="sl" style="margin-top:18px;margin-bottom:8px">Barre positions</div>
-  ${barreRow}
   <div class="sl" style="margin-top:18px;margin-bottom:8px">Dominant 7th positions</div>
   ${seventhRow}
 
