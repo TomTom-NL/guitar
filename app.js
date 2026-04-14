@@ -1,19 +1,24 @@
 // ── Pentatonic toggle state ───────────────────────────────────────────────────
 
 const pentState = {
-  A: {maj: true, min: true},
-  E: {maj: true, min: true},
-  C: {maj: true, min: true}
+  A: {maj: true, min: true, blues: false},
+  E: {maj: true, min: true, blues: false},
+  C: {maj: true, min: true, blues: false}
 };
 
 function togglePent(key, which) {
   pentState[key][which] = !pentState[key][which];
   const st = pentState[key];
-  document.getElementById(`btn-maj-${key}`).style.opacity = st.maj ? '1' : '0.35';
-  document.getElementById(`btn-min-${key}`).style.opacity = st.min ? '1' : '0.35';
+  document.getElementById(`btn-maj-${key}`).style.opacity   = st.maj   ? '1' : '0.35';
+  document.getElementById(`btn-min-${key}`).style.opacity   = st.min   ? '1' : '0.35';
+  document.getElementById(`btn-blues-${key}`).style.opacity = st.blues ? '1' : '0.35';
   document.querySelectorAll(`#key-${key} .fb-dot`).forEach(g => {
     const t = g.dataset.type;
-    const show = (t === 'shared') ? (st.maj || st.min) : (t === 'major' ? st.maj : st.min);
+    const show = t === 'shared' ? (st.maj || st.min)
+               : t === 'major'  ? st.maj
+               : t === 'minor'  ? st.min
+               : t === 'blues'  ? st.blues
+               : false;
     g.style.opacity = show ? '1' : '0';
   });
 }
