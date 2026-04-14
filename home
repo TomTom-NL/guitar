@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Blues Reference — A · E · C</title>
+<style>
+:root{
+  --bg:#fdf9ef;--surface:#f7f2e3;--ink:#1c1a14;--ink2:#4a4639;
+  --faint:#e2ddd0;--faint2:#ece8da;
+  --mc:#c97b20;--mk:#8a5010;--ml:#fdf0dc;
+  --nc:#1e5fa8;--nk:#133f75;--nl:#ddeaf8;
+  --qmb:#dceaf7;--qmd:#9bbcd8;
+  --qnb:#ede8f5;--qnd:#b9add4;
+  --qdb:#fde8e8;--qdd:#d8a9a9;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:'Courier New',monospace;font-size:13px;line-height:1.5}
+.site-header{background:var(--ink);color:#f5f0e0;padding:16px 28px 0;position:sticky;top:0;z-index:100}
+.header-top{display:flex;align-items:baseline;gap:14px;margin-bottom:14px}
+.site-header h1{font-family:Georgia,serif;font-size:20px;font-weight:700}
+.site-header .sub{font-size:12px;opacity:0.4}
+.tabs{display:flex;gap:2px}
+.tab{background:none;border:none;color:rgba(245,240,224,0.45);font-family:'Courier New',monospace;font-size:12px;font-weight:700;letter-spacing:0.5px;padding:9px 22px 11px;cursor:pointer;border-bottom:3px solid transparent;transition:color 0.15s,border-color 0.15s;white-space:nowrap}
+.tab:hover{color:rgba(245,240,224,0.8)}
+.tab.active{color:#f5f0e0;border-bottom-color:#c97b20}
+.page{max-width:960px;margin:0 auto;padding:0 28px 60px}
+
+/* key section divider */
+.key-section{margin-bottom:56px}
+.key-banner{display:flex;align-items:baseline;gap:0;padding:28px 0 14px;border-bottom:3px solid var(--ink);margin-bottom:24px}
+.key-letter{font-family:Georgia,serif;font-size:64px;font-weight:700;line-height:1;margin-right:16px;opacity:0.12;user-select:none}
+.key-info{display:flex;flex-direction:column;gap:2px}
+.key-name{font-family:Georgia,serif;font-size:24px;font-weight:700}
+.key-sub{font-size:11px;opacity:0.45;letter-spacing:1px;text-transform:uppercase}
+
+/* section headers */
+.sh{display:flex;align-items:center;gap:10px;margin:28px 0 16px;padding-bottom:7px;border-bottom:1.5px solid var(--faint)}
+.sh:first-of-type{margin-top:0}
+.sn{font-size:10px;opacity:0.3;font-weight:700;letter-spacing:1px}
+.st{font-family:Georgia,serif;font-size:15px;font-weight:700}
+.sl{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;opacity:0.42;margin-bottom:6px}
+hr.dv{border:none;border-top:1px solid var(--faint);margin:18px 0}
+
+/* scale row */
+.srow{display:flex;align-items:center}
+.sn2{width:54px;text-align:center}
+.sn2 .dg{font-size:10px;color:#999;display:block;margin-bottom:2px}
+.sn2 .nc{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;font-size:12px;font-weight:700;border:2px solid var(--faint);background:var(--surface)}
+.sc{flex:1;height:2px;background:var(--faint);position:relative;top:7px}
+.irow{display:flex;margin-top:3px}
+.ic{width:54px}.im{flex:1;text-align:center;font-size:10px;font-weight:700}
+.im.t{color:#8b5e00}.im.s{color:#c44}
+
+/* theory grid */
+.tg{display:grid;grid-template-columns:82px 1fr 188px;gap:14px;align-items:start;margin-bottom:20px}
+@media(max-width:680px){.tg{grid-template-columns:1fr}}
+
+/* interval chain */
+.ic2{display:flex;flex-direction:column;align-items:center}
+.inode{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--faint);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;background:white;position:relative;z-index:1}
+.iseg{width:2px;background:var(--faint);position:relative}
+.iseg.t{height:18px}.iseg.s{height:9px}
+.islbl{position:absolute;right:-32px;top:50%;transform:translateY(-50%);font-size:8px;font-weight:700;white-space:nowrap}
+.iseg.t .islbl{color:#8b5e00}.iseg.s .islbl{color:#c44}
+
+/* triads */
+.gbox{border:1px dashed var(--faint);border-radius:5px;padding:6px;margin-bottom:7px}
+.glbl{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;opacity:0.36;text-align:center;margin-bottom:6px}
+.trow{display:flex;gap:4px}
+.tb{flex:1;border:1.5px solid var(--faint);border-radius:4px;padding:5px 3px;text-align:center;background:white}
+.tb.maj{background:var(--qmb);border-color:var(--qmd)}.tb.min{background:var(--qnb);border-color:var(--qnd)}.tb.dim{background:var(--qdb);border-color:var(--qdd)}
+.tb .cn{font-size:11px;font-weight:700;margin-bottom:2px;display:flex;align-items:center;justify-content:center;gap:1px}
+.tb.maj .cn{color:#1a5291}.tb.min .cn{color:#6b2d8b}.tb.dim .cn{color:#8b1a1a}
+.tb .ns{display:flex;flex-direction:column;gap:1px;font-size:9px;margin-bottom:3px}
+.tb .rm{font-size:9px;font-style:italic;opacity:0.48;border-top:1px solid rgba(0,0,0,0.1);padding-top:2px}
+.tb.maj .rm{color:#1a5291}.tb.min .rm{color:#6b2d8b}.tb.dim .rm{color:#8b1a1a}
+.qs{font-size:9px;opacity:0.6}
+
+/* tertian */
+.tt{width:100%;border-collapse:collapse;font-size:11px}
+.tt th{font-size:9px;text-transform:uppercase;letter-spacing:1px;opacity:0.42;padding:3px 5px;text-align:center;border-bottom:1.5px solid var(--ink)}
+.tt td{padding:4px 5px;text-align:center;border-bottom:1px solid var(--faint2);font-weight:700}
+.tt .dc{font-size:9px;opacity:0.38;font-weight:400}.tt .rc{font-style:italic;font-size:9px;opacity:0.45;font-weight:400}
+.tt .rm{background:rgba(26,82,145,0.06)}.tt .rn{background:rgba(92,45,139,0.04)}.tt .rd{background:rgba(139,26,26,0.04)}
+
+/* cycle */
+.cywrap{display:flex;justify-content:center;margin:4px 0}
+
+/* chords */
+.cgroup{margin-bottom:22px}
+.cgtitle{font-family:Georgia,serif;font-size:13px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:7px}
+.cgtag{font-size:10px;opacity:0.42;font-style:italic}
+.cpair{display:flex;gap:14px;flex-wrap:wrap}
+.citem{text-align:center}
+.citemlbl{font-size:9px;letter-spacing:1px;text-transform:uppercase;opacity:0.4;margin-bottom:4px}
+.citemsub{font-size:9px;opacity:0.36;margin-bottom:4px}
+
+/* pentatonic */
+.pblock{margin-bottom:22px}
+.pinfo{display:flex;gap:14px;padding:11px 15px;border-radius:6px 6px 0 0;border:1.5px solid;border-bottom:none;flex-wrap:wrap}
+.pblock.pmaj .pinfo{background:var(--ml);border-color:var(--mc)}
+.pblock.pmin .pinfo{background:var(--nl);border-color:var(--nc)}
+.ptitle{font-family:Georgia,serif;font-size:14px;font-weight:700;margin-bottom:2px}
+.pblock.pmaj .ptitle{color:var(--mk)}.pblock.pmin .ptitle{color:var(--nk)}
+.pformula{font-size:11px;opacity:0.48;margin-bottom:6px}
+.pills{display:flex;gap:5px;flex-wrap:wrap}
+.pill{padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;color:white}
+.pill.pm{background:var(--mc)}.pill.pn{background:var(--nc)}
+.pill.pmr{background:var(--mk);box-shadow:0 0 0 2px white,0 0 0 3.5px var(--mc)}
+.pill.pnr{background:var(--nk);box-shadow:0 0 0 2px white,0 0 0 3.5px var(--nc)}
+.pdesc{flex:1;min-width:160px;font-size:11px;opacity:0.62}
+.dpills{display:flex;gap:3px;flex-wrap:wrap;margin-top:5px}
+.dp{font-size:9px;padding:2px 5px;border-radius:3px;border:1px solid}
+.pblock.pmaj .dp{border-color:var(--mc);color:var(--mk)}
+.pblock.pmin .dp{border-color:var(--nc);color:var(--nk)}
+.fbwrap{border:1.5px solid;border-top:none;border-radius:0 0 6px 6px;overflow-x:auto}
+.pblock.pmaj .fbwrap{border-color:var(--mc)}.pblock.pmin .fbwrap{border-color:var(--nc)}
+
+/* comparison */
+.ct{width:100%;border-collapse:collapse;font-size:11px}
+.ct th{padding:5px 9px;text-align:left;border-bottom:1.5px solid var(--ink);font-size:9px;letter-spacing:0.5px;text-transform:uppercase;opacity:0.48}
+.ct td{padding:5px 9px;border-bottom:1px solid var(--faint2);vertical-align:middle}
+.ct .cdeg{text-align:center;font-weight:700;width:44px}
+.ct .sh td{background:rgba(0,0,0,0.022)}
+.mn{opacity:0.2}
+.tag{display:inline-block;font-size:10px;padding:1px 6px;border-radius:8px;font-weight:700;color:white}
+.tag.tm{background:var(--mc)}.tag.tn{background:var(--nc)}
+.insight{background:white;border-left:3px solid var(--ink);padding:10px 14px;border-radius:0 4px 4px 0;margin-top:12px}
+.insight-t{font-weight:700;font-size:9px;letter-spacing:0.5px;text-transform:uppercase;opacity:0.42;margin-bottom:3px}
+.insight-b{font-size:11px;opacity:0.68;line-height:1.7}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;padding-top:10px;border-top:1px solid var(--faint);margin-top:14px}
+.li{display:flex;align-items:center;gap:3px}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="header-top">
+    <h1>Blues Reference</h1>
+    <span class="sub">scale · chords · pentatonic</span>
+  </div>
+  <nav class="tabs">
+    <button class="tab active" data-key="A">Blues in A</button>
+    <button class="tab" data-key="E">Blues in E</button>
+    <button class="tab" data-key="C">Blues in C</button>
+  </nav>
+</header>
+<div class="page" id="content"></div>
+
+<script>
+const NN=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const OS=[4,9,2,7,11,4];
+const SL=['E','A','D','G','B','e'];
+const DC=['#1a5291','#0e7a7a','#8b5e00','#6b2d8b','#2d6a1e','#b83800','#555'];
+const DB=['rgba(26,82,145,0.13)','rgba(14,122,122,0.11)','rgba(139,94,0,0.11)','rgba(107,45,139,0.11)','rgba(45,106,30,0.11)','rgba(184,56,0,0.11)','rgba(0,0,0,0.05)'];
+
+const KEYS={
+  A:{root:'A',full:'Blues in A',scale:['A','B','C#','D','E','F#','G#'],
+    triads:[{c:'A',q:'maj',n:['A','C#','E'],r:'I'},{c:'Bm',q:'min',n:['B','D','F#'],r:'ii'},{c:'C#m',q:'min',n:['C#','E','G#'],r:'iii'},{c:'D',q:'maj',n:['D','F#','A'],r:'IV'},{c:'E',q:'maj',n:['E','G#','B'],r:'V'},{c:'F#m',q:'min',n:['F#','A','C#'],r:'vi'},{c:'G#°',q:'dim',n:['G#','B','D'],r:'vii°'}],
+    cycle:['A','C#','E','G#','B','D','F#'],
+    mpIdx:[9,11,1,4,6],mpN:['A','B','C#','E','F#'],mpF:'1 — 2 — 3 — 5 — 6',mpD:['1=A','2=B','3=C#','5=E','6=F#'],
+    mnIdx:[9,0,2,4,7], mnN:['A','C','D','E','G'], mnF:'1 — b3 — 4 — 5 — b7',mnD:['1=A','b3=C','4=D','5=E','b7=G'],
+    comp:[{d:'1',mj:'A',mn:'A',sh:1,t:'Shared — root'},{d:'2',mj:'B',mn:null,sh:0,t:'Major only'},{d:'b3',mj:null,mn:'C',sh:0,t:'Blues note — C vs C# over A chord'},{d:'3',mj:'C#',mn:null,sh:0,t:'Major only — bright'},{d:'4',mj:null,mn:'D',sh:0,t:'Minor only'},{d:'5',mj:'E',mn:'E',sh:1,t:'Shared — fifth'},{d:'6',mj:'F#',mn:null,sh:0,t:'Major only'},{d:'b7',mj:null,mn:'G',sh:0,t:'Minor only — bluesy'}],
+    insight:'The key clash is <b>C natural vs C#</b>. Minor pent has C (b3), but the A major chord has C#. Bending C toward C# is the defining blues move in A.',
+    chords:[
+      {name:'A major',tag:'I',
+       open:{lbl:'open · x02220',sf:0,mu:[0],dots:[{s:2,f:2},{s:3,f:2},{s:4,f:2}],br:null},
+       barre:{lbl:'barre 5fr · E shape',sf:5,mu:[],dots:[{s:1,f:7},{s:2,f:7},{s:3,f:6}],br:{f:5,a:0,b:5}}},
+      {name:'D major',tag:'IV',
+       open:{lbl:'open · xx0232',sf:0,mu:[0,1],dots:[{s:3,f:2},{s:4,f:3},{s:5,f:2}],br:null},
+       barre:{lbl:'barre 5fr · A shape',sf:5,mu:[0],dots:[{s:2,f:7},{s:3,f:7},{s:4,f:7}],br:{f:5,a:1,b:5}}},
+      {name:'E major',tag:'V',
+       open:{lbl:'open · 022100',sf:0,mu:[],dots:[{s:1,f:2},{s:2,f:2},{s:3,f:1}],br:null},
+       barre:{lbl:'barre 7fr · A shape',sf:7,mu:[0],dots:[{s:2,f:9},{s:3,f:9},{s:4,f:9}],br:{f:7,a:1,b:5}}}]},
+
+  E:{root:'E',full:'Blues in E',scale:['E','F#','G#','A','B','C#','D#'],
+    triads:[{c:'E',q:'maj',n:['E','G#','B'],r:'I'},{c:'F#m',q:'min',n:['F#','A','C#'],r:'ii'},{c:'G#m',q:'min',n:['G#','B','D#'],r:'iii'},{c:'A',q:'maj',n:['A','C#','E'],r:'IV'},{c:'B',q:'maj',n:['B','D#','F#'],r:'V'},{c:'C#m',q:'min',n:['C#','E','G#'],r:'vi'},{c:'D#°',q:'dim',n:['D#','F#','A'],r:'vii°'}],
+    cycle:['E','G#','B','D#','F#','A','C#'],
+    mpIdx:[4,6,8,11,1],mpN:['E','F#','G#','B','C#'],mpF:'1 — 2 — 3 — 5 — 6',mpD:['1=E','2=F#','3=G#','5=B','6=C#'],
+    mnIdx:[4,7,9,11,2],mnN:['E','G','A','B','D'], mnF:'1 — b3 — 4 — 5 — b7',mnD:['1=E','b3=G','4=A','5=B','b7=D'],
+    comp:[{d:'1',mj:'E',mn:'E',sh:1,t:'Shared — root'},{d:'2',mj:'F#',mn:null,sh:0,t:'Major only'},{d:'b3',mj:null,mn:'G',sh:0,t:'Blues note — G vs G# over E chord'},{d:'3',mj:'G#',mn:null,sh:0,t:'Major only — bright'},{d:'4',mj:null,mn:'A',sh:0,t:'Minor only'},{d:'5',mj:'B',mn:'B',sh:1,t:'Shared — fifth'},{d:'6',mj:'C#',mn:null,sh:0,t:'Major only'},{d:'b7',mj:null,mn:'D',sh:0,t:'Minor only — bluesy'}],
+    insight:'The key clash is <b>G natural vs G#</b>. Minor pent has G (b3), but the E major chord has G#. Bending G toward G# is the defining SRV/BB King blues move in E.',
+    chords:[
+      {name:'E major',tag:'I',
+       open:{lbl:'open · 022100',sf:0,mu:[],dots:[{s:1,f:2},{s:2,f:2},{s:3,f:1}],br:null},
+       barre:{lbl:'barre 7fr · A shape',sf:7,mu:[0],dots:[{s:2,f:9},{s:3,f:9},{s:4,f:9}],br:{f:7,a:1,b:5}}},
+      {name:'A major',tag:'IV',
+       open:{lbl:'open · x02220',sf:0,mu:[0],dots:[{s:2,f:2},{s:3,f:2},{s:4,f:2}],br:null},
+       barre:{lbl:'barre 5fr · E shape',sf:5,mu:[],dots:[{s:1,f:7},{s:2,f:7},{s:3,f:6}],br:{f:5,a:0,b:5}}},
+      {name:'B major',tag:'V',
+       open:{lbl:'x24442 · A shape 2fr',sf:2,mu:[0],dots:[{s:2,f:4},{s:3,f:4},{s:4,f:4}],br:{f:2,a:1,b:5}},
+       barre:{lbl:'barre 7fr · E shape',sf:7,mu:[],dots:[{s:1,f:9},{s:2,f:9},{s:3,f:8}],br:{f:7,a:0,b:5}}}]},
+
+  C:{root:'C',full:'Blues in C',scale:['C','D','E','F','G','A','B'],
+    triads:[{c:'C',q:'maj',n:['C','E','G'],r:'I'},{c:'Dm',q:'min',n:['D','F','A'],r:'ii'},{c:'Em',q:'min',n:['E','G','B'],r:'iii'},{c:'F',q:'maj',n:['F','A','C'],r:'IV'},{c:'G',q:'maj',n:['G','B','D'],r:'V'},{c:'Am',q:'min',n:['A','C','E'],r:'vi'},{c:'B°',q:'dim',n:['B','D','F'],r:'vii°'}],
+    cycle:['C','E','G','B','D','F','A'],
+    mpIdx:[0,2,4,7,9], mpN:['C','D','E','G','A'],  mpF:'1 — 2 — 3 — 5 — 6', mpD:['1=C','2=D','3=E','5=G','6=A'],
+    mnIdx:[0,3,5,7,10],mnN:['C','D#','F','G','A#'],mnF:'1 — b3 — 4 — 5 — b7',mnD:['1=C','b3=D#','4=F','5=G','b7=A#'],
+    comp:[{d:'1',mj:'C',mn:'C',sh:1,t:'Shared — root'},{d:'2',mj:'D',mn:null,sh:0,t:'Major only'},{d:'b3',mj:null,mn:'D#',sh:0,t:'Blues note — D#/Eb vs E over C chord'},{d:'3',mj:'E',mn:null,sh:0,t:'Major only — bright'},{d:'4',mj:null,mn:'F',sh:0,t:'Minor only'},{d:'5',mj:'G',mn:'G',sh:1,t:'Shared — fifth'},{d:'6',mj:'A',mn:null,sh:0,t:'Major only'},{d:'b7',mj:null,mn:'A#',sh:0,t:'Minor only — bluesy'}],
+    insight:'The key clash is <b>D#/Eb vs E natural</b>. Minor pent has Eb (b3), but the C major chord has E. Bending Eb toward E is the blues tension in C.',
+    chords:[
+      {name:'C major',tag:'I',
+       open:{lbl:'open · x32010',sf:0,mu:[0],dots:[{s:1,f:3},{s:2,f:2},{s:4,f:1}],br:null},
+       barre:{lbl:'barre 8fr · E shape',sf:8,mu:[],dots:[{s:1,f:10},{s:2,f:10},{s:3,f:9}],br:{f:8,a:0,b:5}}},
+      {name:'F major',tag:'IV',
+       open:{lbl:'barre 1fr · E shape',sf:0,mu:[],dots:[{s:1,f:3},{s:2,f:3},{s:3,f:2}],br:{f:1,a:0,b:5}},
+       barre:{lbl:'barre 8fr · A shape',sf:8,mu:[0],dots:[{s:2,f:10},{s:3,f:10},{s:4,f:10}],br:{f:8,a:1,b:5}}},
+      {name:'G major',tag:'V',
+       open:{lbl:'open · 320003',sf:0,mu:[],dots:[{s:0,f:3},{s:1,f:2},{s:5,f:3}],br:null},
+       barre:{lbl:'barre 3fr · E shape',sf:3,mu:[],dots:[{s:1,f:5},{s:2,f:5},{s:3,f:4}],br:{f:3,a:0,b:5}}}]}
+};
+
+function cm(scale){const m={};scale.forEach((n,i)=>m[n]={c:DC[i],b:DB[i]});return m}
+function gc(n,m){return m[n]?.c||'#888'}
+function nat(s,cfg){
+  if(cfg.mu.includes(s))return null;
+  const d=cfg.dots.find(x=>x.s===s);
+  if(d)return NN[(OS[s]+d.f)%12];
+  if(cfg.br&&s>=cfg.br.a&&s<=cfg.br.b)return NN[(OS[s]+cfg.br.f)%12];
+  return cfg.sf===0?NN[OS[s]]:null;
+}
+function dy(f,sf){return 32+32*(sf===0?f:f-sf+1)}
+
+function chordSVG(cfg,cmap){
+  const sx=[22,51,80,109,138,167];
+  let s=`<svg viewBox="0 0 195 218" style="width:100%;max-width:162px">`;
+  SL.forEach((l,i)=>s+=`<text x="${sx[i]}" y="13" text-anchor="middle" font-size="9" fill="#999" font-family="Courier New">${l}</text>`);
+  for(let i=0;i<=4;i++){
+    const y=48+32*i,isN=(cfg.sf===0&&i===0);
+    s+=`<line x1="${sx[0]}" y1="${y}" x2="${sx[5]}" y2="${y}" stroke="${isN?'#1c1a14':'#ccc'}" stroke-width="${isN?3.5:0.8}" stroke-linecap="round"/>`;
+  }
+  sx.forEach(x=>s+=`<line x1="${x}" y1="48" x2="${x}" y2="176" stroke="#ccc" stroke-width="0.9"/>`);
+  if(cfg.sf>0)s+=`<text x="187" y="${dy(cfg.sf,cfg.sf)+4}" text-anchor="middle" font-size="9" fill="#aaa" font-family="Courier New">${cfg.sf}fr</text>`;
+  for(let f=1;f<=4;f++){
+    const a=cfg.sf===0?f:cfg.sf+f-1;
+    s+=`<text x="10" y="${dy(a,cfg.sf)+4}" text-anchor="middle" font-size="8" fill="#ccc" font-family="Courier New">${f}</text>`;
+  }
+  for(let i=0;i<6;i++){
+    const n=nat(i,cfg),hd=cfg.dots.find(d=>d.s===i),ib=cfg.br&&i>=cfg.br.a&&i<=cfg.br.b;
+    if(!n&&cfg.mu.includes(i)){s+=`<text x="${sx[i]}" y="33" text-anchor="middle" font-size="12" fill="#aaa">✕</text>`;}
+    else if(n&&!hd&&!ib){const col=gc(n,cmap);s+=`<circle cx="${sx[i]}" cy="33" r="7" fill="none" stroke="${col}" stroke-width="1.5"/><text x="${sx[i]}" y="37" text-anchor="middle" font-size="7" fill="${col}" font-weight="700" font-family="Courier New">${n}</text>`;}
+  }
+  if(cfg.br){const by=dy(cfg.br.f,cfg.sf);s+=`<rect x="${sx[cfg.br.a]-10}" y="${by-9}" width="${sx[cfg.br.b]-sx[cfg.br.a]+20}" height="18" rx="9" fill="#555" opacity="0.7"/>`;}
+  cfg.dots.forEach(dot=>{
+    const x=sx[dot.s],y=dy(dot.f,cfg.sf),n=NN[(OS[dot.s]+dot.f)%12],col=gc(n,cmap),fs=n.length>1?7.5:9;
+    s+=`<circle cx="${x}" cy="${y}" r="12" fill="${col}"/>`;
+    s+=`<text x="${x}" y="${y+4}" text-anchor="middle" font-size="${fs}" fill="white" font-weight="700" font-family="Courier New">${n}</text>`;
+  });
+  const ns=Array.from({length:6},(_,i)=>nat(i,cfg));
+  ns.forEach((n,i)=>{
+    if(!n)s+=`<text x="${sx[i]}" y="195" text-anchor="middle" font-size="8" fill="#ccc" font-family="Courier New">—</text>`;
+    else{const col=gc(n,cmap);s+=`<text x="${sx[i]}" y="195" text-anchor="middle" font-size="9" fill="${col}" font-weight="700" font-family="Courier New">${n}</text>`;}
+  });
+  s+=`<text x="${(sx[0]+sx[5])/2}" y="212" text-anchor="middle" font-size="8" fill="#bbb" font-family="Courier New">${ns.filter(Boolean).join(' · ')}</text>`;
+  return s+`</svg>`;
+}
+
+function fretSVG(set,ri,col){
+  const NX=68,FW=57,SS=36,TY=70,R=13;
+  const sy=i=>TY+(5-i)*SS,nx=f=>f===0?NX-28:NX+(f-0.5)*FW;
+  const FBT=TY-22,FBB=TY+5*SS+22,FBR=NX+12*FW,MY=(FBT+FBB)/2;
+  let s=`<svg viewBox="0 0 820 280" style="width:100%;min-width:540px;display:block">`;
+  s+=`<rect x="${NX}" y="${FBT}" width="${FBR-NX}" height="${FBB-FBT}" rx="3" fill="#18100a"/>`;
+  [3,5,7,9].forEach(f=>s+=`<circle cx="${NX+(f-0.5)*FW}" cy="${MY}" r="5" fill="rgba(255,255,255,0.08)"/>`);
+  s+=`<circle cx="${NX+11.5*FW}" cy="${MY-11}" r="5" fill="rgba(255,255,255,0.08)"/>`;
+  s+=`<circle cx="${NX+11.5*FW}" cy="${MY+11}" r="5" fill="rgba(255,255,255,0.08)"/>`;
+  s+=`<line x1="${NX}" y1="${FBT}" x2="${NX}" y2="${FBB}" stroke="#c8a84a" stroke-width="4" stroke-linecap="round"/>`;
+  for(let f=1;f<=12;f++)s+=`<line x1="${NX+f*FW}" y1="${FBT}" x2="${NX+f*FW}" y2="${FBB}" stroke="#5a4a30" stroke-width="1.5"/>`;
+  for(let i=0;i<6;i++){
+    const y=sy(i),t=[2,1.6,1.35,1.1,0.9,0.7][i];
+    s+=`<line x1="22" y1="${y}" x2="${NX}" y2="${y}" stroke="#777" stroke-width="${t}" opacity="0.5"/>`;
+    s+=`<line x1="${NX}" y1="${y}" x2="${FBR}" y2="${y}" stroke="rgba(210,185,120,0.38)" stroke-width="${t}"/>`;
+    s+=`<text x="14" y="${y+4}" text-anchor="middle" font-size="11" fill="#888" font-family="Courier New" font-weight="700">${SL[i]}</text>`;
+  }
+  s+=`<text x="${NX-28}" y="${FBB+14}" text-anchor="middle" font-size="9" fill="#aaa" font-family="Courier New">0</text>`;
+  for(let f=1;f<=12;f++)s+=`<text x="${NX+(f-0.5)*FW}" y="${FBB+14}" text-anchor="middle" font-size="9" fill="#aaa" font-family="Courier New">${f}</text>`;
+  for(let i=0;i<6;i++){
+    for(let f=0;f<=12;f++){
+      const ni=(OS[i]+f)%12;
+      if(!set.has(ni))continue;
+      const x=Math.round(nx(f)),y=Math.round(sy(i)),n=NN[ni],fs=n.length>1?8:9,ir=(ni===ri);
+      if(ir)s+=`<circle cx="${x}" cy="${y}" r="${R+4}" fill="none" stroke="${col}" stroke-width="1" opacity="0.28"/>`;
+      s+=`<circle cx="${x}" cy="${y}" r="${R}" fill="${col}" opacity="${ir?1:0.82}"/>`;
+      if(ir)s+=`<circle cx="${x}" cy="${y}" r="${R}" fill="none" stroke="white" stroke-width="1.8"/>`;
+      s+=`<text x="${x}" y="${y+4}" text-anchor="middle" font-size="${fs}" fill="white" font-weight="700" font-family="Courier New">${n}</text>`;
+    }
+  }
+  return s+`</svg>`;
+}
+
+function cycleSVG(kd,cmap){
+  const cx=145,cy=145,r=108,sz=295;
+  const pts=Array.from({length:7},(_,i)=>{const a=(-90+i*360/7)*Math.PI/180;return{x:cx+r*Math.cos(a),y:cy+r*Math.sin(a)}});
+  const ints=['Maj3','Min3','Maj3','Min3','Min3','Maj3','Min3'];
+  const ic=['#8b5e00','#555','#8b5e00','#555','#555','#8b5e00','#555'];
+  const dl=['root','3rd','5th','7th','2nd','4th','6th'];
+  const cc={0:DC[0],2:DC[4],5:DC[3]};
+  let s=`<svg viewBox="0 0 ${sz} ${sz}" style="width:100%;max-width:248px">`;
+  s+=`<circle cx="${cx}" cy="${cy}" r="38" fill="var(--surface)" stroke="var(--faint)" stroke-width="1"/>`;
+  s+=`<text x="${cx}" y="${cy-5}" text-anchor="middle" font-size="9" fill="#aaa" font-family="Courier New">cycle of</text>`;
+  s+=`<text x="${cx}" y="${cy+8}" text-anchor="middle" font-size="9" fill="#aaa" font-family="Courier New">thirds</text>`;
+  for(let i=0;i<7;i++){
+    const j=(i+1)%7,p=pts[i],q=pts[j];
+    s+=`<line x1="${p.x.toFixed(1)}" y1="${p.y.toFixed(1)}" x2="${q.x.toFixed(1)}" y2="${q.y.toFixed(1)}" stroke="var(--faint)" stroke-width="1"/>`;
+  }
+  for(let i=0;i<7;i++){
+    const j=(i+1)%7,p=pts[i],q=pts[j],mx=(p.x+q.x)/2,my=(p.y+q.y)/2;
+    s+=`<rect x="${(mx-14).toFixed(1)}" y="${(my-7).toFixed(1)}" width="28" height="13" rx="3" fill="var(--bg)" stroke="var(--faint)" stroke-width="0.5"/>`;
+    s+=`<text x="${mx.toFixed(1)}" y="${(my+4).toFixed(1)}" text-anchor="middle" font-size="7.5" fill="${ic[i]}" font-weight="700" font-family="Courier New">${ints[i]}</text>`;
+  }
+  for(let i=0;i<7;i++){
+    const p=pts[i],n=kd.cycle[i],fill=cc[i]||'white',tc=cc[i]?'white':'var(--ink)',sc2=cc[i]?'rgba(255,255,255,0.6)':'var(--ink2)';
+    s+=`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="19" fill="${fill}" stroke="var(--faint)" stroke-width="1.5"/>`;
+    s+=`<text x="${p.x.toFixed(1)}" y="${(p.y-3).toFixed(1)}" text-anchor="middle" font-size="11" fill="${tc}" font-weight="700" font-family="Courier New">${n}</text>`;
+    s+=`<text x="${p.x.toFixed(1)}" y="${(p.y+9).toFixed(1)}" text-anchor="middle" font-size="7.5" fill="${sc2}" font-family="Courier New">${dl[i]}</text>`;
+  }
+  return s+`</svg>`;
+}
+
+function renderKey(key){
+  const kd=KEYS[key],cmap2=cm(kd.scale),ri=NN.indexOf(kd.root);
+
+  // scale row
+  const s8=[...kd.scale,kd.scale[0]];
+  let srow='<div class="srow">';
+  s8.forEach((n,i)=>{
+    if(i>0)srow+='<div class="sc"></div>';
+    const idx=i===7?0:i,co=DC[idx],bg=DB[idx];
+    srow+=`<div class="sn2"><span class="dg">${i===7?'8':i+1}</span><span class="nc" style="border-color:${co};color:${co};background:${bg}">${n}</span></div>`;
+  });
+  srow+='</div><div class="irow">';
+  s8.forEach((_,i)=>{
+    srow+='<div class="ic"></div>';
+    if(i<7){const t=['T','T','S','T','T','T','S'][i];srow+=`<div class="im ${t.toLowerCase()}">${t}</div>`;}
+  });
+  srow+='</div>';
+
+  // interval chain
+  const ci=['Maj3','Min3','Maj3','Min3','Min3','Maj3','Min3'];
+  const cn=[...kd.cycle,kd.cycle[0]];
+  let chain='<div class="ic2">';
+  cn.forEach((n,i)=>{
+    const co=cmap2[n]?.c||'#888';
+    chain+=`<div class="inode" style="border-color:${co};color:${co}">${n}</div>`;
+    if(i<7){const t=ci[i],cls=t==='Maj3'?'t':'s';chain+=`<div class="iseg ${cls}"><span class="islbl">${t}</span></div>`;}
+  });
+  chain+='</div>';
+
+  // triads
+  const qr={maj:'rm',min:'rn',dim:'rd'};
+  const mkTriad=t=>{
+    const ns=t.n.map(n=>`<span style="color:${gc(n,cmap2)}">${n}</span>`).reverse().join('');
+    const sym=t.q==='maj'?'△':t.q==='min'?'−':'°';
+    return `<div class="tb ${t.q}"><div class="cn">${t.c}<span class="qs">${sym}</span></div><div class="ns">${ns}</div><div class="rm">${t.r}</div></div>`;
+  };
+  const pri=kd.triads.filter(t=>['I','IV','V'].includes(t.r));
+  const sec=kd.triads.filter(t=>!['I','IV','V'].includes(t.r));
+
+  // tertian table
+  let tert=`<table class="tt"><thead><tr><th>R</th><th>3</th><th>5</th><th class="dc">#</th><th class="rc">—</th></tr></thead><tbody>`;
+  kd.triads.forEach((t,i)=>{
+    tert+=`<tr class="${qr[t.q]}">`;
+    t.n.forEach(n=>tert+=`<td style="color:${gc(n,cmap2)}">${n}</td>`);
+    tert+=`<td class="dc">${i+1}</td><td class="rc">${t.r}</td></tr>`;
+  });
+  tert+=`</tbody></table>`;
+
+  // chords
+  let chordsHtml='';
+  kd.chords.forEach(ch=>{
+    const col=gc(ch.name.split(' ')[0],cmap2);
+    chordsHtml+=`<div class="cgroup">
+      <div class="cgtitle" style="color:${col}">${ch.name}<span class="cgtag">· ${ch.tag}</span></div>
+      <div class="cpair">
+        <div class="citem"><div class="citemlbl">Open</div><div class="citemsub">${ch.open.lbl}</div>${chordSVG(ch.open,cmap2)}</div>
+        <div class="citem"><div class="citemlbl">Barre</div><div class="citemsub">${ch.barre.lbl}</div>${chordSVG(ch.barre,cmap2)}</div>
+      </div></div>`;
+  });
+
+  // pentatonic
+  const mpP=kd.mpN.map((n,i)=>`<span class="pill ${i===0?'pmr':'pm'}">${n}</span>`).join('');
+  const mnP=kd.mnN.map((n,i)=>`<span class="pill ${i===0?'pnr':'pn'}">${n}</span>`).join('');
+  const mpD=kd.mpD.map(d=>`<span class="dp">${d}</span>`).join('');
+  const mnD=kd.mnD.map(d=>`<span class="dp">${d}</span>`).join('');
+
+  // comparison
+  let comp=`<table class="ct"><thead><tr><th class="cdeg">Deg</th><th>${key} major pent</th><th>${key} minor pent</th><th>Note</th></tr></thead><tbody>`;
+  kd.comp.forEach(r=>{
+    const mj=r.mj?(r.sh?`<span class="tag tm">${r.mj}</span>`:`<span style="color:var(--mk);font-weight:700">${r.mj}</span>`):`<span class="mn">—</span>`;
+    const mn=r.mn?(r.sh?`<span class="tag tn">${r.mn}</span>`:`<span style="color:var(--nk);font-weight:700">${r.mn}</span>`):`<span class="mn">—</span>`;
+    comp+=`<tr class="${r.sh?'sh':''}"><td class="cdeg">${r.d}</td><td>${mj}</td><td>${mn}</td><td style="font-size:10px;opacity:0.58">${r.t}</td></tr>`;
+  });
+  comp+=`</tbody></table>`;
+
+  // legend
+  const leg=kd.scale.map((n,i)=>`<div class="li"><b style="color:${DC[i]}">■</b><span>${n} (${i+1})</span></div>`).join('');
+
+  return `
+<div class="key-section" id="key-${key}">
+  <div class="key-banner">
+    <div class="key-letter">${key}</div>
+    <div class="key-info">
+      <div class="key-name">${kd.full}</div>
+      <div class="key-sub">${kd.scale.join(' — ')}</div>
+    </div>
+  </div>
+
+  <div class="sh"><span class="sn">§1</span><span class="st">Scale &amp; Theory</span></div>
+  <div class="sl">Scale in ${key} major</div>
+  ${srow}
+  <hr class="dv">
+  <div class="tg">
+    <div>
+      <div class="sl" style="margin-bottom:7px">Cycle of thirds</div>
+      ${chain}
+    </div>
+    <div>
+      <div class="sl">Triads</div>
+      <div class="gbox"><div class="glbl">Primary · 1 — 4 — 5</div><div class="trow">${pri.map(mkTriad).join('')}</div></div>
+      <div class="gbox"><div class="glbl">Secondary</div><div class="trow">${sec.map(mkTriad).join('')}</div></div>
+    </div>
+    <div>
+      <div class="sl">Tertian (R · 3 · 5)</div>
+      ${tert}
+    </div>
+  </div>
+  <div class="sl" style="text-align:center;margin-bottom:4px">Cycle of thirds — circular view</div>
+  <div class="cywrap">${cycleSVG(kd,cmap2)}</div>
+
+  <div class="sh"><span class="sn">§2</span><span class="st">Chord Shapes — 1 · 4 · 5</span></div>
+  ${chordsHtml}
+
+  <div class="sh"><span class="sn">§3</span><span class="st">Pentatonic Scales</span></div>
+  <div class="pblock pmaj">
+    <div class="pinfo">
+      <div><div class="ptitle">${key} major pentatonic</div><div class="pformula">${kd.mpF}</div><div class="pills">${mpP}</div></div>
+      <div class="pdesc">Brighter, more resolved. Good for melodic phrases over major chords. Derived by removing the 4th and 7th from the major scale.<div class="dpills">${mpD}</div></div>
+    </div>
+    <div class="fbwrap">${fretSVG(new Set(kd.mpIdx),ri,'#c97b20')}</div>
+  </div>
+  <div class="pblock pmin">
+    <div class="pinfo">
+      <div><div class="ptitle">${key} minor pentatonic</div><div class="pformula">${kd.mnF}</div><div class="pills">${mnP}</div></div>
+      <div class="pdesc">Darker, bluesier. The go-to scale for soloing over 1–4–5. The b3 clashing against the major chord's 3rd is the core blues tension.<div class="dpills">${mnD}</div></div>
+    </div>
+    <div class="fbwrap">${fretSVG(new Set(kd.mnIdx),ri,'#1e5fa8')}</div>
+  </div>
+  <hr class="dv">
+  <div class="sl" style="margin-bottom:7px">Scale comparison</div>
+  ${comp}
+  <div class="insight"><div class="insight-t">Blues tension</div><div class="insight-b">${kd.insight}</div></div>
+  <hr class="dv">
+  <div class="legend">${leg}</div>
+</div>`;
+}
+
+document.getElementById('content').innerHTML=
+  renderKey('A')+renderKey('E')+renderKey('C');
+
+// Hide E and C on load
+['E','C'].forEach(k=>document.getElementById('key-'+k).style.display='none');
+
+// Tab switching
+document.querySelectorAll('.tab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    ['A','E','C'].forEach(k=>{
+      document.getElementById('key-'+k).style.display=btn.dataset.key===k?'block':'none';
+    });
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+});
+</script>
+</body>
+</html>
