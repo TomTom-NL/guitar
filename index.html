@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Blues Reference — A · E · C</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="header-top"><h1>Blues Reference</h1></div>
+  <nav class="tabs">
+    <button class="tab active" data-key="A">A</button>
+    <button class="tab" data-key="E">E</button>
+    <button class="tab" data-key="C">C</button>
+  </nav>
+</header>
+<div class="page" id="content"></div>
+<script src="data.js"></script>
+<script src="engine.js"></script>
+<script>
+  document.getElementById('content').innerHTML = renderKey('A') + renderKey('E') + renderKey('C');
+  ['E', 'C'].forEach(k => document.getElementById('key-' + k).style.display = 'none');
+  document.querySelectorAll('.tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      ['A', 'E', 'C'].forEach(k => document.getElementById('key-' + k).style.display = btn.dataset.key === k ? 'block' : 'none');
+    });
+  });
+</script>
+</body>
+</html>
