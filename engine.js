@@ -116,7 +116,7 @@ function cycleSVG(kd, cmap, cints) {
 
 function overlayFretSVG(kd, ri, key) {
   const mpSet = new Set(kd.mpIdx), mnSet = new Set(kd.mnIdx);
-  const SHARED='#2d7a2d', MAJ='#c97b20', MIN='#1e5fa8';
+  const SHARED='#2d7a2d', MAJ='#c97b20', MIN='#6b2d8b', BLUES='#1e5fa8';
   const NX=68, FW=57, SS=36, TY=70, R=13;
   const sy = i => TY + (5-i)*SS;
   const nx = f => f === 0 ? NX-28 : NX + (f-0.5)*FW;
@@ -148,6 +148,19 @@ function overlayFretSVG(kd, ri, key) {
       if (ir) s += `<circle cx="${x}" cy="${y}" r="${R+4}" fill="none" stroke="${col}" stroke-width="1" opacity="0.3"/>`;
       s += `<circle cx="${x}" cy="${y}" r="${R}" fill="${col}"/>`;
       if (ir) s += `<circle cx="${x}" cy="${y}" r="${R}" fill="none" stroke="white" stroke-width="1.8"/>`;
+      s += `<text x="${x}" y="${y+4}" text-anchor="middle" font-size="${fs}" fill="white" font-weight="700" font-family="Courier New">${n}</text>`;
+      s += `</g>`;
+    }
+  }
+  // Blues note (b5) — rendered on top, hidden by default
+  for (let i = 0; i < 6; i++) {
+    for (let f = 0; f <= 12; f++) {
+      const ni = (OS[i]+f) % 12;
+      if (ni !== kd.bluesIdx) continue;
+      const x = Math.round(nx(f)), y = Math.round(sy(i)), n = NN[ni], fs = n.length > 1 ? 8 : 9;
+      s += `<g class="fb-dot" data-type="blues" style="opacity:0;transition:opacity 0.18s">`;
+      s += `<circle cx="${x}" cy="${y}" r="${R}" fill="${BLUES}"/>`;
+      s += `<circle cx="${x}" cy="${y}" r="${R}" fill="none" stroke="white" stroke-width="1.8" stroke-dasharray="3 2"/>`;
       s += `<text x="${x}" y="${y+4}" text-anchor="middle" font-size="${fs}" fill="white" font-weight="700" font-family="Courier New">${n}</text>`;
       s += `</g>`;
     }
@@ -295,14 +308,18 @@ function renderKey(key) {
     <button id="btn-maj-${key}" onclick="togglePent('${key}','maj')" style="display:flex;align-items:center;gap:8px;padding:8px 16px;border:2px solid #c97b20;background:#fdf0dc;border-radius:6px;cursor:pointer;font-family:'Courier New',monospace;font-size:12px;font-weight:700;color:#8a5010;transition:opacity 0.15s">
       <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#c97b20"></span>Major pentatonic — ${kd.mpN.join(' ')}
     </button>
-    <button id="btn-min-${key}" onclick="togglePent('${key}','min')" style="display:flex;align-items:center;gap:8px;padding:8px 16px;border:2px solid #1e5fa8;background:#ddeaf8;border-radius:6px;cursor:pointer;font-family:'Courier New',monospace;font-size:12px;font-weight:700;color:#133f75;transition:opacity 0.15s">
-      <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#1e5fa8"></span>Minor pentatonic — ${kd.mnN.join(' ')}
+    <button id="btn-min-${key}" onclick="togglePent('${key}','min')" style="display:flex;align-items:center;gap:8px;padding:8px 16px;border:2px solid #6b2d8b;background:#ede4f5;border-radius:6px;cursor:pointer;font-family:'Courier New',monospace;font-size:12px;font-weight:700;color:#4a1a6b;transition:opacity 0.15s">
+      <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#6b2d8b"></span>Minor pentatonic — ${kd.mnN.join(' ')}
+    </button>
+    <button id="btn-blues-${key}" onclick="togglePent('${key}','blues')" style="display:flex;align-items:center;gap:8px;padding:8px 16px;border:2px solid #1e5fa8;background:#ddeaf8;border-radius:6px;cursor:pointer;font-family:'Courier New',monospace;font-size:12px;font-weight:700;color:#133f75;opacity:0.35;transition:opacity 0.15s">
+      <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#1e5fa8"></span>Blues note — ${NN[kd.bluesIdx]} (b5)
     </button>
   </div>
   <div style="display:flex;gap:18px;margin-bottom:10px;font-size:11px;flex-wrap:wrap">
     <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:#c97b20"></span>Major only</span>
-    <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:#1e5fa8"></span>Minor only</span>
+    <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:#6b2d8b"></span>Minor only</span>
     <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:#2d7a2d"></span>In both</span>
+    <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:#1e5fa8"></span>Blues note (b5)</span>
   </div>
   <div style="border:1.5px solid var(--faint);border-radius:6px;overflow-x:auto">${overlayFretSVG(kd,ri,key)}</div>
   <hr class="dv">
