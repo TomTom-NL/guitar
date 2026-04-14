@@ -155,9 +155,9 @@ hr.dv{border:none;border-top:1px solid var(--faint);margin:18px 0}
     <span class="sub">scale · chords · pentatonic</span>
   </div>
   <nav class="tabs">
-    <button class="tab active" data-key="A">Blues in A</button>
-    <button class="tab" data-key="E">Blues in E</button>
-    <button class="tab" data-key="C">Blues in C</button>
+    <button class="tab active" data-key="A">A Major Scale</button>
+    <button class="tab" data-key="C">C Major Scale</button>
+    <button class="tab" data-key="C">C Major Scale</button>
   </nav>
 </header>
 <div class="page" id="content"></div>
@@ -170,7 +170,7 @@ const DC=['#1a5291','#0e7a7a','#8b5e00','#6b2d8b','#2d6a1e','#b83800','#555'];
 const DB=['rgba(26,82,145,0.13)','rgba(14,122,122,0.11)','rgba(139,94,0,0.11)','rgba(107,45,139,0.11)','rgba(45,106,30,0.11)','rgba(184,56,0,0.11)','rgba(0,0,0,0.05)'];
  
 const KEYS={
-  A:{root:'A',full:'Blues in A',scale:['A','B','C#','D','E','F#','G#'],
+  A:{root:'A',full:'A Major Scale',scale:['A','B','C#','D','E','F#','G#'],
     triads:[{c:'A',q:'maj',n:['A','C#','E'],r:'I'},{c:'Bm',q:'min',n:['B','D','F#'],r:'ii'},{c:'C#m',q:'min',n:['C#','E','G#'],r:'iii'},{c:'D',q:'maj',n:['D','F#','A'],r:'IV'},{c:'E',q:'maj',n:['E','G#','B'],r:'V'},{c:'F#m',q:'min',n:['F#','A','C#'],r:'vi'},{c:'G#°',q:'dim',n:['G#','B','D'],r:'vii°'}],
     cycle:['A','C#','E','G#','B','D','F#'],
     mpIdx:[9,11,1,4,6],mpN:['A','B','C#','E','F#'],mpF:'1 — 2 — 3 — 5 — 6',mpD:['1=A','2=B','3=C#','5=E','6=F#'],
@@ -188,7 +188,7 @@ const KEYS={
        open:{lbl:'open · 022100',sf:0,mu:[],dots:[{s:1,f:2},{s:2,f:2},{s:3,f:1}],br:null},
        barre:{lbl:'barre 7fr · A shape',sf:7,mu:[0],dots:[{s:2,f:9},{s:3,f:9},{s:4,f:9}],br:{f:7,a:1,b:5}}}]},
  
-  E:{root:'E',full:'Blues in E',scale:['E','F#','G#','A','B','C#','D#'],
+  E:{root:'E',full:'E Major Scale',scale:['E','F#','G#','A','B','C#','D#'],
     triads:[{c:'E',q:'maj',n:['E','G#','B'],r:'I'},{c:'F#m',q:'min',n:['F#','A','C#'],r:'ii'},{c:'G#m',q:'min',n:['G#','B','D#'],r:'iii'},{c:'A',q:'maj',n:['A','C#','E'],r:'IV'},{c:'B',q:'maj',n:['B','D#','F#'],r:'V'},{c:'C#m',q:'min',n:['C#','E','G#'],r:'vi'},{c:'D#°',q:'dim',n:['D#','F#','A'],r:'vii°'}],
     cycle:['E','G#','B','D#','F#','A','C#'],
     mpIdx:[4,6,8,11,1],mpN:['E','F#','G#','B','C#'],mpF:'1 — 2 — 3 — 5 — 6',mpD:['1=E','2=F#','3=G#','5=B','6=C#'],
@@ -206,7 +206,7 @@ const KEYS={
        open:{lbl:'x24442 · A shape 2fr',sf:2,mu:[0],dots:[{s:2,f:4},{s:3,f:4},{s:4,f:4}],br:{f:2,a:1,b:5}},
        barre:{lbl:'barre 7fr · E shape',sf:7,mu:[],dots:[{s:1,f:9},{s:2,f:9},{s:3,f:8}],br:{f:7,a:0,b:5}}}]},
  
-  C:{root:'C',full:'Blues in C',scale:['C','D','E','F','G','A','B'],
+  C:{root:'C',full:'C Major Scale',scale:['C','D','E','F','G','A','B'],
     triads:[{c:'C',q:'maj',n:['C','E','G'],r:'I'},{c:'Dm',q:'min',n:['D','F','A'],r:'ii'},{c:'Em',q:'min',n:['E','G','B'],r:'iii'},{c:'F',q:'maj',n:['F','A','C'],r:'IV'},{c:'G',q:'maj',n:['G','B','D'],r:'V'},{c:'Am',q:'min',n:['A','C','E'],r:'vi'},{c:'B°',q:'dim',n:['B','D','F'],r:'vii°'}],
     cycle:['C','E','G','B','D','F','A'],
     mpIdx:[0,2,4,7,9], mpN:['C','D','E','G','A'],  mpF:'1 — 2 — 3 — 5 — 6', mpD:['1=C','2=D','3=E','5=G','6=A'],
