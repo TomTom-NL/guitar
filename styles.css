@@ -1,41 +1,56 @@
 :root {
-  --bg:#fdf9ef;--surface:#f7f2e3;--ink:#1c1a14;--ink2:#4a4639;
-  --faint:#e2ddd0;--faint2:#ece8da;
-  --mc:#c97b20;--mk:#8a5010;--ml:#fdf0dc;
-  --nc:#1e5fa8;--nk:#133f75;--nl:#ddeaf8;
-  --qmb:#dceaf7;--qmd:#9bbcd8;
-  --qnb:#ede8f5;--qnd:#b9add4;
-  --qdb:#fde8e8;--qdd:#d8a9a9;
-  --blue-note-color: #6a1eb8; /* New Blue Note Color */
+    --main-bg-color: #f0f0f0;
+    --main-font-color: #333;
+    --secondary-bg-color: #ffffff;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--bg); color: var(--ink); font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.5; }
-.site-header { background: var(--ink); color: #f5f0e0; padding: 16px 28px 0; position: sticky; top: 0; z-index: 100; }
-.header-top { display: flex; align-items: baseline; gap: 14px; margin-bottom: 14px; }
-.site-header h1 { font-family: Georgia, serif; font-size: 20px; font-weight: 700; }
-.site-header .sub { font-size: 12px; opacity: 0.4; }
-.tabs { display: flex; gap: 2px; }
-.tab { background: none; border: none; color: rgba(245,240,224,0.45); font-family: 'Courier New', monospace; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; padding: 9px 22px 11px; cursor: pointer; border-bottom: 3px solid transparent; transition: color 0.15s, border-color 0.15s; white-space: nowrap; }
-.tab:hover { color: rgba(245,240,224,0.8); }
-.tab.active { color: #f5f0e0; border-bottom-color: #c97b20; }
-.page { max-width: 960px; margin: 0 auto; padding: 0 28px 60px; }
 
-/* Section Logic */
-.sh { display: flex; align-items: center; gap: 10px; margin: 28px 0 16px; padding-bottom: 7px; border-bottom: 1.5px solid var(--faint); }
-.st { font-family: Georgia, serif; font-size: 15px; font-weight: 700; }
-.sl { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; opacity: 0.42; margin-bottom: 6px; }
+/* Key Section Styling */
+.key {
+    background-color: var(--main-bg-color);
+    color: var(--main-font-color);
+}
 
-/* Fretboard Logic */
-.fb-dot { transition: opacity 0.18s; }
+/* Scale Rows */
+.scale-row {
+    display: flex;
+    justify-content: space-evenly;
+}
 
-/* Blue Note Toggle Switch */
-.switch { position: relative; display: inline-block; width: 40px; height: 20px; }
-.switch input { opacity: 0; width: 0; height: 0; }
-.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 20px; }
-.slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-input:checked + .slider { background-color: var(--blue-note-color); }
-input:checked + .slider:before { transform: translateX(20px); }
+/* Interval Chains */
+.interval-chain {
+    padding: 10px;
+    border: 1px solid var(--main-font-color);
+}
 
-/* Blue Note Target Visibility */
-.blue-note-target { display: none; }
-body.show-blues .blue-note-target { display: block; }
+/* Triads */
+.triad {
+    background-color: var(--secondary-bg-color);
+}
+
+/* Tertian Tables */
+.tertian-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* Chords */
+.chord {
+    color: var(--main-font-color);
+}
+
+/* Pentatonic Blocks */
+.pentatonic-block {
+    display: inline-block;
+    margin: 5px;
+}
+
+/* Comparison Tables */
+.comparison-table {
+    width: 100%;
+    border: 2px solid #000;
+}
+
+/* Other Styles */
+.other-style {
+    font-size: 16px;
+}
