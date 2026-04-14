@@ -120,9 +120,9 @@ hr.dv{border:none;border-top:1px solid var(--faint);margin:18px 0}
 /* comparison */
 .ct{width:100%;border-collapse:collapse;font-size:11px}
 .ct th{padding:5px 9px;text-align:left;border-bottom:1.5px solid var(--ink);font-size:9px;letter-spacing:0.5px;text-transform:uppercase;opacity:0.48}
+.ct th:first-child{text-align:center;width:50px}
 .ct td{padding:5px 9px;border-bottom:1px solid var(--faint2);vertical-align:middle}
-.ct .cdeg{text-align:center;font-weight:700;width:44px}
-.ct .sh td{background:rgba(0,0,0,0.022)}
+.ct .cdeg{text-align:center;font-weight:700}
 .mn{opacity:0.2}
 .tag{display:inline-block;font-size:10px;padding:1px 6px;border-radius:8px;font-weight:700;color:white}
 .tag.tm{background:var(--mc)}.tag.tn{background:var(--nc)}
@@ -463,9 +463,9 @@ function renderKey(key){
   // Comparison table
   let comp=`<table class="ct"><thead><tr><th class="cdeg">Deg</th><th>${key} major pent</th><th>${key} minor pent</th><th>Note</th></tr></thead><tbody>`;
   kd.comp.forEach(r=>{
-    const mj=r.mj?(r.sh?`<span class="tag tm">${r.mj}</span>`:`<span style="color:var(--mk);font-weight:700">${r.mj}</span>`):`<span class="mn">—</span>`;
-    const mn=r.mn?(r.sh?`<span class="tag tn">${r.mn}</span>`:`<span style="color:var(--nk);font-weight:700">${r.mn}</span>`):`<span class="mn">—</span>`;
-    comp+=`<tr class="${r.sh?'sh':''}"><td class="cdeg">${r.d}</td><td>${mj}</td><td>${mn}</td><td style="font-size:10px;opacity:0.58">${r.t}</td></tr>`;
+    const mj=r.mj?`<b style="color:var(--mk)">${r.mj}</b>`:`<span style="opacity:0.2">—</span>`;
+    const mn=r.mn?`<b style="color:var(--nk)">${r.mn}</b>`:`<span style="opacity:0.2">—</span>`;
+    comp+=`<tr><td class="cdeg">${r.d}</td><td>${mj}</td><td>${mn}</td><td style="font-size:10px;opacity:0.58">${r.t}</td></tr>`;
   });
   comp+=`</tbody></table>`;
 
