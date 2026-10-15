@@ -8,7 +8,7 @@
 function pageHead(id, letter, title, sub) {
   return `<div class="key-section" id="key-${id}">
   <div class="key-banner">
-    <div class="key-letter">${letter}</div>
+    <div class="key-letter" aria-hidden="true">${letter}</div>
     <div class="key-info"><div class="key-name">${title}</div><div class="key-sub">${sub}</div></div>
   </div>`;
 }
@@ -62,6 +62,7 @@ function prettifyAccidentals(root) {
 function noteMapSVG(marks, opts = {}) {
   const R = FB.R;
   let s = fretboardBase(opts.frets);
+  const hasDeg = Object.values(marks).some(m => m.deg);
   eachPosition((i, f, ni, x, y) => {
     const m = marks[ni];
     if (!m) return;
@@ -70,13 +71,33 @@ function noteMapSVG(marks, opts = {}) {
     if (ring) s += `<circle cx="${x}" cy="${y}" r="${R+4}" fill="none" stroke="${m.col}" stroke-width="1" opacity="0.4"/>`;
     s += `<circle cx="${x}" cy="${y}" r="${R}" fill="${m.col}" opacity="${op}"/>`;
     if (ring) s += `<circle cx="${x}" cy="${y}" r="${R}" fill="none" stroke="white" stroke-width="1.8"/>`;
-    s += `<text x="${x}" y="${y+4}" text-anchor="middle" font-size="${m.label.length > 2 ? 7 : m.label.length > 1 ? 8 : 9}" fill="white" font-weight="700" font-family="Courier New"${op < 0.5 ? ' opacity="0.5"' : ''}>${m.label}</text>`;
+    // faded dots near the nut sit on the light page, so they get dark text
+    const fill = op < 1 && f === 0 ? (op < 0.5 ? COL.mute : 'var(--ink)') : 'white';
+    const text = (t, cls) => `<text class="${cls}" x="${x}" y="${y+4}" text-anchor="middle" font-size="${t.length > 2 ? 8 : t.length > 1 ? 9 : 10}" fill="${fill}" font-weight="700" font-family="Courier New"${op < 0.5 && f > 0 ? ' opacity="0.6"' : ''}>${t}</text>`;
+    s += text(m.label, 'lbl-n');
+    if (m.deg) s += text(degLabel(m.deg), 'lbl-d');
   }, opts.frets);
-  return `<div class="fb-wrap">${s}</svg></div>`;
+  return `${hasDeg ? degToggle() : ''}<div class="fb-wrap">${s}</svg></div>`;
 }
 
+// ── Notes / degrees toggle ──────────────────────────────────────────────────
+// Fretboard dots carry both labels; one switch (remembered) shows note names or
+// scale degrees on every fretboard, so the colour coding never stands alone.
+
+function degLabel(d) { return d.replace(/^bb/, '𝄫').replace(/^b/, '♭').replace(/^#/, '♯'); }
+function degToggle() { return `<div class="fb-tools"><button type="button" class="deg-toggle">Show degrees</button></div>`; }
+
+function setDegreeMode(on) {
+  document.body.classList.toggle('show-deg', on);
+  document.querySelectorAll('.deg-toggle').forEach(b => b.textContent = on ? 'Show note names' : 'Show degrees (1, ♭3, 5…)');
+  try { localStorage.setItem('atlas:deg', on ? '1' : ''); } catch (e) {}
+}
+document.addEventListener('click', e => {
+  if (e.target.closest('.deg-toggle')) setDegreeMode(!document.body.classList.contains('show-deg'));
+});
+
 // Colour per scale degree number (1–7), shared by the theory pages
-const DEG_COL = {1:'#1a5291', 2:'#0e7a7a', 3:'#8b5e00', 4:'#6b2d8b', 5:'#2d6a1e', 6:'#b83800', 7:'#555'};
+const DEG_COL = COL.deg;
 function degNum(deg) { return ((parseDeg(deg).num - 1) % 7) + 1; }
 
 // Marks for a scale/chord: notes coloured by degree, root ringed
@@ -84,7 +105,7 @@ function degreeMarks(root, degs, opts = {}) {
   const marks = {};
   degs.forEach(d => {
     const n = spellDeg(root, d);
-    marks[pcOf(n)] = {label: n, col: (opts.colorOf || (dd => DEG_COL[degNum(dd)]))(d), root: d === '1', faint: opts.faint && opts.faint(d)};
+    marks[pcOf(n)] = {label: n, deg: d, col: (opts.colorOf || (dd => DEG_COL[degNum(dd)]))(d), root: d === '1', faint: opts.faint && opts.faint(d)};
   });
   return marks;
 }
@@ -129,6 +150,7 @@ function renderExplorer(el) {
   const out = el.querySelector('.ex-out');
   out.innerHTML = EXPLORERS[el.dataset.explorer].render(readState(el));
   prettifyAccidentals(out);
+  out.querySelectorAll('.deg-toggle').forEach(b => b.textContent = document.body.classList.contains('show-deg') ? 'Show note names' : 'Show degrees (1, ♭3, 5…)');
 }
 
 // ── Progress (stored in this browser only) ──────────────────────────────────

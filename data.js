@@ -4,13 +4,24 @@ const NN = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 const OS = [4,9,2,7,11,4];            // open string semitone offsets E A D G B e
 const SL = ['E','A','D','G','B','e']; // string labels
 
-// 7 degree colours (root → 7th)
-const DC = ['#1a5291','#0e7a7a','#8b5e00','#6b2d8b','#2d6a1e','#b83800','#555'];
-const DB = [
-  'rgba(26,82,145,0.13)','rgba(14,122,122,0.11)','rgba(139,94,0,0.11)',
-  'rgba(107,45,139,0.11)','rgba(45,106,30,0.11)','rgba(184,56,0,0.11)',
-  'rgba(0,0,0,0.05)'
-];
+// ── Colour palette ───────────────────────────────────────────────────────────
+// Every colour that carries meaning comes from here. Each one reads at 4.5:1 or
+// better as text on the cream page and behind white note labels, and the seven
+// degree colours stay distinct (ΔE ≥ 15) for normal, deuteranope and protanope
+// vision. tests/contrast-check.js re-measures this; tests/palette-search.js is
+// the search that informed it.
+const COL = {
+  deg: {1:'#1d5fa6', 2:'#00756e', 3:'#b84000', 4:'#6b2368', 5:'#3b5323', 6:'#4b4fbf', 7:'#1f1f1f'},
+  out: '#6e6e6e',      // notes outside the key / scale
+  mute: '#5c5547',     // secondary text and diagram labels
+  accent: '#b84000',   // the one note being pointed at (interval target, mode's character note)
+  major: '#b84000', minor: '#6b2368', both: '#3b5323', blues: '#1d5fa6',   // pentatonic overlay
+  T: '#1d5fa6', S: '#3b5323', D: '#b84000',                                // chord functions
+};
+
+// 7 degree colours (root → 7th) and light tints of them for backgrounds
+const DC = [1,2,3,4,5,6,7].map(d => COL.deg[d]);
+const DB = DC.map(h => `rgba(${[1,3,5].map(i => parseInt(h.slice(i, i + 2), 16)).join(',')},0.10)`);
 
 // ── Key data ─────────────────────────────────────────────────────────────────
 
@@ -137,7 +148,7 @@ function cm(scale) {
 }
 
 // Look up a note's colour in a map, fallback grey
-function gc(n, m) { return m[n]?.c || '#888'; }
+function gc(n, m) { return m[n]?.c || COL.out; }
 
 // Resolve the note name at a string/fret position given a chord config
 function nat(s, cfg) {

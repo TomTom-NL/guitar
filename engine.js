@@ -3,25 +3,25 @@
 function chordSVG(cfg, cmap) {
   const sx = [22,51,80,109,138,167];
   let s = `<svg viewBox="0 0 195 218" style="width:100%;max-width:162px">`;
-  SL.forEach((l,i) => s += `<text x="${sx[i]}" y="13" text-anchor="middle" font-size="9" fill="#999" font-family="Courier New">${l}</text>`);
+  SL.forEach((l,i) => s += `<text x="${sx[i]}" y="13" text-anchor="middle" font-size="10" fill="${COL.mute}" font-family="Courier New">${l}</text>`);
   for (let i = 0; i <= 4; i++) {
     const y = 48 + 32*i, isN = (cfg.sf === 0 && i === 0);
     s += `<line x1="${sx[0]}" y1="${y}" x2="${sx[5]}" y2="${y}" stroke="${isN?'#1c1a14':'#ccc'}" stroke-width="${isN?3.5:0.8}" stroke-linecap="round"/>`;
   }
   sx.forEach(x => s += `<line x1="${x}" y1="48" x2="${x}" y2="176" stroke="#ccc" stroke-width="0.9"/>`);
-  if (cfg.sf > 0) s += `<text x="187" y="${dy(cfg.sf,cfg.sf)+4}" text-anchor="middle" font-size="9" fill="#aaa" font-family="Courier New">${cfg.sf}fr</text>`;
+  if (cfg.sf > 0) s += `<text x="187" y="${dy(cfg.sf,cfg.sf)+4}" text-anchor="middle" font-size="10" fill="${COL.mute}" font-family="Courier New">${cfg.sf}fr</text>`;
   for (let f = 1; f <= 4; f++) {
     const a = cfg.sf === 0 ? f : cfg.sf + f - 1;
-    s += `<text x="10" y="${dy(a,cfg.sf)+4}" text-anchor="middle" font-size="8" fill="#ccc" font-family="Courier New">${f}</text>`;
+    s += `<text x="10" y="${dy(a,cfg.sf)+4}" text-anchor="middle" font-size="10" fill="${COL.mute}" font-family="Courier New">${f}</text>`;
   }
   for (let i = 0; i < 6; i++) {
     const n = nat(i,cfg), hd = cfg.dots.find(d => d.s === i), ib = cfg.br && i >= cfg.br.a && i <= cfg.br.b;
     if (!n && cfg.mu.includes(i)) {
-      s += `<text x="${sx[i]}" y="33" text-anchor="middle" font-size="12" fill="#aaa">✕</text>`;
+      s += `<text x="${sx[i]}" y="33" text-anchor="middle" font-size="12" fill="${COL.mute}">✕</text>`;
     } else if (n && !hd && !ib) {
       const col = gc(n,cmap);
-      s += `<circle cx="${sx[i]}" cy="33" r="7" fill="none" stroke="${col}" stroke-width="1.5"/>`;
-      s += `<text x="${sx[i]}" y="37" text-anchor="middle" font-size="7" fill="${col}" font-weight="700" font-family="Courier New">${n}</text>`;
+      s += `<circle cx="${sx[i]}" cy="33" r="8.5" fill="none" stroke="${col}" stroke-width="1.5"/>`;
+      s += `<text x="${sx[i]}" y="37" text-anchor="middle" font-size="8" fill="${col}" font-weight="700" font-family="Courier New">${n}</text>`;
     }
   }
   if (cfg.br) {
@@ -29,16 +29,16 @@ function chordSVG(cfg, cmap) {
     s += `<rect x="${sx[cfg.br.a]-10}" y="${by-9}" width="${sx[cfg.br.b]-sx[cfg.br.a]+20}" height="18" rx="9" fill="#555" opacity="0.7"/>`;
   }
   cfg.dots.forEach(dot => {
-    const x = sx[dot.s], y = dy(dot.f,cfg.sf), n = noteAt(dot.s, dot.f, cfg.names), col = gc(n,cmap), fs = n.length > 1 ? 7.5 : 9;
+    const x = sx[dot.s], y = dy(dot.f,cfg.sf), n = noteAt(dot.s, dot.f, cfg.names), col = gc(n,cmap), fs = n.length > 1 ? 8.5 : 10;
     s += `<circle cx="${x}" cy="${y}" r="12" fill="${col}"/>`;
     s += `<text x="${x}" y="${y+4}" text-anchor="middle" font-size="${fs}" fill="white" font-weight="700" font-family="Courier New">${n}</text>`;
   });
   const ns = Array.from({length:6}, (_,i) => nat(i,cfg));
   ns.forEach((n,i) => {
-    if (!n) s += `<text x="${sx[i]}" y="195" text-anchor="middle" font-size="8" fill="#ccc" font-family="Courier New">—</text>`;
-    else { const col = gc(n,cmap); s += `<text x="${sx[i]}" y="195" text-anchor="middle" font-size="9" fill="${col}" font-weight="700" font-family="Courier New">${n}</text>`; }
+    if (!n) s += `<text x="${sx[i]}" y="195" text-anchor="middle" font-size="10" fill="${COL.mute}" font-family="Courier New">—</text>`;
+    else { const col = gc(n,cmap); s += `<text x="${sx[i]}" y="195" text-anchor="middle" font-size="10" fill="${col}" font-weight="700" font-family="Courier New">${n}</text>`; }
   });
-  s += `<text x="${(sx[0]+sx[5])/2}" y="212" text-anchor="middle" font-size="8" fill="#bbb" font-family="Courier New">${ns.filter(Boolean).join(' · ')}</text>`;
+  s += `<text x="${(sx[0]+sx[5])/2}" y="212" text-anchor="middle" font-size="9" fill="${COL.mute}" font-family="Courier New">${ns.filter(Boolean).join(' · ')}</text>`;
   return s + `</svg>`;
 }
 
@@ -51,13 +51,13 @@ function cycleSVG(kd, cints) {
     return {x: cx + r*Math.cos(a), y: cy + r*Math.sin(a)};
   });
   const ints = cints || ['Maj3','Min3','Maj3','Min3','Min3','Maj3','Min3'];
-  const ic = ints.map(x => x === 'Maj3' ? '#8b5e00' : '#555');
+  const ic = ints.map(x => x === 'Maj3' ? COL.accent : COL.mute);
   const dl = ['root','3rd','5th','7th','2nd','4th','6th'];
   const cc = {0: DC[0], 2: DC[4], 5: DC[3]};
   let s = `<svg viewBox="0 0 ${sz} ${sz}" style="width:100%;max-width:248px">`;
   s += `<circle cx="${cx}" cy="${cy}" r="38" fill="var(--surface)" stroke="var(--faint)" stroke-width="1"/>`;
-  s += `<text x="${cx}" y="${cy-5}" text-anchor="middle" font-size="9" fill="#aaa" font-family="Courier New">cycle of</text>`;
-  s += `<text x="${cx}" y="${cy+8}" text-anchor="middle" font-size="9" fill="#aaa" font-family="Courier New">thirds</text>`;
+  s += `<text x="${cx}" y="${cy-5}" text-anchor="middle" font-size="10" fill="${COL.mute}" font-family="Courier New">cycle of</text>`;
+  s += `<text x="${cx}" y="${cy+8}" text-anchor="middle" font-size="10" fill="${COL.mute}" font-family="Courier New">thirds</text>`;
   for (let i = 0; i < 7; i++) {
     const j = (i+1)%7, p = pts[i], q = pts[j];
     s += `<line x1="${p.x.toFixed(1)}" y1="${p.y.toFixed(1)}" x2="${q.x.toFixed(1)}" y2="${q.y.toFixed(1)}" stroke="var(--faint)" stroke-width="1"/>`;
@@ -65,13 +65,13 @@ function cycleSVG(kd, cints) {
   for (let i = 0; i < 7; i++) {
     const j = (i+1)%7, p = pts[i], q = pts[j], mx = (p.x+q.x)/2, my = (p.y+q.y)/2;
     s += `<rect x="${(mx-14).toFixed(1)}" y="${(my-7).toFixed(1)}" width="28" height="13" rx="3" fill="var(--bg)" stroke="var(--faint)" stroke-width="0.5"/>`;
-    s += `<text x="${mx.toFixed(1)}" y="${(my+4).toFixed(1)}" text-anchor="middle" font-size="7.5" fill="${ic[i]}" font-weight="700" font-family="Courier New">${ints[i]}</text>`;
+    s += `<text x="${mx.toFixed(1)}" y="${(my+4).toFixed(1)}" text-anchor="middle" font-size="8.5" fill="${ic[i]}" font-weight="700" font-family="Courier New">${ints[i]}</text>`;
   }
   for (let i = 0; i < 7; i++) {
-    const p = pts[i], n = kd.cycle[i], fill = cc[i]||'white', tc = cc[i]?'white':'var(--ink)', sc2 = cc[i]?'rgba(255,255,255,0.6)':'var(--ink2)';
+    const p = pts[i], n = kd.cycle[i], fill = cc[i]||'white', tc = cc[i]?'white':'var(--ink)', sc2 = cc[i]?'rgba(255,255,255,0.92)':'var(--ink2)';
     s += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="19" fill="${fill}" stroke="var(--faint)" stroke-width="1.5"/>`;
     s += `<text x="${p.x.toFixed(1)}" y="${(p.y-3).toFixed(1)}" text-anchor="middle" font-size="11" fill="${tc}" font-weight="700" font-family="Courier New">${n}</text>`;
-    s += `<text x="${p.x.toFixed(1)}" y="${(p.y+9).toFixed(1)}" text-anchor="middle" font-size="7.5" fill="${sc2}" font-family="Courier New">${dl[i]}</text>`;
+    s += `<text x="${p.x.toFixed(1)}" y="${(p.y+9).toFixed(1)}" text-anchor="middle" font-size="8.5" fill="${sc2}" font-family="Courier New">${dl[i]}</text>`;
   }
   return s + `</svg>`;
 }
@@ -79,7 +79,7 @@ function cycleSVG(kd, cints) {
 // ── SVG: fretboard ───────────────────────────────────────────────────────────
 
 // Pentatonic overlay colours — keep in sync with --p* variables in styles.css
-const PENT_COL = {shared:'#2d7a2d', major:'#c97b20', minor:'#6b2d8b', blues:'#1e5fa8'};
+const PENT_COL = {shared: COL.both, major: COL.major, minor: COL.minor, blues: COL.blues};
 
 // Fretboard geometry, shared by the base drawing and the note dots
 const FB = {NX:68, FW:57, SS:36, TY:70, R:13};
@@ -102,10 +102,10 @@ function fretboardBase(frets = 12) {
     const y = FB.sy(i), t = [2,1.6,1.35,1.1,0.9,0.7][i];
     s += `<line x1="22" y1="${y}" x2="${NX}" y2="${y}" stroke="#777" stroke-width="${t}" opacity="0.5"/>`;
     s += `<line x1="${NX}" y1="${y}" x2="${FBR}" y2="${y}" stroke="rgba(210,185,120,0.38)" stroke-width="${t}"/>`;
-    s += `<text x="14" y="${y+4}" text-anchor="middle" font-size="11" fill="#888" font-family="Courier New" font-weight="700">${SL[i]}</text>`;
+    s += `<text x="14" y="${y+4}" text-anchor="middle" font-size="11" fill="${COL.mute}" font-family="Courier New" font-weight="700">${SL[i]}</text>`;
   }
-  s += `<text x="${NX-28}" y="${FBB+14}" text-anchor="middle" font-size="9" fill="#aaa" font-family="Courier New">0</text>`;
-  for (let f = 1; f <= frets; f++) s += `<text x="${NX+(f-0.5)*FW}" y="${FBB+14}" text-anchor="middle" font-size="9" fill="#aaa" font-family="Courier New">${f}</text>`;
+  s += `<text x="${NX-28}" y="${FBB+14}" text-anchor="middle" font-size="10" fill="${COL.mute}" font-family="Courier New">0</text>`;
+  for (let f = 1; f <= frets; f++) s += `<text x="${NX+(f-0.5)*FW}" y="${FBB+14}" text-anchor="middle" font-size="10" fill="${COL.mute}" font-family="Courier New">${f}</text>`;
   return s;
 }
 
@@ -122,7 +122,10 @@ function overlayFretSVG(kd, ri) {
   const mpSet = new Set(kd.mpIdx), mnSet = new Set(kd.mnIdx), R = FB.R;
   const names = [...kd.mpN, ...kd.mnN, spellDeg(kd.root, 'b5')];
   const nameOf = pc => names.find(n => pcOf(n) === pc) || NN[pc];
-  const label = (x, y, n) => `<text x="${x}" y="${y+4}" text-anchor="middle" font-size="${n.length > 1 ? 8 : 9}" fill="white" font-weight="700" font-family="Courier New">${n}</text>`;
+  // scale degree of each note relative to the key's root, for the degrees view
+  const degOf = pc => ['1','2','b3','3','4','b5','5','6','b7'].find(d => pcOf(spellDeg(kd.root, d)) === pc);
+  const text = (x, y, t, cls) => `<text class="${cls}" x="${x}" y="${y+4}" text-anchor="middle" font-size="${t.length > 1 ? 9 : 10}" fill="white" font-weight="700" font-family="Courier New">${t}</text>`;
+  const label = (x, y, n) => text(x, y, n, 'lbl-n') + text(x, y, degLabel(degOf(pcOf(n))), 'lbl-d');
   let s = fretboardBase();
   eachPosition((i, f, ni, x, y) => {
     const inM = mpSet.has(ni), inn = mnSet.has(ni);
@@ -233,9 +236,9 @@ function renderKey(key) {
   // Scale comparison table
   let comp = `<table class="ct"><thead><tr><th class="cdeg">Deg</th><th>${key} major pent</th><th>${key} minor pent</th><th>Note</th></tr></thead><tbody>`;
   kd.comp.forEach(r => {
-    const mj = r.mj ? `<b style="color:var(--pmaj-k)">${r.mj}</b>` : `<span style="opacity:0.2">—</span>`;
-    const mn = r.mn ? `<b style="color:var(--pmin-k)">${r.mn}</b>` : `<span style="opacity:0.2">—</span>`;
-    comp += `<tr><td class="cdeg">${r.d}</td><td>${mj}</td><td>${mn}</td><td style="font-size:10px;opacity:0.58">${r.t}</td></tr>`;
+    const mj = r.mj ? `<b style="color:var(--pmaj-k)">${r.mj}</b>` : `<span style="color:var(--mute)">—</span>`;
+    const mn = r.mn ? `<b style="color:var(--pmin-k)">${r.mn}</b>` : `<span style="color:var(--mute)">—</span>`;
+    comp += `<tr><td class="cdeg">${r.d}</td><td>${mj}</td><td>${mn}</td><td style="font-size:10px;color:var(--mute)">${r.t}</td></tr>`;
   });
   comp += `</tbody></table>`;
 
@@ -247,7 +250,7 @@ function renderKey(key) {
   return `
 <div class="key-section" id="key-${key}">
   <div class="key-banner">
-    <div class="key-letter">${key}</div>
+    <div class="key-letter" aria-hidden="true">${key}</div>
     <div class="key-info">
       <div class="key-name">${kd.full}</div>
       <div class="key-sub">${kd.scale.join(' — ')}</div>
@@ -260,7 +263,7 @@ function renderKey(key) {
   ${majorBlock}
   <div style="margin:24px 0 16px;display:flex;align-items:center;gap:12px">
     <hr style="flex:1;border:none;border-top:1px dashed var(--faint);margin:0">
-    <span style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;opacity:0.38;white-space:nowrap">Parallel minor · ${kd.rel.name}</span>
+    <span style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mute);white-space:nowrap">Parallel minor · ${kd.rel.name}</span>
     <hr style="flex:1;border:none;border-top:1px dashed var(--faint);margin:0">
   </div>
   ${LEARN.parallelMinor(kd)}
@@ -294,7 +297,7 @@ function renderKey(key) {
     <span class="both"><span class="sw"></span>In both</span>
     <span class="blues"><span class="sw"></span>Blues note (b5)</span>
   </div>
-  <div class="fb-wrap">${overlayFretSVG(kd,ri)}</div>
+  ${degToggle()}<div class="fb-wrap">${overlayFretSVG(kd,ri)}</div>
   <hr class="dv">
   ${LEARN.comparison(kd)}
   <div class="sl" style="margin-bottom:7px">Scale comparison</div>
