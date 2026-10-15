@@ -39,6 +39,8 @@ document.getElementById('content').innerHTML = PAGES.map(p => p.render(p.id)).jo
 
 function showKey(key) {
   document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.dataset.key === key));
+  // On phones the tab bar scrolls sideways; keep the active tab visible
+  document.querySelector(`.tab[data-key="${key}"]`).scrollIntoView({block: 'nearest', inline: 'nearest'});
   PAGES.forEach(p => {
     document.getElementById('key-' + p.id).style.display = p.id === key ? 'block' : 'none';
   });
