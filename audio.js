@@ -109,6 +109,37 @@ function pluck(midi, t, dur, gain = 0.4, opts = {}) {
   voices.push(src);
 }
 
+// Continuous drone: a soft sustained tone with no re-attacks (a plucked note
+// re-triggered under a scale sounds like stray "ghost" notes)
+function droneTone(midi, t, len, level = 0.07) {
+  const {ctx, out} = AUDIO, f = 440 * Math.pow(2, (midi - 69) / 12);
+  const g = ctx.createGain(), lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass'; lp.frequency.value = Math.min(1200, f * 6); lp.Q.value = 0.4;
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(level, t + 0.4);
+  g.gain.setValueAtTime(level, t + Math.max(0.5, len - 0.6));
+  g.gain.exponentialRampToValueAtTime(0.0001, t + len);
+  [['sawtooth', 1, 0.5], ['sine', 1, 1], ['sine', 2, 0.3]].forEach(([type, mult, lvl]) => {
+    const o = ctx.createOscillator(), og = ctx.createGain();
+    o.type = type; o.frequency.value = f * mult; og.gain.value = lvl;
+    o.connect(og); og.connect(lp);
+    o.start(t); o.stop(t + len + 0.05);
+    voices.push(o);
+  });
+  lp.connect(g); g.connect(out);
+}
+
+// Scale notes legato: each note sounds until the next one starts (like fretting
+// the next note), the last one rings out. Returns the end time.
+function legatoRun(midis, t0, step, onNote) {
+  midis.forEach((m, i) => {
+    const last = i === midis.length - 1;
+    pluck(m, t0 + i * step, last ? 1.6 : step + 0.05, 0.45);
+    if (onNote) onNote(i, t0 + i * step);
+  });
+  return t0 + step * (midis.length - 1) + 1.6;
+}
+
 // MIDI number of a spelled note in a given octave (C4 = 60); B# and Cb cross octaves correctly
 function noteMidi(name, octave) {
   const n = parseNote(name);
@@ -205,9 +236,8 @@ function playSpec(spec, btn) {
     }
     case 'scale': {
       const ms = voiceUp([...spec.notes, spec.notes[0]], spec.octave || 3), step = 0.34;
-      if (spec.drone) for (let k = 0; k * 1.8 < step * ms.length + 0.6; k++) pluck(ms[0] - 12, t0 + k * 1.8, 2.4, 0.18);
-      ms.forEach((m, i) => pluck(m, t0 + i * step, 1.1));
-      end = t0 + step * ms.length + 1.2;
+      end = legatoRun(ms, t0, step);
+      if (spec.drone) droneTone(ms[0] - 12, t0, end - t0);
       break;
     }
     case 'chord': {
@@ -227,13 +257,9 @@ function playSpec(spec, btn) {
       break;
     case 'run': {
       const step = 30 / (spec.bpm || 90), run = scaleRun(spec.root, spec.scale, spec.pos), board = boardFor(btn);
-      const len = step * run.length + 0.8;
-      if (spec.drone) for (let t = 0; t < len; t += 2.2) pluck(40 + (pcOf(spec.root) - 4 + 12) % 12, t0 + t, 2.8, 0.2);
-      run.forEach((p, i) => {
-        pluck(p.midi, t0 + i * step, Math.max(0.9, step * 2.5), 0.45);
-        lightAt(board, p.s, p.f, t0 + i * step, step * 0.95);
-      });
-      end = t0 + len;
+      end = legatoRun(run.map(p => p.midi), t0, step, (i, t) => lightAt(board, run[i].s, run[i].f, t, step * 0.95));
+      // drone: the root an octave below the lowest note of the run, held throughout
+      if (spec.drone) { let d = noteMidi(spec.root, 1); while (d + 12 <= run[0].midi - 12) d += 12; droneTone(d, t0, end - t0); }
       break;
     }
   }
