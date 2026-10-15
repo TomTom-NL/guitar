@@ -313,6 +313,6 @@ function renderChordSheet(id) {
     <div class="sl" style="margin:10px 0 8px">Secondary dominants — the V7 of each chord above</div>
     <div class="prog-grid">${row(sh.secondary, 'no secondary dominant')}</div>
   </div>
-  <div class="insight"><div class="insight-t">How to use</div><div class="insight-b">Each secondary dominant is the dominant 7th a fifth above its target. Play it right before that chord to pull the ear toward it, e.g. <b>C → A7 → Dm</b>. Grey dots are notes outside ${sh.key} major; most are the leading tone a half step below the target's root.</div></div>
+  <div class="insight"><div class="insight-t">How to use</div><div class="insight-b">Each secondary dominant is the dominant 7th a fifth above its target. Play it right before that chord to pull the ear toward it, e.g. <b>C → A7 → Dm</b>. Grey dots are notes outside ${sh.key} major; most are the leading tone a half step below the target's root. G7 is the key's own dominant, and F#7 → Bø7 is rare in practice because a half-diminished chord is an unstable target.</div></div>
 </div>`;
 }

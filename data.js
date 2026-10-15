@@ -128,7 +128,7 @@ const KEYS = {
 };
 
 // ── Chord sheets ─────────────────────────────────────────────────────────────
-// secondary[i] is the V7 that resolves to diatonic[i] (null where there is none)
+// secondary[i] is the V7 that resolves to diatonic[i]
 
 const CHORD_SHEETS = {
   'C-chords':{key:'C',tab:'Chords in C',full:'Chords in C major',scale:KEYS.C.scale,
@@ -141,13 +141,13 @@ const CHORD_SHEETS = {
       {name:'Am',tag:'vi',  lbl:'open · x02210',       sf:0,mu:[0],  dots:[{s:2,f:2},{s:3,f:2},{s:4,f:1}],br:null},
       {name:'Bø7',tag:'viiø7',lbl:'x2323x · Bm7♭5',     sf:0,mu:[0,5],dots:[{s:1,f:2},{s:2,f:3},{s:3,f:2},{s:4,f:3}],br:null}],
     secondary:[
-      null,
+      {name:'G7',tag:'V7/I',  lbl:'open · 320001',sf:0,mu:[],   dots:[{s:0,f:3},{s:1,f:2},{s:5,f:1}],br:null},
       {name:'A7',tag:'V7/ii', lbl:'open · x02020',sf:0,mu:[0],  dots:[{s:2,f:2},{s:4,f:2}],br:null},
       {name:'B7',tag:'V7/iii',lbl:'open · x21202',sf:0,mu:[0],  dots:[{s:1,f:2},{s:2,f:1},{s:3,f:2},{s:5,f:2}],br:null},
       {name:'C7',tag:'V7/IV', lbl:'open · x32310',sf:0,mu:[0],  dots:[{s:1,f:3},{s:2,f:2},{s:3,f:3},{s:4,f:1}],br:null},
       {name:'D7',tag:'V7/V',  lbl:'open · xx0212',sf:0,mu:[0,1],dots:[{s:3,f:2},{s:4,f:1},{s:5,f:2}],br:null},
       {name:'E7',tag:'V7/vi', lbl:'open · 020100',sf:0,mu:[],   dots:[{s:1,f:2},{s:3,f:1}],br:null},
-      null]}
+      {name:'F#7',tag:'V7/vii',lbl:'barre 2fr · E7 shape',sf:2,mu:[],dots:[{s:1,f:4},{s:3,f:3}],br:{f:2,a:0,b:5}}]}
 };
 
 // ── Pure helper functions ─────────────────────────────────────────────────────
