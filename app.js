@@ -1,4 +1,4 @@
-// ── Pentatonic toggle state ───────────────────────────────────────────────────
+// ── Pentatonic toggle state (Blues pages) ─────────────────────────────────────
 
 const KEY_LIST = Object.keys(KEYS);
 
@@ -23,39 +23,59 @@ function togglePent(key, which) {
   });
 }
 
-// ── Render and init ───────────────────────────────────────────────────────────
+// ── Pages and navigation ──────────────────────────────────────────────────────
+// Groups (top row) → pages (second row). The URL hash holds the page id so
+// links and refreshes keep your place; the last page is also remembered.
 
-// One tab per chord sheet, then one per key page
 const PAGES = [
-  ...Object.keys(CHORD_SHEETS).map(id => ({id, label: CHORD_SHEETS[id].tab, render: renderChordSheet})),
-  ...KEY_LIST.map(k => ({id: k, label: KEYS[k].full, render: renderKey}))
+  ...THEORY_PAGES,
+  ...KEY_LIST.map(k => ({id: k, group: 'Applied', label: KEYS[k].full, render: () => renderKey(k)}))
 ];
+const GROUPS = [...new Set(PAGES.map(p => p.group))];
+const pageById = id => PAGES.find(p => p.id === id);
+const lastInGroup = {};
 
-document.getElementById('tabs').innerHTML = PAGES
-  .map(p => `<button class="tab" data-key="${p.id}">${p.label}</button>`)
-  .join('');
+const content = document.getElementById('content');
+content.innerHTML = PAGES.map(p => p.render()).join('');
+prettifyAccidentals(content);
+mountInteractive(content);
 
-document.getElementById('content').innerHTML = PAGES.map(p => p.render(p.id)).join('');
+const groupsNav = document.getElementById('groups'), tabsNav = document.getElementById('tabs');
+groupsNav.innerHTML = GROUPS.map(g => `<button class="group" data-group="${g}">${g}</button>`).join('');
 
-function showKey(key) {
-  document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.dataset.key === key));
-  // On phones the tab bar scrolls sideways; keep the active tab visible
-  document.querySelector(`.tab[data-key="${key}"]`).scrollIntoView({block: 'nearest', inline: 'nearest'});
+function showPage(id) {
+  const page = pageById(id) || PAGES[0];
+  lastInGroup[page.group] = page.id;
+  groupsNav.querySelectorAll('.group').forEach(b => b.classList.toggle('active', b.dataset.group === page.group));
+  tabsNav.innerHTML = PAGES.filter(p => p.group === page.group)
+    .map(p => `<button class="tab${p.id === page.id ? ' active' : ''}" data-key="${p.id}">${p.label}</button>`).join('');
   PAGES.forEach(p => {
-    document.getElementById('key-' + p.id).style.display = p.id === key ? 'block' : 'none';
+    document.getElementById('key-' + p.id).style.display = p.id === page.id ? 'block' : 'none';
   });
+  // On phones the nav rows scroll sideways; keep the active items visible
+  [groupsNav.querySelector('.active'), tabsNav.querySelector('.active')].forEach(b => b && b.scrollIntoView({block: 'nearest', inline: 'nearest'}));
+  try { localStorage.setItem('atlas:page', page.id); } catch (e) {}
+  if (location.hash.slice(1) !== page.id) history.replaceState(null, '', '#' + page.id);
 }
 
-// Show only the first page on load
-showKey(PAGES[0].id);
+function go(id) {
+  showPage(id);
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
 
-// Tab switching
-document.querySelectorAll('.tab').forEach(btn => {
-  btn.addEventListener('click', () => {
-    showKey(btn.dataset.key);
-    window.scrollTo({top: 0, behavior: 'smooth'});
-  });
+groupsNav.addEventListener('click', e => {
+  const b = e.target.closest('.group');
+  if (b) go(lastInGroup[b.dataset.group] || PAGES.find(p => p.group === b.dataset.group).id);
 });
+tabsNav.addEventListener('click', e => {
+  const b = e.target.closest('.tab');
+  if (b) go(b.dataset.key);
+});
+window.addEventListener('hashchange', () => showPage(location.hash.slice(1)));
+
+let start = location.hash.slice(1);
+if (!pageById(start)) { try { start = localStorage.getItem('atlas:page'); } catch (e) { start = null; } }
+showPage(pageById(start) ? start : PAGES[0].id);
 
 // Pentatonic toggles
 document.querySelectorAll('.pent-btn').forEach(btn => {

@@ -29,7 +29,7 @@ function chordSVG(cfg, cmap) {
     s += `<rect x="${sx[cfg.br.a]-10}" y="${by-9}" width="${sx[cfg.br.b]-sx[cfg.br.a]+20}" height="18" rx="9" fill="#555" opacity="0.7"/>`;
   }
   cfg.dots.forEach(dot => {
-    const x = sx[dot.s], y = dy(dot.f,cfg.sf), n = NN[(OS[dot.s]+dot.f)%12], col = gc(n,cmap), fs = n.length > 1 ? 7.5 : 9;
+    const x = sx[dot.s], y = dy(dot.f,cfg.sf), n = noteAt(dot.s, dot.f, cfg.names), col = gc(n,cmap), fs = n.length > 1 ? 7.5 : 9;
     s += `<circle cx="${x}" cy="${y}" r="12" fill="${col}"/>`;
     s += `<text x="${x}" y="${y+4}" text-anchor="middle" font-size="${fs}" fill="white" font-weight="700" font-family="Courier New">${n}</text>`;
   });
@@ -119,6 +119,8 @@ function eachPosition(fn) {
 
 function overlayFretSVG(kd, ri) {
   const mpSet = new Set(kd.mpIdx), mnSet = new Set(kd.mnIdx), R = FB.R;
+  const names = [...kd.mpN, ...kd.mnN, spellDeg(kd.root, 'b5')];
+  const nameOf = pc => names.find(n => pcOf(n) === pc) || NN[pc];
   const label = (x, y, n) => `<text x="${x}" y="${y+4}" text-anchor="middle" font-size="${n.length > 1 ? 8 : 9}" fill="white" font-weight="700" font-family="Courier New">${n}</text>`;
   let s = fretboardBase();
   eachPosition((i, f, ni, x, y) => {
@@ -130,7 +132,7 @@ function overlayFretSVG(kd, ri) {
     if (ir) s += `<circle cx="${x}" cy="${y}" r="${R+4}" fill="none" stroke="${col}" stroke-width="1" opacity="0.3"/>`;
     s += `<circle cx="${x}" cy="${y}" r="${R}" fill="${col}"/>`;
     if (ir) s += `<circle cx="${x}" cy="${y}" r="${R}" fill="none" stroke="white" stroke-width="1.8"/>`;
-    s += label(x, y, NN[ni]) + `</g>`;
+    s += label(x, y, nameOf(ni)) + `</g>`;
   });
   // Blues note (b5) — rendered on top, hidden by default
   eachPosition((i, f, ni, x, y) => {
@@ -138,7 +140,7 @@ function overlayFretSVG(kd, ri) {
     s += `<g class="fb-dot" data-type="blues" style="opacity:0;transition:opacity 0.18s">`;
     s += `<circle cx="${x}" cy="${y}" r="${R}" fill="${PENT_COL.blues}"/>`;
     s += `<circle cx="${x}" cy="${y}" r="${R}" fill="none" stroke="white" stroke-width="1.8" stroke-dasharray="3 2"/>`;
-    s += label(x, y, NN[ni]) + `</g>`;
+    s += label(x, y, nameOf(ni)) + `</g>`;
   });
   return s + `</svg>`;
 }
@@ -215,14 +217,16 @@ function renderKey(key) {
   );
 
   // Major open + dominant 7th chord rows
+  // Spell diagram notes with this key's names (major, minor and pentatonic) so C gets Bb, not A#
+  const names = [...kd.scale, ...kd.rel.scale, ...kd.mnN];
   let openRow = '<div class="cpair">', seventhRow = '<div class="cpair">';
-  kd.chords.forEach(ch => openRow += chordCard({...ch.open, name: ch.name, tag: ch.tag}, cmap2));
-  kd.sevenths.forEach(ch => seventhRow += chordCard(ch, cmap2));
+  kd.chords.forEach(ch => openRow += chordCard({...ch.open, name: ch.name, tag: ch.tag, names}, cmap2));
+  kd.sevenths.forEach(ch => seventhRow += chordCard({...ch, names}, cmap2));
   openRow += '</div>'; seventhRow += '</div>';
 
   // Minor chord row
   let minorChordRow = '<div class="cpair">';
-  kd.rel.chords.forEach(ch => minorChordRow += chordCard(ch, relCmap));
+  kd.rel.chords.forEach(ch => minorChordRow += chordCard({...ch, names}, relCmap));
   minorChordRow += '</div>';
 
   // Scale comparison table
@@ -275,7 +279,7 @@ function renderKey(key) {
   <div class="pent-btns">
     <button class="pent-btn maj" data-key="${key}" data-which="maj" aria-pressed="true"><span class="sw"></span>Major pentatonic — ${kd.mpN.join(' ')}</button>
     <button class="pent-btn min" data-key="${key}" data-which="min" aria-pressed="true"><span class="sw"></span>Minor pentatonic — ${kd.mnN.join(' ')}</button>
-    <button class="pent-btn blues" data-key="${key}" data-which="blues" aria-pressed="false"><span class="sw"></span>Blues note — ${NN[kd.bluesIdx]} (b5)</button>
+    <button class="pent-btn blues" data-key="${key}" data-which="blues" aria-pressed="false"><span class="sw"></span>Blues note — ${spellDeg(kd.root, 'b5')} (b5)</button>
   </div>
   <div class="pent-legend">
     <span class="maj"><span class="sw"></span>Major only</span>
@@ -295,37 +299,10 @@ function renderKey(key) {
 </div>`;
 }
 
-// ── Chord sheet page (diatonic row + secondary dominants underneath) ─────────
+// ── Chord cards ─────────────────────────────────────────────────────────────
 
 // One chord diagram with its title and fingering label
 function chordCard(ch, cmap) {
-  const col = gc(ch.name.match(/^[A-G]#?/)[0], cmap);
+  const col = gc(ch.root || ch.name.match(/^[A-G](#|b)?/)[0], cmap);
   return `<div class="citem"><div class="cgtitle" style="color:${col};margin-bottom:4px">${ch.name}<span class="cgtag">· ${ch.tag}</span></div><div class="citemsub">${ch.lbl}</div>${chordSVG(ch, cmap)}</div>`;
-}
-
-function renderChordSheet(id) {
-  const sh = CHORD_SHEETS[id], cmap = cm(sh.scale);
-  const row = (chords, empty) => chords.map(ch => ch ? chordCard(ch, cmap) : `<div class="citem prog-empty">${empty}</div>`).join('');
-  const arrows = sh.secondary.map((ch, i) => `<div class="prog-arrow">${ch ? `↑ resolves to ${sh.diatonic[i].name}` : ''}</div>`).join('');
-  return `
-<div class="key-section" id="key-${id}">
-  <div class="key-banner">
-    <div class="key-letter">${sh.key}</div>
-    <div class="key-info">
-      <div class="key-name">${sh.full}</div>
-      <div class="key-sub">${sh.scale.join(' — ')}</div>
-    </div>
-  </div>
-
-  <div class="sh"><span class="sn">§1</span><span class="st">Diatonic chords — ${sh.diatonic.map(c => c.tag).join(' · ')}</span></div>
-  ${LEARN.chordDiagram()}
-  ${LEARN.diatonic(sh)}
-  <div class="prog-wrap">
-    <div class="prog-grid">${row(sh.diatonic, '')}</div>
-    <div class="prog-grid">${arrows}</div>
-    <div class="sl" style="margin:10px 0 8px">Secondary dominants — the V7 of each chord above</div>
-    <div class="prog-grid">${row(sh.secondary, 'no secondary dominant')}</div>
-  </div>
-  ${LEARN.secondary(sh)}
-</div>`;
 }
