@@ -17,6 +17,9 @@ function section(n, title) {
   return `<div class="sh"><span class="sn">§${n}</span><span class="st">${title}</span></div>`;
 }
 
+// Row of ▶ buttons under an explorer result
+function listen(...buttons) { return `<div class="listen">${buttons.join('')}</div>`; }
+
 // Prose block (not collapsible): the core explanation of a section
 function prose(html) { return `<div class="prose">${html}</div>`; }
 
@@ -128,6 +131,35 @@ function renderExplorer(el) {
   prettifyAccidentals(out);
 }
 
+// ── Progress (stored in this browser only) ──────────────────────────────────
+// {done: {pageId: true}, quiz: {quizId: {right, total, last}}}
+
+const PROGRESS_KEY = 'atlas:progress';
+const PROGRESS = loadProgress();
+
+function loadProgress() {
+  try {
+    const p = JSON.parse(localStorage.getItem(PROGRESS_KEY));
+    if (p && p.done && p.quiz) return p;
+  } catch (e) {}
+  return {done: {}, quiz: {}};
+}
+
+function saveProgress() {
+  try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(PROGRESS)); } catch (e) {}
+}
+
+function recordAnswer(id, ok) {
+  const q = PROGRESS.quiz[id] || (PROGRESS.quiz[id] = {right: 0, total: 0, last: 0});
+  q.total++; if (ok) q.right++; q.last = Date.now();
+  saveProgress();
+}
+
+function quizStats(id) { return PROGRESS.quiz[id] || {right: 0, total: 0, last: 0}; }
+
+// Called after anything that changes progress (app.js sets it)
+let onProgress = () => {};
+
 // ── Quizzes ──────────────────────────────────────────────────────────────────
 // QUIZZES[id] = () => {q, answer, options?, why}
 
@@ -155,6 +187,10 @@ function optionsFor(answer, pool, n = 4) {
 function nextQuestion(el) {
   const q = QUIZZES[el.dataset.quiz]();
   el._q = q;
+  if (!el._score) {
+    const all = quizStats(el.dataset.quiz);
+    if (all.total) el.querySelector('.quiz-score').textContent = `${all.right} / ${all.total} all time`;
+  }
   el.querySelector('.quiz-q').innerHTML = q.q;
   el.querySelector('.quiz-fb').innerHTML = '';
   el.querySelector('.quiz-opts').innerHTML = q.options.map(o => `<button type="button" class="quiz-opt" data-v="${o}">${o}</button>`).join('');
@@ -173,8 +209,10 @@ function answerQuestion(el, btn) {
   });
   if (!ok) btn.classList.add('wrong');
   el.querySelector('.quiz-fb').innerHTML = `<b>${ok ? 'Correct.' : 'Not quite.'}</b> ${el._q.why || ''}`;
-  el.querySelector('.quiz-score').textContent = `${el._score.right} / ${el._score.total}`;
+  const id = el._q.src || el.dataset.quiz, all = (recordAnswer(id, ok), quizStats(id));
+  el.querySelector('.quiz-score').textContent = `${el._score.right} / ${el._score.total} now · ${all.right} / ${all.total} all time`;
   prettifyAccidentals(el);
+  onProgress();
 }
 
 // Wire explorers and quizzes inside a container (call once after render)
