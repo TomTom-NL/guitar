@@ -80,5 +80,23 @@ const boxCheck = T(`(() => { const bad = [];
   } return bad; })()`);
 if (boxCheck.length) { fail++; console.log('FAIL boxes:', boxCheck); } else pass++;
 
+// scale positions
+eq(`nps3Position('G', SCALES.major.degs, 1).positions.map(p => p.f)`, [3,5,7,3,5,7,4,5,7,4,5,7,5,7,8,5,7,8]);
+eq(`scaleRun('A', 'minorPent', 1).map(p => p.midi)`, [45,48,50,52,55,57,60,62,64,67,69,72,69,67,64,62,60,57,55,52,50,48,45]);
+const posCheck = T(`(() => { const bad = [];
+  for (const r of ROOTS) for (const key of ['major','naturalMinor','harmonicMinor','melodicMinor','mode:dorian','mode:mixolydian','mode:lydian','minorPent','majorPent','blues','majorBlues']) {
+    const pcs = scaleNotes(r, scaleDegs(key)).map(pcOf);
+    for (let k = 1; k <= positionCount(key); k++) {
+      const up = scalePosition(r, key, k), run = scaleRun(r, key, k), fs = up.map(p => p.f), midis = up.map(p => p.midi);
+      const ok = up.every(p => pcs.includes(p.midi % 12) && p.f >= 0) && Math.max(...fs) - Math.min(...fs) <= 6
+        && midis.every((m, i) => i === 0 || m > midis[i - 1])
+        && run.length === 2 * up.length - 1 && run[0].midi === run[run.length - 1].midi
+        && run.filter(p => p.midi === Math.max(...midis)).length === 1
+        && up.length >= (isPentKey(key) ? 12 : 18);
+      if (!ok) bad.push(r + ' ' + key + ' ' + k + ' frets ' + fs.join(','));
+    }
+  } return bad; })()`);
+if (posCheck.length) { fail++; console.log('FAIL positions:', posCheck.slice(0, 5)); } else pass++;
+
 console.log(`${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

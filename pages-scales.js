@@ -17,14 +17,15 @@ function stepsRow(scale) {
 // ── Major scale & key signatures ────────────────────────────────────────────
 
 EXPLORERS.majorKey = {
-  controls: () => selectCtl('key', 'Major key', CIRCLE_MAJOR, 'D'),
+  controls: () => selectCtl('key', 'Major key', CIRCLE_MAJOR, 'D') + positionCtls('major'),
   render: st => {
-    const sc = majorScale(st.key), sig = keySignature(st.key);
+    const sc = majorScale(st.key), sig = keySignature(st.key), pv = positionView(st.key, 'major', st.pos);
     return `<p class="ex-sum"><b>${st.key} major</b> has <b>${sigText(sig)}</b>${sig.count ? `: ${sig.notes.join(' ')}` : ''}. Relative minor: <b>${relativeMinor(st.key)} minor</b>.</p>
-      ${listen(playBtn({mode: 'scale', notes: sc}, 'scale'), playBtn({mode: 'prog', steps: [[0, 2, 4], [3, 5, 0], [4, 6, 1], [0, 2, 4]].map(ix => ix.map(i => sc[i]))}, 'I–IV–V–I'))}
+      ${listen(runBtn(st.key, 'major', st.pos === 'all' ? 1 : +st.pos, st.bpm), playBtn({mode: 'prog', steps: [[0, 2, 4], [3, 5, 0], [4, 6, 1], [0, 2, 4]].map(ix => ix.map(i => sc[i]))}, 'I–IV–V–I'))}
       ${chips([...sc, sc[0]], {colors: [...sc, sc[0]].map((_, i) => DEG_COL[(i % 7) + 1]), under: ['1','2','3','4','5','6','7','8']})}
       ${stepsRow(sc)}
-      ${noteMapSVG(degreeMarks(st.key, SCALES.major.degs))}`;
+      <p class="cap">${pv.caption}</p>
+      ${noteMapSVG(degreeMarks(st.key, SCALES.major.degs), {frets: pv.frets, focus: pv.focus})}`;
   }
 };
 
@@ -194,20 +195,21 @@ ${guideEnd('fifths')}
 const MINOR_TYPES = [['naturalMinor', 'Natural minor'], ['harmonicMinor', 'Harmonic minor'], ['melodicMinor', 'Melodic minor (ascending)']];
 
 EXPLORERS.minor = {
-  controls: () => selectCtl('root', 'Root', MINOR_ROOTS, 'A') + selectCtl('type', 'Type', MINOR_TYPES, 'harmonicMinor'),
+  controls: () => selectCtl('root', 'Root', MINOR_ROOTS, 'A') + selectCtl('type', 'Type', MINOR_TYPES, 'harmonicMinor') + positionCtls('naturalMinor'),
   render: st => {
     const degs = SCALES[st.type].degs, sc = scaleNotes(st.root, degs);
     const natural = SCALES.naturalMinor.degs, raised = degs.map((d, i) => d !== natural[i]);
     const chords = diatonicChords(sc, false), sev = diatonicChords(sc, true);
     return `<p class="ex-sum"><b>${st.root} ${SCALES[st.type].name.toLowerCase()}</b>${raised.some(Boolean) ? `: raised notes highlighted` : ''}. Relative major: <b>${relativeMajor(st.root)} major</b>.</p>
-      ${listen(playBtn({mode: 'scale', notes: sc}, 'scale'), playBtn({mode: 'prog', steps: [chordNotes(st.root, 'min'), chordNotes(spellDeg(st.root, '4'), 'min'), chordNotes(spellDeg(st.root, '5'), 'dom7'), chordNotes(st.root, 'min')]}, 'i–iv–V7–i'))}
+      ${listen(runBtn(st.root, st.type, st.pos === 'all' ? 1 : +st.pos, st.bpm), playBtn({mode: 'prog', steps: [chordNotes(st.root, 'min'), chordNotes(spellDeg(st.root, '4'), 'min'), chordNotes(spellDeg(st.root, '5'), 'dom7'), chordNotes(st.root, 'min')]}, 'i–iv–V7–i'))}
       ${chips(sc, {colors: degs.map(d => DEG_COL[degNum(d)]), under: degs, highlight: raised})}
       ${stepsRow(sc)}
       <div class="tbl-wrap"><table class="ref"><thead><tr><th>Chord</th>${chords.map(c => `<th>${c.numeral}</th>`).join('')}</tr></thead><tbody>
         <tr><td>Triad</td>${chords.map(c => `<td><b>${c.label}</b></td>`).join('')}</tr>
         <tr><td>7th</td>${sev.map(c => `<td>${c.label}</td>`).join('')}</tr></tbody></table></div>
       <p class="cap">${st.type === 'naturalMinor' ? `Notice the v chord, ${chords[4].label}, is <b>minor</b>: no leading tone, weak pull home.` : `The raised 7th turns the V chord into <b>${chords[4].label}</b> (${sev[4].label} as a 7th): a real dominant with a leading tone pulling into ${st.root}.`}</p>
-      ${noteMapSVG(degreeMarks(st.root, degs))}`;
+      <p class="cap">${positionView(st.root, st.type, st.pos).caption}</p>
+      ${noteMapSVG(degreeMarks(st.root, degs), {frets: positionView(st.root, st.type, st.pos).frets, focus: positionView(st.root, st.type, st.pos).focus})}`;
   }
 };
 
@@ -260,16 +262,17 @@ ${guideEnd('minor')}
 // ── Modes ───────────────────────────────────────────────────────────────────
 
 EXPLORERS.modes = {
-  controls: () => selectCtl('root', 'Root', ROOTS, 'D') + selectCtl('mode', 'Mode', MODES.map(m => [m.key, m.name]), 'dorian'),
+  controls: () => selectCtl('root', 'Root', ROOTS, 'D') + selectCtl('mode', 'Mode', MODES.map(m => [m.key, m.name]), 'dorian') + positionCtls('major'),
   render: st => {
     const k = MODES.findIndex(m => m.key === st.mode), m = MODES[k], sc = scaleNotes(st.root, m.degs);
     const parent = parentMajor(st.root, k), chordType = {maj7: 'maj7', '7': 'dom7', m7: 'min7', m7b5: 'm7b5'}[m.chord];
     const isChar = d => m.char && d === m.char;
     return `<p class="ex-sum"><b>${st.root} ${m.name}</b> = the notes of <b>${parent} major</b>, starting on its ${ordinal(k + 1)} note. Mood: ${m.mood}.</p>
-      ${listen(playBtn({mode: 'scale', notes: sc, drone: true}, 'over a drone'), playBtn({mode: 'scale', notes: sc}, 'scale'), playBtn({mode: 'chord', notes: chordNotes(st.root, chordType)}, 'home chord'))}
+      ${listen(runBtn(st.root, 'mode:' + m.key, st.pos === 'all' ? 1 : +st.pos, st.bpm, {drone: true}), playBtn({mode: 'chord', notes: chordNotes(st.root, chordType)}, 'home chord'))}
       ${chips(sc, {colors: m.degs.map(d => isChar(d) ? COL.accent : DEG_COL[degNum(d)]), under: m.degs, highlight: m.degs.map(isChar)})}
       <p class="cap">${m.char ? `Characteristic note: <b>${m.char}</b> (${sc[m.degs.indexOf(m.char)]}), highlighted. It's what separates ${m.name} from plain ${m.vs}.` : `${m.name} is the plain ${m.vs} scale: the reference the other ${m.vs} modes are compared with.`} Home chord: <b>${chordLabel(st.root, chordType)}</b>.</p>
-      ${noteMapSVG(degreeMarks(st.root, m.degs, {colorOf: d => isChar(d) ? COL.accent : DEG_COL[degNum(d)]}))}`;
+      <p class="cap">${positionView(st.root, 'mode:' + m.key, st.pos).caption} The drone underneath keeps ${st.root} as home, so the mode's colour comes through.</p>
+      ${noteMapSVG(degreeMarks(st.root, m.degs, {colorOf: d => isChar(d) ? COL.accent : DEG_COL[degNum(d)]}), {frets: positionView(st.root, 'mode:' + m.key, st.pos).frets, focus: positionView(st.root, 'mode:' + m.key, st.pos).focus})}`;
   }
 };
 
@@ -319,7 +322,8 @@ const BLUE_COL = COL.blues;
 
 EXPLORERS.pentatonic = {
   controls: () => selectCtl('root', 'Root', ROOTS, 'A') + selectCtl('type', 'Scale', PENT_TYPES, 'minorPent') +
-    selectCtl('box', 'Position', [['all', 'whole neck'], ['1', 'Box 1'], ['2', 'Box 2'], ['3', 'Box 3'], ['4', 'Box 4'], ['5', 'Box 5']], '1'),
+    selectCtl('box', 'Position', [['all', 'whole neck'], ['1', 'Box 1'], ['2', 'Box 2'], ['3', 'Box 3'], ['4', 'Box 4'], ['5', 'Box 5']], '1') +
+    selectCtl('bpm', 'Speed', SPEEDS, '90'),
   render: st => {
     const degs = SCALES[st.type].degs, notes = scaleNotes(st.root, degs);
     const isMinor = st.type === 'minorPent' || st.type === 'blues';
@@ -334,7 +338,7 @@ EXPLORERS.pentatonic = {
       boxText = `<b>Box ${st.box}</b> starts on <b>${scaleNotes(st.root, SCALES[PENT_BASE[st.type]].degs)[st.box - 1]}</b> on the low E string (fret ${b.startFret}) and covers frets ${lo}–${hi}. Faded notes belong to the neighbouring boxes.`;
     }
     return `<p class="ex-sum"><b>${st.root} ${SCALES[st.type].name.toLowerCase()}</b>: ${notes.join(' ')}. Same five notes as <b>${rel} ${isMinor ? 'major' : 'minor'} pentatonic</b>${extraDeg ? ` (plus the blue note ${spellDeg(st.root, extraDeg)})` : ''}.</p>
-      ${listen(playBtn({mode: 'scale', notes, drone: true}, 'over a drone'), playBtn({mode: 'scale', notes}, 'scale'))}
+      ${listen(runBtn(st.root, st.type, st.box === 'all' ? 1 : +st.box, st.bpm, {drone: true}))}
       ${chips(notes, {colors: degs.map(colorOf), under: degs, highlight: degs.map(d => d === extraDeg)})}
       <p class="cap">${boxText || 'All five boxes together cover the whole neck. Pick a box to see one shape.'}</p>
       ${noteMapSVG(degreeMarks(st.root, degs, {colorOf}), {frets: 15, focus})}`;

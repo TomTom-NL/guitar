@@ -12,11 +12,15 @@
 //   {mode:'chord',    notes:['C','E','G'] | midis:[…], arp?}
 //   {mode:'prog',     steps:[['C','E','G'] | [48,52,…], …], beat?}
 //   {mode:'shuffle',  root:'A', style:'boogie'|'strum', bpm?}   12-bar blues shuffle
+//   {mode:'run',      root:'A', scale:'minorPent'|'major'|'mode:dorian'…, pos:1, bpm?, drone?}
+//                     a scale position up across all strings and back down; the
+//                     matching fretboard dots light up as they sound
 
 const SR_FALLBACK = 44100;
 let AUDIO = null;          // {ctx, out}
 let voices = [];           // sources currently scheduled, for stopSound()
 let playing = null;        // {btn, until}
+let litTimers = [];        // pending fretboard highlights for a scale run
 const ksCache = new Map(); // "midi" → AudioBuffer
 
 // Guitar-body colour: low resonances, gentle top roll-off, then a compressor.
@@ -46,6 +50,8 @@ function audioOut() {
 function stopSound() {
   voices.forEach(n => { try { n.stop(); } catch (e) {} });
   voices = [];
+  litTimers.forEach(clearTimeout); litTimers = [];
+  document.querySelectorAll('.lit').forEach(el => el.classList.remove('lit'));
   if (playing) { playing.btn && playing.btn.classList.remove('is-playing'); playing = null; }
 }
 
@@ -165,7 +171,23 @@ function playShuffle(spec, t0) {
   return t + 2.4;
 }
 
-function playSpec(spec) {
+// Light up fretboard dot (string s, fret f) inside board at time t (audio clock)
+function lightAt(board, s, f, t, dur) {
+  if (!board) return;
+  const dot = board.querySelector(`[data-s="${s}"][data-f="${f}"]`);
+  if (!dot) return;
+  const now = AUDIO.ctx.currentTime;
+  litTimers.push(setTimeout(() => dot.classList.add('lit'), Math.max(0, (t - now) * 1000)));
+  litTimers.push(setTimeout(() => dot.classList.remove('lit'), Math.max(0, (t + dur - now) * 1000)));
+}
+
+// The fretboard that belongs to a play button (same explorer output or page section)
+function boardFor(btn) {
+  const scope = btn && btn.closest('.ex-out, .player-scope, .key-section');
+  return scope ? scope.querySelector('.fb-wrap') : null;
+}
+
+function playSpec(spec, btn) {
   if (!audioOut()) return 0;
   stopSound();
   const t0 = AUDIO.ctx.currentTime + 0.06;
@@ -203,6 +225,17 @@ function playSpec(spec) {
     case 'shuffle':
       end = playShuffle(spec, t0);
       break;
+    case 'run': {
+      const step = 30 / (spec.bpm || 90), run = scaleRun(spec.root, spec.scale, spec.pos), board = boardFor(btn);
+      const len = step * run.length + 0.8;
+      if (spec.drone) for (let t = 0; t < len; t += 2.2) pluck(40 + (pcOf(spec.root) - 4 + 12) % 12, t0 + t, 2.8, 0.2);
+      run.forEach((p, i) => {
+        pluck(p.midi, t0 + i * step, Math.max(0.9, step * 2.5), 0.45);
+        lightAt(board, p.s, p.f, t0 + i * step, step * 0.95);
+      });
+      end = t0 + len;
+      break;
+    }
   }
   return end - AUDIO.ctx.currentTime;
 }
@@ -216,7 +249,7 @@ document.addEventListener('click', e => {
   const b = e.target.closest('.play');
   if (!b) return;
   if (playing && playing.btn === b) { stopSound(); return; }   // second click = stop
-  const secs = playSpec(JSON.parse(decodeURIComponent(b.dataset.play)));
+  const secs = playSpec(JSON.parse(decodeURIComponent(b.dataset.play)), b);
   if (!secs) return;
   b.classList.add('is-playing');
   const token = {btn: b};
@@ -263,4 +296,44 @@ document.addEventListener('keydown', e => {
     e.preventDefault();
     tap(e.target);
   }
+});
+
+// ── Scale player ─────────────────────────────────────────────────────────────
+// A small control set (scale / position / speed) with a ▶ that plays the chosen
+// position up and back down while lighting up the fretboard. Used on the Blues
+// pages; explorers build their own controls and call runBtn().
+
+const SPEEDS = [['60', 'slow'], ['90', 'medium'], ['130', 'fast']];
+
+function runBtn(root, scale, pos, bpm, opts = {}) {
+  const first = scalePosition(root, scale, pos)[0];
+  return playBtn({mode: 'run', root, scale, pos: +pos, bpm: +bpm, drone: !!opts.drone},
+    opts.label || `play position ${pos} up & down (from ${fmt(noteNameAt(first.s, first.f, root, scale))})`);
+}
+
+// Spelled name of the note at a string/fret, using the scale's own spelling
+function noteNameAt(s, f, root, scale) {
+  return noteAt(s, f, scaleNotes(root, scaleDegs(scale)));
+}
+
+function scalePlayer(root, scales, opts = {}) {
+  const base = encodeURIComponent(JSON.stringify({root, drone: !!opts.drone}));
+  const sel = (key, label, options, value) => `<label class="ctl"><span>${label}</span><select data-player="${key}">${options.map(([v, t]) => `<option value="${v}"${v === value ? ' selected' : ''}>${t}</option>`).join('')}</select></label>`;
+  return `<div class="player" data-base="${base}">
+    ${sel('scale', 'Scale', scales, scales[0][0])}
+    ${sel('pos', 'Position', [1, 2, 3, 4, 5].map(k => [String(k), 'Box ' + k]), '1')}
+    ${sel('bpm', 'Speed', SPEEDS, '90')}
+    ${runBtn(root, scales[0][0], 1, 90, {drone: opts.drone})}
+  </div>`;
+}
+
+document.addEventListener('change', e => {
+  const sel = e.target.closest('[data-player]');
+  if (!sel) return;
+  const pl = sel.closest('.player'), base = JSON.parse(decodeURIComponent(pl.dataset.base));
+  const v = k => pl.querySelector(`[data-player="${k}"]`).value;
+  const old = pl.querySelector('.play');
+  if (playing && playing.btn === old) stopSound();
+  old.outerHTML = runBtn(base.root, v('scale'), +v('pos'), +v('bpm'), {drone: base.drone});
+  prettifyAccidentals(pl);
 });
