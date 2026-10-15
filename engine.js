@@ -242,9 +242,6 @@ function renderKey(key) {
   });
   comp += `</tbody></table>`;
 
-  // 12-bar blues: I I I I | IV IV I I | V IV I V, as chord note lists
-  const twelveBar = type => [1,1,1,1,4,4,1,1,5,4,1,5].map(d => chordNotes(spellDeg(kd.root, String(d)), type));
-
   const leg = kd.scale.map((n,i) => `<div class="li"><b style="color:${DC[i]}">■</b><span>${n} (${i+1})</span></div>`).join('');
 
   return `
@@ -278,7 +275,7 @@ function renderKey(key) {
   ${LEARN.seventhChords(kd)}
   <div class="sl" style="margin-top:18px;margin-bottom:8px">Dominant 7th positions</div>
   ${seventhRow}
-  ${listen(playBtn({mode: 'prog', steps: twelveBar('maj'), beat: 0.75}, '12-bar with triads'), playBtn({mode: 'prog', steps: twelveBar('dom7'), beat: 0.75}, '12-bar with 7ths'))}
+  ${listen(playBtn({mode: 'shuffle', root: kd.root, style: 'boogie'}, '12-bar shuffle: boogie riff'), playBtn({mode: 'shuffle', root: kd.root, style: 'strum'}, '12-bar shuffle: strummed 7ths'))}
   ${LEARN.minorChords(kd)}
   <div class="sl" style="margin-top:18px;margin-bottom:8px">${kd.rel.root} minor positions — i · iv · v</div>
   ${minorChordRow}

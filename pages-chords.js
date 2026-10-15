@@ -12,11 +12,14 @@ function roleColor(root, type) {
   return n => ROLE_COL[degNum(degs[notes.indexOf(n)] || '1')] || COL.out;
 }
 
+// The notes a guitar actually plays for this chord (its shape, string by string)
+function guitarMidis(root, type) { return chordVoicing(root, type) || voiceUp(chordNotes(root, type), 3); }
+
 // Chord diagram card for a root/type, coloured by a note → colour function
 function chordDiagram(root, type, tag, colorOf) {
   const cfg = chordCfg(root, type, tag);
   if (!cfg) return `<div class="citem prog-empty">no shape for ${chordLabel(root, type)} yet</div>`;
-  return `<div class="cd">${chordCard(cfg, colorMap(cfg.names, colorOf))}${playBtn({mode: 'chord', notes: chordNotes(root, type)})}</div>`;
+  return `<div class="cd">${chordCard(cfg, colorMap(cfg.names, colorOf))}${playBtn({mode: 'chord', midis: shapeMidis(cfg)})}</div>`;
 }
 
 // ── Chord construction ──────────────────────────────────────────────────────
@@ -29,7 +32,7 @@ EXPLORERS.chordBuilder = {
     const inversions = ['triad', 'seventh', 'sixth'].includes(t.family)
       ? notes.slice(1).map((n, i) => `<li>${['1st', '2nd', '3rd'][i]} inversion (${['3rd', '5th', '7th'][i]} in the bass): <b>${chordLabel(st.root, st.type)}/${fmt(n)}</b> → ${[...notes.slice(i + 1), ...notes.slice(0, i + 1)].map(fmt).join(' ')}</li>`).join('') : '';
     return `<p class="ex-sum"><b>${chordLabel(st.root, st.type)}</b>: ${t.name.toLowerCase()} chord. Formula <b>${t.degs.join(' ').replace(/b/g, '♭').replace(/#/g, '♯')}</b>.</p>
-      ${listen(playBtn({mode: 'chord', notes}, 'strum'), playBtn({mode: 'chord', notes, arp: true}, 'one note at a time'))}
+      ${listen(playBtn({mode: 'chord', midis: guitarMidis(st.root, st.type)}, 'strum'), playBtn({mode: 'chord', midis: guitarMidis(st.root, st.type), arp: true}, 'one string at a time'))}
       ${chips(notes, {colors: notes.map(col), under: t.degs.map(d => DEG_TO_IV[d] || d)})}
       <div class="cb-row"><div class="cpair">${chordDiagram(st.root, st.type, t.name.toLowerCase(), col)}</div>
         <div class="cb-text">${inversions ? `<ul class="ex-list"><li>Root position: <b>${notes.map(fmt).join(' ')}</b></li>${inversions}</ul>` : '<p>Extended chords are usually voiced with notes left out (often the 5th, sometimes the root). The diagram shows one common grip.</p>'}</div></div>
@@ -251,7 +254,10 @@ EXPLORERS.progression = {
     const p = PROGRESSIONS[st.prog], sc = majorScale(st.key), keyCol = n => { const i = sc.indexOf(n); return i < 0 ? COL.out : DEG_COL[i + 1]; };
     const seq = p.steps.map(([d, t]) => ({root: spellDeg(st.key, d), type: t, num: stepNumeral(d, t)}));
     const uniq = [...new Map(seq.map(c => [c.root + c.type, c])).values()];
-    return `${listen(playBtn({mode: 'prog', steps: seq.map(c => chordNotes(c.root, c.type)), beat: seq.length > 8 ? 0.75 : 1.1}, 'play it'))}<div class="prog-seq">${seq.map(c => `<div class="ps"><b>${chordLabel(c.root, c.type)}</b><span>${c.num}</span></div>`).join('')}</div>
+    const play = st.prog === 'blues'
+      ? playBtn({mode: 'shuffle', root: st.key, style: 'strum'}, 'play it as a shuffle')
+      : playBtn({mode: 'prog', steps: seq.map(c => guitarMidis(c.root, c.type)), beat: 1.2}, 'play it');
+    return `${listen(play)}<div class="prog-seq">${seq.map(c => `<div class="ps"><b>${chordLabel(c.root, c.type)}</b><span>${c.num}</span></div>`).join('')}</div>
       <div class="cpair">${uniq.map(c => chordDiagram(c.root, c.type, c.num, keyCol)).join('')}</div>`;
   }
 };

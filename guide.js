@@ -139,8 +139,8 @@ function bluesGuide(key) {
     builds: ['inkey', 'pentatonic', 'function'],
     takeaways: [`12-bar in ${I}: ${I} ${I} ${I} ${I} | ${IV} ${IV} ${I} ${I} | ${V} ${IV} ${I} ${V}.`, `Blues plays all three chords as dominant 7ths (${I}7 ${IV}7 ${V}7), against the "only V gets a 7th" rule.`, `${I} minor pentatonic over ${I} major gives the blue third: ${spellDeg(I, 'b3')} against ${third(I)}.`, `The ${spellDeg(I, 'b5')} (♭5) is a passing note between ${spellDeg(I, '4')} and ${V}.`, `Bending ${spellDeg(I, 'b3')} slightly toward ${third(I)} is the signature blues sound.`],
     practice: [
-      ['guitar', `Loop the 12-bar in ${I} with the 7th chords, counting 1-2-3-4 per bar with a shuffle feel (long-short, long-short).`],
-      ['ear', `Press ▶ on the 12-bar with 7ths and follow the form: say "one" at every chord change, and notice the V–IV–I–V turnaround at the end.`],
+      ['guitar', `Play along with ▶ "12-bar shuffle": first the boogie riff on the low strings (root + 5th, then the 6th and ♭7th), then the strummed 7th chords. Count 1-2-3-4 per bar with a long-short swing.`],
+      ['ear', `Press ▶ on the 12-bar shuffle and follow the form: say "one" at every chord change, and notice the V–IV–I–V turnaround at the end.`],
       ['music', `Solo over the 12-bar using box 1 at fret ${box}. At each change, aim for the chord's 3rd: ${third(I)} over ${I}7, ${third(IV)} over ${IV}7, ${third(V)} over ${V}7.`],
     ],
     next: key === 'A' ? 'The same blues in E: the guitar\'s favourite blues key, with open strings everywhere.'
