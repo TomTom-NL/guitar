@@ -31,7 +31,7 @@ function chips(notes, opts = {}) {
     const col = opts.colors ? opts.colors[i] : null;
     const style = col ? ` style="border-color:${col};color:${col}"` : '';
     const hl = opts.highlight && opts.highlight[i] ? ' hl' : '';
-    return `<div class="chip${hl}"><span class="chip-n"${style}>${fmt(n)}</span>${opts.under ? `<span class="chip-u">${opts.under[i]}</span>` : ''}</div>`;
+    return `<div class="chip${hl}"><span class="chip-n"${style}>${fmt(n)}</span>${opts.under ? `<span class="chip-u">${String(opts.under[i]).replace(/^bb/, '𝄫').replace(/^b/, '♭').replace(/^#/, '♯')}</span>` : ''}</div>`;
   }).join('')}</div>`;
 }
 
@@ -52,20 +52,23 @@ function prettifyAccidentals(root) {
 }
 
 // ── Fretboard note map ───────────────────────────────────────────────────────
-// marks: {pc: {label, col, root?, faint?}} → every position of those notes, frets 0–12
+// marks: {pc: {label, col, root?, faint?}} → every position of those notes.
+// opts.frets: board length (default 12); opts.focus(string, fret): positions that
+// return false are drawn faded (used to highlight one pentatonic box).
 
-function noteMapSVG(marks) {
+function noteMapSVG(marks, opts = {}) {
   const R = FB.R;
-  let s = fretboardBase();
+  let s = fretboardBase(opts.frets);
   eachPosition((i, f, ni, x, y) => {
     const m = marks[ni];
     if (!m) return;
-    const op = m.faint ? 0.6 : 1;
-    if (m.root) s += `<circle cx="${x}" cy="${y}" r="${R+4}" fill="none" stroke="${m.col}" stroke-width="1" opacity="0.4"/>`;
+    const op = m.faint || (opts.focus && !opts.focus(i, f)) ? (opts.focus ? 0.22 : 0.6) : 1;
+    const ring = m.root && op >= 0.5;  // faded roots (outside a highlighted box) get no ring
+    if (ring) s += `<circle cx="${x}" cy="${y}" r="${R+4}" fill="none" stroke="${m.col}" stroke-width="1" opacity="0.4"/>`;
     s += `<circle cx="${x}" cy="${y}" r="${R}" fill="${m.col}" opacity="${op}"/>`;
-    if (m.root) s += `<circle cx="${x}" cy="${y}" r="${R}" fill="none" stroke="white" stroke-width="1.8"/>`;
-    s += `<text x="${x}" y="${y+4}" text-anchor="middle" font-size="${m.label.length > 2 ? 7 : m.label.length > 1 ? 8 : 9}" fill="white" font-weight="700" font-family="Courier New">${m.label}</text>`;
-  });
+    if (ring) s += `<circle cx="${x}" cy="${y}" r="${R}" fill="none" stroke="white" stroke-width="1.8"/>`;
+    s += `<text x="${x}" y="${y+4}" text-anchor="middle" font-size="${m.label.length > 2 ? 7 : m.label.length > 1 ? 8 : 9}" fill="white" font-weight="700" font-family="Courier New"${op < 0.5 ? ' opacity="0.5"' : ''}>${m.label}</text>`;
+  }, opts.frets);
   return `<div class="fb-wrap">${s}</svg></div>`;
 }
 

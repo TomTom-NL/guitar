@@ -105,6 +105,7 @@ const SCALES = {
   majorPent:      {name:'Major pentatonic', degs:['1','2','3','5','6']},
   minorPent:      {name:'Minor pentatonic', degs:['1','b3','4','5','b7']},
   blues:          {name:'Blues scale',      degs:['1','b3','4','b5','5','b7']},
+  majorBlues:     {name:'Major blues scale', degs:['1','2','b3','3','5','6']},
 };
 
 // The 7 modes of the major scale, brightest first is Lydian; listed in rotation order
@@ -325,4 +326,40 @@ function parentMajor(root, k) {
   let acc = ((pcOf(root) - MAJOR_STEPS[k] - LETTER_PC[letter]) % 12 + 12) % 12;
   if (acc > 6) acc -= 12;
   return noteName(letter, acc);
+}
+
+// ── Pentatonic boxes ──────────────────────────────────────────────────────────
+// The five classic positions. Box k (1–5) starts on the k-th note of the
+// pentatonic on the low E string, then climbs the scale two notes per string.
+// Blues scales are their pentatonic box plus the extra note wherever it falls
+// inside that box's fret range.
+
+const OPEN_MIDI = [40, 45, 50, 55, 59, 64];  // E2 A2 D3 G3 B3 E4
+const PENT_BASE = {minorPent: 'minorPent', majorPent: 'majorPent', blues: 'minorPent', majorBlues: 'majorPent'};
+
+function pentBox(root, type, k) {
+  const base = SCALES[PENT_BASE[type]].degs, pcs = base.map(d => pcOf(spellDeg(root, d)));
+  const walk = start => {
+    let pitch = OPEN_MIDI[0] + start, idx = k - 1;
+    const pos = [];
+    for (let s = 0; s < 6; s++) {
+      for (let n = 0; n < 2; n++) {
+        pos.push({s, f: pitch - OPEN_MIDI[s]});
+        pitch += (pcs[(idx + 1) % 5] - pcs[idx % 5] + 12) % 12;
+        idx++;
+      }
+    }
+    return pos;
+  };
+  let startFret = (pcs[k - 1] - OS[0] + 12) % 12, pos = walk(startFret);
+  // near the nut a box can need frets below 0: play it an octave higher instead
+  if (pos.some(p => p.f < 0)) { startFret += 12; pos = walk(startFret); }
+  if (type !== PENT_BASE[type]) {
+    const extra = pcOf(spellDeg(root, type === 'blues' ? 'b5' : 'b3'));
+    const lo = Math.min(...pos.map(p => p.f)), hi = Math.max(...pos.map(p => p.f));
+    for (let s = 0; s < 6; s++)
+      for (let f = lo; f <= hi; f++)
+        if ((OS[s] + f) % 12 === extra) pos.push({s, f, extra: true});
+  }
+  return {startFret, positions: pos};
 }

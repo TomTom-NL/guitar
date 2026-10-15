@@ -61,5 +61,24 @@ if (shapeCheck.length) { fail++; console.log('FAIL chord shapes:', shapeCheck); 
 eq(`chordShape('B','m7b5').code`, 'x2323x');
 eq(`chordShape('F#','dom7').code`, '2x232x');
 
+// pentatonics and boxes
+eq(`scaleNotes('A', SCALES.minorPent.degs)`, ['A','C','D','E','G']);
+eq(`scaleNotes('C', SCALES.majorPent.degs)`, ['C','D','E','G','A']);
+eq(`scaleNotes('E', SCALES.blues.degs)`, ['E','G','A','Bb','B','D']);
+eq(`scaleNotes('C', SCALES.majorBlues.degs)`, ['C','D','Eb','E','G','A']);
+eq(`pentBox('A','minorPent',1).positions.map(p => p.f)`, [5,8,5,7,5,7,5,7,5,8,5,8]);
+eq(`pentBox('A','minorPent',2).positions.map(p => p.f)`, [8,10,7,10,7,10,7,9,8,10,8,10]);
+eq(`pentBox('A','minorPent',4).positions.map(p => p.f)`, [0,3,0,3,0,2,0,2,1,3,0,3]);
+eq(`pentBox('C','majorPent',1).positions.map(p => p.f)`, [8,10,7,10,7,10,7,9,8,10,8,10]);
+eq(`pentBox('A','blues',1).positions.filter(p => p.extra).map(p => p.s + ':' + p.f)`, ['1:6','3:8']);
+// every box: 12 notes, all in the scale, within a 5-fret window, root present
+const boxCheck = T(`(() => { const bad = [];
+  for (const r of ROOTS) for (const t of ['minorPent','majorPent']) for (let k = 1; k <= 5; k++) {
+    const b = pentBox(r, t, k), pcs = scaleNotes(r, SCALES[t].degs).map(pcOf);
+    const fs = b.positions.map(p => p.f);
+    if (b.positions.length !== 12 || b.positions.some(p => !pcs.includes((OS[p.s] + p.f) % 12)) || Math.max(...fs) - Math.min(...fs) > 4 || Math.min(...fs) < 0) bad.push(r + t + k);
+  } return bad; })()`);
+if (boxCheck.length) { fail++; console.log('FAIL boxes:', boxCheck); } else pass++;
+
 console.log(`${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

@@ -130,7 +130,7 @@ const LEARN = {
       </ul>
       <p><b>Reading the fretboard:</b> unlike the chord diagrams, this one lies <b>sideways like tab</b>. The <b>top line is the thin high e</b>, the bottom line is the thick low E, and frets are numbered along the bottom. Every dot is a place you can play a scale note. The <b>root ${kd.root}</b> has a white ring.</p>
       <p>Use the buttons to switch each scale on or off and see where they overlap (green = in both). The <b>Blues note</b> button adds the <b>b5</b> (${spellDeg(kd.root, 'b5')}), the "blue note". Use it as a quick passing note between the 4 and the 5, rather than a note to stay on.</p>
-      <p class="learn-try"><b>Try it:</b> turn off major, then find the ${kd.root} on the low E string at ${where}. Play the purple and green notes from there across 4 frets, one finger per fret. That's the famous <b>minor pentatonic "box 1"</b>.</p>`);
+      <p class="learn-try"><b>Try it:</b> turn off major, then find the ${kd.root} on the low E string at ${where}. Play the purple and green notes from there across 4 frets, one finger per fret. That's the famous <b>minor pentatonic "box 1"</b>. The other four boxes, and why pentatonics work, are on <a href="#pentatonic">Scales &amp; keys → Pentatonic &amp; blues</a>.</p>`);
   },
 
   comparison: kd => {

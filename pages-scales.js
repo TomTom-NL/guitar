@@ -287,3 +287,107 @@ ${explorer('modes', 'Any mode on any root')}
 ${quiz('modeParent', 'Find the parent scale')}
 ${quiz('modeChar', 'Characteristic notes')}
 </div>`});
+
+// ── Pentatonic & blues scales ───────────────────────────────────────────────
+
+const PENT_TYPES = [['minorPent', 'Minor pentatonic'], ['majorPent', 'Major pentatonic'], ['blues', 'Blues scale (minor + ♭5)'], ['majorBlues', 'Major blues (major + ♭3)']];
+const BLUE_COL = '#1e5fa8';
+
+EXPLORERS.pentatonic = {
+  controls: () => selectCtl('root', 'Root', ROOTS, 'A') + selectCtl('type', 'Scale', PENT_TYPES, 'minorPent') +
+    selectCtl('box', 'Position', [['all', 'whole neck'], ['1', 'Box 1'], ['2', 'Box 2'], ['3', 'Box 3'], ['4', 'Box 4'], ['5', 'Box 5']], '1'),
+  render: st => {
+    const degs = SCALES[st.type].degs, notes = scaleNotes(st.root, degs);
+    const isMinor = st.type === 'minorPent' || st.type === 'blues';
+    const rel = isMinor ? relativeMajor(st.root) : relativeMinor(st.root);
+    const extraDeg = st.type === 'blues' ? 'b5' : st.type === 'majorBlues' ? 'b3' : null;
+    const colorOf = d => d === extraDeg ? BLUE_COL : DEG_COL[degNum(d)];
+    let focus = null, boxText = '';
+    if (st.box !== 'all') {
+      const b = pentBox(st.root, st.type, +st.box), keys = new Set(b.positions.map(p => p.s + ':' + p.f));
+      const fs = b.positions.map(p => p.f), lo = Math.min(...fs), hi = Math.max(...fs);
+      focus = (s, f) => keys.has(s + ':' + f);
+      boxText = `<b>Box ${st.box}</b> starts on <b>${scaleNotes(st.root, SCALES[PENT_BASE[st.type]].degs)[st.box - 1]}</b> on the low E string (fret ${b.startFret}) and covers frets ${lo}–${hi}. Faded notes belong to the neighbouring boxes.`;
+    }
+    return `<p class="ex-sum"><b>${st.root} ${SCALES[st.type].name.toLowerCase()}</b>: ${notes.join(' ')}. Same five notes as <b>${rel} ${isMinor ? 'major' : 'minor'} pentatonic</b>${extraDeg ? ` (plus the blue note ${spellDeg(st.root, extraDeg)})` : ''}.</p>
+      ${chips(notes, {colors: degs.map(colorOf), under: degs, highlight: degs.map(d => d === extraDeg)})}
+      <p class="cap">${boxText || 'All five boxes together cover the whole neck. Pick a box to see one shape.'}</p>
+      ${noteMapSVG(degreeMarks(st.root, degs, {colorOf}), {frets: 15, focus})}`;
+  }
+};
+
+const PENT_QUIZ_ROOTS = ['A','E','D','G','C','B','F#','F','Bb'];
+
+QUIZZES.spellPent = () => {
+  const root = pick(PENT_QUIZ_ROOTS), t = pick(['minorPent', 'majorPent']), answer = scaleNotes(root, SCALES[t].degs).join(' ');
+  // distractors: the other pentatonic and near-miss five-note sets on the same root
+  const near = [SCALES[t === 'minorPent' ? 'majorPent' : 'minorPent'].degs, ['1','3','4','5','7'], ['1','2','b3','5','b7'], ['1','b3','4','5','6'], ['1','2','4','5','6']];
+  return {
+    q: `Spell the <b>${root} ${t === 'minorPent' ? 'minor' : 'major'} pentatonic</b>.`,
+    answer, options: optionsFor(answer, near.map(d => scaleNotes(root, d).join(' '))),
+    why: `${t === 'minorPent' ? 'Minor pentatonic = 1 ♭3 4 5 ♭7' : 'Major pentatonic = 1 2 3 5 6'} from ${root}: ${answer}.`
+  };
+};
+
+QUIZZES.relativePent = () => {
+  const root = pick(PENT_QUIZ_ROOTS), answer = relativeMajor(root);
+  return {
+    q: `<b>${root} minor pentatonic</b> has exactly the same notes as which <b>major</b> pentatonic?`,
+    answer, options: optionsFor(answer, CIRCLE_MAJOR),
+    why: `Up a minor 3rd from ${root} is ${answer}. ${root} minor pentatonic (${scaleNotes(root, SCALES.minorPent.degs).join(' ')}) = ${answer} major pentatonic (${scaleNotes(answer, SCALES.majorPent.degs).join(' ')}) starting on a different note.`
+  };
+};
+
+QUIZZES.boxStart = () => {
+  const root = pick(PENT_QUIZ_ROOTS), k = 1 + Math.floor(Math.random() * 5), b = pentBox(root, 'minorPent', k);
+  const answer = `fret ${b.startFret}`;
+  return {
+    q: `On the low E string, at which fret does <b>box ${k}</b> of <b>${root} minor pentatonic</b> start?`,
+    answer, options: optionsFor(answer, Array.from({length: 16}, (_, f) => `fret ${f}`)),
+    why: `Box ${k} starts on note ${k} of the scale (${scaleNotes(root, SCALES.minorPent.degs).join(' ')}): ${scaleNotes(root, SCALES.minorPent.degs)[k - 1]}, which is fret ${b.startFret} on the low E string.`
+  };
+};
+
+QUIZZES.pentRemoved = () => {
+  const items = [
+    ['Which two degrees of the <b>major scale</b> does the <b>major pentatonic</b> leave out?', '4 and 7', 'The 4th and 7th are the notes a semitone away from their neighbours (3–4 and 7–8). Without them there are no semitones left.'],
+    ['Which two degrees of the <b>natural minor</b> does the <b>minor pentatonic</b> leave out?', '2 and ♭6', 'The 2nd and ♭6 sit a semitone from ♭3 and 5. Removing them leaves only whole steps and minor 3rds.'],
+    ['Which note turns the minor pentatonic into the <b>blues scale</b>?', '♭5', 'The ♭5 (tritone) squeezed between 4 and 5 is the "blue note".'],
+    ['Which note turns the major pentatonic into the <b>major blues scale</b>?', '♭3', 'The ♭3, used as a passing note into the major 3rd: the sweet, B.B. King–style sound.'],
+  ];
+  const [q, answer, why] = pick(items);
+  return {q, answer, options: optionsFor(answer, ['4 and 7', '2 and ♭6', '3 and 6', '2 and 5', '♭5', '♭3', '♭7', '♯4']), why};
+};
+
+THEORY_PAGES.splice(THEORY_PAGES.findIndex(p => p.id === 'modes'), 0, {id: 'pentatonic', group: 'Scales & keys', label: 'Pentatonic & blues', render: () => `
+${pageHead('pentatonic', '5', 'Pentatonic & blues scales', 'five-note scales · relative pentatonics · the five boxes · the blue note')}
+
+${section(1, 'Five notes, no semitones')}
+${prose(`<p>A <b>pentatonic</b> scale has five notes per octave. The two common ones are cut from the 7-note scales by removing exactly the notes that create <b>semitones</b>:</p>`)}
+${table(['Scale', 'Formula', 'Removed from…', 'In A', 'Sound'], [
+  ['<b>Major pentatonic</b>', '1 2 3 5 6', 'major scale: the <b>4</b> and <b>7</b>', 'A B C♯ E F♯', 'open, sweet, country, pop'],
+  ['<b>Minor pentatonic</b>', '1 ♭3 4 5 ♭7', 'natural minor: the <b>2</b> and <b>♭6</b>', 'A C D E G', 'rock, blues, the classic solo sound'],
+])}
+${prose(`<p>With no semitones, every step is either a whole step or a minor 3rd. No two notes rub against each other, and none of them strongly needs to resolve. That's why the pentatonic sounds good over so many chords, and why it's usually the first scale guitarists learn for soloing.</p>
+<p class="nerd">Nerd corner: the pentatonic is a stack of perfect 5ths. C–G–D–A–E is C major pentatonic: five neighbours on the circle of fifths. That makes it the most "consonant" five-note set there is, and it appears in folk music all over the world.</p>`)}
+
+${section(2, 'Relative pentatonics: one shape, two sounds')}
+${prose(`<p>Just like relative major and minor keys, <b>A minor pentatonic</b> (A C D E G) and <b>C major pentatonic</b> (C D E G A) contain <b>exactly the same notes</b>. The relative major pentatonic starts a minor 3rd above the minor root, or 3 frets higher.</p>
+<p>So every box shape you learn is both scales at once. What decides the sound is which note you treat as <b>home</b>: the note you start and end phrases on, and which chord is underneath. Over A major, the same shape moved down 3 frets (F♯ minor pentatonic = A major pentatonic) gives the bright country/major sound.</p>`)}
+
+${section(3, 'The five boxes')}
+${prose(`<p>On the guitar the pentatonic falls into <b>five shapes</b> ("boxes" or "positions") that link up along the neck. Box 1 starts on the root on the low E string. Each next box starts on the next scale note, and the top of one box is the bottom of the next. After box 5 the pattern starts again at box 1, 12 frets higher.</p>
+<p>Each box has <b>two notes per string</b>, so it fits under one hand. Where a box crosses from the G to the B string the pattern shifts by one fret, because that pair is tuned a major 3rd apart (see <i>Notes &amp; fretboard</i>). Learning all five means you're never stuck in box 1.</p>`)}
+${explorer('pentatonic', 'Pentatonics on the neck')}
+
+${section(4, 'The blues scales')}
+${prose(`<ul>
+<li><b>Blues scale</b> = minor pentatonic + <b>♭5</b> (1 ♭3 4 <b>♭5</b> 5 ♭7). The ♭5, the tritone, is the "blue note". Use it as a quick chromatic step between 4 and 5 (D → E♭ → E in A), not a note to sit on.</li>
+<li><b>Major blues scale</b> = major pentatonic + <b>♭3</b> (1 2 <b>♭3</b> 3 5 6). Slide or hammer from the ♭3 into the major 3rd for the sweet, B.B. King / Allman Brothers sound.</li>
+<li>Over a 12-bar blues, players mix the two. Minor pentatonic over a major chord puts the ♭3 against the chord's major 3rd, the "blue third" clash explored on the <a href="#A">Blues pages</a>. Bending the ♭3 slightly sharp is the classic way to play it.</li>
+</ul>`)}
+${quiz('spellPent', 'Spell the pentatonic')}
+${quiz('relativePent', 'Relative pentatonics')}
+${quiz('boxStart', 'Where does the box start?')}
+${quiz('pentRemoved', 'How the scales are built')}
+</div>`});

@@ -86,17 +86,18 @@ const FB = {NX:68, FW:57, SS:36, TY:70, R:13};
 FB.sy = i => FB.TY + (5-i)*FB.SS;
 FB.nx = f => f === 0 ? FB.NX-28 : FB.NX + (f-0.5)*FB.FW;
 
-// Empty 12-fret board: wood, inlays, nut, frets, strings, labels (opens <svg>, caller closes it)
-function fretboardBase() {
+// Empty board (12 frets unless told otherwise): wood, inlays, nut, frets, strings, labels.
+// Opens <svg>; the caller closes it.
+function fretboardBase(frets = 12) {
   const {NX, FW, SS, TY} = FB;
-  const FBT=TY-22, FBB=TY+5*SS+22, FBR=NX+12*FW, MY=(FBT+FBB)/2;
-  let s = `<svg viewBox="0 0 820 298" style="width:100%;min-width:540px;display:block">`;
+  const FBT=TY-22, FBB=TY+5*SS+22, FBR=NX+frets*FW, MY=(FBT+FBB)/2;
+  let s = `<svg viewBox="0 0 ${FBR + 68} 298" style="width:100%;min-width:${Math.round(540 * (FBR + 68) / 820)}px;display:block">`;
   s += `<rect x="${NX}" y="${FBT}" width="${FBR-NX}" height="${FBB-FBT}" rx="3" fill="#18100a"/>`;
-  [3,5,7,9].forEach(f => s += `<circle cx="${NX+(f-0.5)*FW}" cy="${MY}" r="5" fill="rgba(255,255,255,0.08)"/>`);
+  [3,5,7,9,15].filter(f => f <= frets).forEach(f => s += `<circle cx="${NX+(f-0.5)*FW}" cy="${MY}" r="5" fill="rgba(255,255,255,0.08)"/>`);
   s += `<circle cx="${NX+11.5*FW}" cy="${MY-11}" r="5" fill="rgba(255,255,255,0.08)"/>`;
   s += `<circle cx="${NX+11.5*FW}" cy="${MY+11}" r="5" fill="rgba(255,255,255,0.08)"/>`;
   s += `<line x1="${NX}" y1="${FBT}" x2="${NX}" y2="${FBB}" stroke="#c8a84a" stroke-width="4" stroke-linecap="round"/>`;
-  for (let f = 1; f <= 12; f++) s += `<line x1="${NX+f*FW}" y1="${FBT}" x2="${NX+f*FW}" y2="${FBB}" stroke="#5a4a30" stroke-width="1.5"/>`;
+  for (let f = 1; f <= frets; f++) s += `<line x1="${NX+f*FW}" y1="${FBT}" x2="${NX+f*FW}" y2="${FBB}" stroke="#5a4a30" stroke-width="1.5"/>`;
   for (let i = 0; i < 6; i++) {
     const y = FB.sy(i), t = [2,1.6,1.35,1.1,0.9,0.7][i];
     s += `<line x1="22" y1="${y}" x2="${NX}" y2="${y}" stroke="#777" stroke-width="${t}" opacity="0.5"/>`;
@@ -104,14 +105,14 @@ function fretboardBase() {
     s += `<text x="14" y="${y+4}" text-anchor="middle" font-size="11" fill="#888" font-family="Courier New" font-weight="700">${SL[i]}</text>`;
   }
   s += `<text x="${NX-28}" y="${FBB+14}" text-anchor="middle" font-size="9" fill="#aaa" font-family="Courier New">0</text>`;
-  for (let f = 1; f <= 12; f++) s += `<text x="${NX+(f-0.5)*FW}" y="${FBB+14}" text-anchor="middle" font-size="9" fill="#aaa" font-family="Courier New">${f}</text>`;
+  for (let f = 1; f <= frets; f++) s += `<text x="${NX+(f-0.5)*FW}" y="${FBB+14}" text-anchor="middle" font-size="9" fill="#aaa" font-family="Courier New">${f}</text>`;
   return s;
 }
 
 // Call fn(stringIdx, fret, noteIdx, x, y) for every position on the board
-function eachPosition(fn) {
+function eachPosition(fn, frets = 12) {
   for (let i = 0; i < 6; i++)
-    for (let f = 0; f <= 12; f++)
+    for (let f = 0; f <= frets; f++)
       fn(i, f, (OS[i]+f) % 12, Math.round(FB.nx(f)), Math.round(FB.sy(i)));
 }
 
