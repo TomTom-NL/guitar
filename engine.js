@@ -42,45 +42,9 @@ function chordSVG(cfg, cmap) {
   return s + `</svg>`;
 }
 
-// ── SVG: single-scale fretboard ───────────────────────────────────────────────
-
-function fretSVG(set, ri, col) {
-  const NX=68, FW=57, SS=36, TY=70, R=13;
-  const sy = i => TY + (5-i)*SS;
-  const nx = f => f === 0 ? NX-28 : NX + (f-0.5)*FW;
-  const FBT=TY-22, FBB=TY+5*SS+22, FBR=NX+12*FW, MY=(FBT+FBB)/2;
-  let s = `<svg viewBox="0 0 820 298" style="width:100%;min-width:540px;display:block">`;
-  s += `<rect x="${NX}" y="${FBT}" width="${FBR-NX}" height="${FBB-FBT}" rx="3" fill="#18100a"/>`;
-  [3,5,7,9].forEach(f => s += `<circle cx="${NX+(f-0.5)*FW}" cy="${MY}" r="5" fill="rgba(255,255,255,0.08)"/>`);
-  s += `<circle cx="${NX+11.5*FW}" cy="${MY-11}" r="5" fill="rgba(255,255,255,0.08)"/>`;
-  s += `<circle cx="${NX+11.5*FW}" cy="${MY+11}" r="5" fill="rgba(255,255,255,0.08)"/>`;
-  s += `<line x1="${NX}" y1="${FBT}" x2="${NX}" y2="${FBB}" stroke="#c8a84a" stroke-width="4" stroke-linecap="round"/>`;
-  for (let f = 1; f <= 12; f++) s += `<line x1="${NX+f*FW}" y1="${FBT}" x2="${NX+f*FW}" y2="${FBB}" stroke="#5a4a30" stroke-width="1.5"/>`;
-  for (let i = 0; i < 6; i++) {
-    const y = sy(i), t = [2,1.6,1.35,1.1,0.9,0.7][i];
-    s += `<line x1="22" y1="${y}" x2="${NX}" y2="${y}" stroke="#777" stroke-width="${t}" opacity="0.5"/>`;
-    s += `<line x1="${NX}" y1="${y}" x2="${FBR}" y2="${y}" stroke="rgba(210,185,120,0.38)" stroke-width="${t}"/>`;
-    s += `<text x="14" y="${y+4}" text-anchor="middle" font-size="11" fill="#888" font-family="Courier New" font-weight="700">${SL[i]}</text>`;
-  }
-  s += `<text x="${NX-28}" y="${FBB+14}" text-anchor="middle" font-size="9" fill="#aaa" font-family="Courier New">0</text>`;
-  for (let f = 1; f <= 12; f++) s += `<text x="${NX+(f-0.5)*FW}" y="${FBB+14}" text-anchor="middle" font-size="9" fill="#aaa" font-family="Courier New">${f}</text>`;
-  for (let i = 0; i < 6; i++) {
-    for (let f = 0; f <= 12; f++) {
-      const ni = (OS[i]+f) % 12;
-      if (!set.has(ni)) continue;
-      const x = Math.round(nx(f)), y = Math.round(sy(i)), n = NN[ni], fs = n.length > 1 ? 8 : 9, ir = (ni === ri);
-      if (ir) s += `<circle cx="${x}" cy="${y}" r="${R+4}" fill="none" stroke="${col}" stroke-width="1" opacity="0.28"/>`;
-      s += `<circle cx="${x}" cy="${y}" r="${R}" fill="${col}" opacity="${ir?1:0.82}"/>`;
-      if (ir) s += `<circle cx="${x}" cy="${y}" r="${R}" fill="none" stroke="white" stroke-width="1.8"/>`;
-      s += `<text x="${x}" y="${y+4}" text-anchor="middle" font-size="${fs}" fill="white" font-weight="700" font-family="Courier New">${n}</text>`;
-    }
-  }
-  return s + `</svg>`;
-}
-
 // ── SVG: cycle of thirds circle ───────────────────────────────────────────────
 
-function cycleSVG(kd, cmap, cints) {
+function cycleSVG(kd, cints) {
   const cx=145, cy=145, r=108, sz=295;
   const pts = Array.from({length:7}, (_,i) => {
     const a = (-90 + i*360/7) * Math.PI/180;
@@ -112,14 +76,19 @@ function cycleSVG(kd, cmap, cints) {
   return s + `</svg>`;
 }
 
-// ── SVG: overlay pentatonic fretboard ────────────────────────────────────────
+// ── SVG: fretboard ───────────────────────────────────────────────────────────
 
-function overlayFretSVG(kd, ri, key) {
-  const mpSet = new Set(kd.mpIdx), mnSet = new Set(kd.mnIdx);
-  const SHARED='#2d7a2d', MAJ='#c97b20', MIN='#6b2d8b', BLUES='#1e5fa8';
-  const NX=68, FW=57, SS=36, TY=70, R=13;
-  const sy = i => TY + (5-i)*SS;
-  const nx = f => f === 0 ? NX-28 : NX + (f-0.5)*FW;
+// Pentatonic overlay colours — keep in sync with --p* variables in styles.css
+const PENT_COL = {shared:'#2d7a2d', major:'#c97b20', minor:'#6b2d8b', blues:'#1e5fa8'};
+
+// Fretboard geometry, shared by the base drawing and the note dots
+const FB = {NX:68, FW:57, SS:36, TY:70, R:13};
+FB.sy = i => FB.TY + (5-i)*FB.SS;
+FB.nx = f => f === 0 ? FB.NX-28 : FB.NX + (f-0.5)*FB.FW;
+
+// Empty 12-fret board: wood, inlays, nut, frets, strings, labels (opens <svg>, caller closes it)
+function fretboardBase() {
+  const {NX, FW, SS, TY} = FB;
   const FBT=TY-22, FBB=TY+5*SS+22, FBR=NX+12*FW, MY=(FBT+FBB)/2;
   let s = `<svg viewBox="0 0 820 298" style="width:100%;min-width:540px;display:block">`;
   s += `<rect x="${NX}" y="${FBT}" width="${FBR-NX}" height="${FBB-FBT}" rx="3" fill="#18100a"/>`;
@@ -129,65 +98,68 @@ function overlayFretSVG(kd, ri, key) {
   s += `<line x1="${NX}" y1="${FBT}" x2="${NX}" y2="${FBB}" stroke="#c8a84a" stroke-width="4" stroke-linecap="round"/>`;
   for (let f = 1; f <= 12; f++) s += `<line x1="${NX+f*FW}" y1="${FBT}" x2="${NX+f*FW}" y2="${FBB}" stroke="#5a4a30" stroke-width="1.5"/>`;
   for (let i = 0; i < 6; i++) {
-    const y = sy(i), t = [2,1.6,1.35,1.1,0.9,0.7][i];
+    const y = FB.sy(i), t = [2,1.6,1.35,1.1,0.9,0.7][i];
     s += `<line x1="22" y1="${y}" x2="${NX}" y2="${y}" stroke="#777" stroke-width="${t}" opacity="0.5"/>`;
     s += `<line x1="${NX}" y1="${y}" x2="${FBR}" y2="${y}" stroke="rgba(210,185,120,0.38)" stroke-width="${t}"/>`;
     s += `<text x="14" y="${y+4}" text-anchor="middle" font-size="11" fill="#888" font-family="Courier New" font-weight="700">${SL[i]}</text>`;
   }
   s += `<text x="${NX-28}" y="${FBB+14}" text-anchor="middle" font-size="9" fill="#aaa" font-family="Courier New">0</text>`;
   for (let f = 1; f <= 12; f++) s += `<text x="${NX+(f-0.5)*FW}" y="${FBB+14}" text-anchor="middle" font-size="9" fill="#aaa" font-family="Courier New">${f}</text>`;
-  for (let i = 0; i < 6; i++) {
-    for (let f = 0; f <= 12; f++) {
-      const ni = (OS[i]+f) % 12;
-      const inM = mpSet.has(ni), inn = mnSet.has(ni);
-      if (!inM && !inn) continue;
-      const type = (inM && inn) ? 'shared' : inM ? 'major' : 'minor';
-      const col = type === 'shared' ? SHARED : type === 'major' ? MAJ : MIN;
-      const x = Math.round(nx(f)), y = Math.round(sy(i)), n = NN[ni], fs = n.length > 1 ? 8 : 9, ir = (ni === ri);
-      s += `<g class="fb-dot" data-type="${type}" style="opacity:1;transition:opacity 0.18s">`;
-      if (ir) s += `<circle cx="${x}" cy="${y}" r="${R+4}" fill="none" stroke="${col}" stroke-width="1" opacity="0.3"/>`;
-      s += `<circle cx="${x}" cy="${y}" r="${R}" fill="${col}"/>`;
-      if (ir) s += `<circle cx="${x}" cy="${y}" r="${R}" fill="none" stroke="white" stroke-width="1.8"/>`;
-      s += `<text x="${x}" y="${y+4}" text-anchor="middle" font-size="${fs}" fill="white" font-weight="700" font-family="Courier New">${n}</text>`;
-      s += `</g>`;
-    }
-  }
+  return s;
+}
+
+// Call fn(stringIdx, fret, noteIdx, x, y) for every position on the board
+function eachPosition(fn) {
+  for (let i = 0; i < 6; i++)
+    for (let f = 0; f <= 12; f++)
+      fn(i, f, (OS[i]+f) % 12, Math.round(FB.nx(f)), Math.round(FB.sy(i)));
+}
+
+// ── SVG: overlay pentatonic fretboard ────────────────────────────────────────
+
+function overlayFretSVG(kd, ri) {
+  const mpSet = new Set(kd.mpIdx), mnSet = new Set(kd.mnIdx), R = FB.R;
+  const label = (x, y, n) => `<text x="${x}" y="${y+4}" text-anchor="middle" font-size="${n.length > 1 ? 8 : 9}" fill="white" font-weight="700" font-family="Courier New">${n}</text>`;
+  let s = fretboardBase();
+  eachPosition((i, f, ni, x, y) => {
+    const inM = mpSet.has(ni), inn = mnSet.has(ni);
+    if (!inM && !inn) return;
+    const type = (inM && inn) ? 'shared' : inM ? 'major' : 'minor';
+    const col = PENT_COL[type], ir = (ni === ri);
+    s += `<g class="fb-dot" data-type="${type}" style="opacity:1;transition:opacity 0.18s">`;
+    if (ir) s += `<circle cx="${x}" cy="${y}" r="${R+4}" fill="none" stroke="${col}" stroke-width="1" opacity="0.3"/>`;
+    s += `<circle cx="${x}" cy="${y}" r="${R}" fill="${col}"/>`;
+    if (ir) s += `<circle cx="${x}" cy="${y}" r="${R}" fill="none" stroke="white" stroke-width="1.8"/>`;
+    s += label(x, y, NN[ni]) + `</g>`;
+  });
   // Blues note (b5) — rendered on top, hidden by default
-  for (let i = 0; i < 6; i++) {
-    for (let f = 0; f <= 12; f++) {
-      const ni = (OS[i]+f) % 12;
-      if (ni !== kd.bluesIdx) continue;
-      const x = Math.round(nx(f)), y = Math.round(sy(i)), n = NN[ni], fs = n.length > 1 ? 8 : 9;
-      s += `<g class="fb-dot" data-type="blues" style="opacity:0;transition:opacity 0.18s">`;
-      s += `<circle cx="${x}" cy="${y}" r="${R}" fill="${BLUES}"/>`;
-      s += `<circle cx="${x}" cy="${y}" r="${R}" fill="none" stroke="white" stroke-width="1.8" stroke-dasharray="3 2"/>`;
-      s += `<text x="${x}" y="${y+4}" text-anchor="middle" font-size="${fs}" fill="white" font-weight="700" font-family="Courier New">${n}</text>`;
-      s += `</g>`;
-    }
-  }
+  eachPosition((i, f, ni, x, y) => {
+    if (ni !== kd.bluesIdx) return;
+    s += `<g class="fb-dot" data-type="blues" style="opacity:0;transition:opacity 0.18s">`;
+    s += `<circle cx="${x}" cy="${y}" r="${R}" fill="${PENT_COL.blues}"/>`;
+    s += `<circle cx="${x}" cy="${y}" r="${R}" fill="none" stroke="white" stroke-width="1.8" stroke-dasharray="3 2"/>`;
+    s += label(x, y, NN[ni]) + `</g>`;
+  });
   return s + `</svg>`;
 }
 
 // ── Scale theory block (reusable for major + minor) ───────────────────────────
 
-function renderScaleBlock(scale, triads, cycle, cmap2, tsInts, cints, opts={}) {
+function renderScaleBlock(scale, triads, cycle, cmap2, tsInts, cints) {
   const s8 = [...scale, scale[0]];
-  let srow = '', irow = '';
-  if (!opts.hideScale) {
-    srow = '<div class="srow">';
-    s8.forEach((n,i) => {
-      if (i > 0) srow += '<div class="sc"></div>';
-      const idx = i===7 ? 0 : i, co = DC[idx], bg = DB[idx];
-      srow += `<div class="sn2"><span class="dg">${i===7?'8':i+1}</span><span class="nc" style="border-color:${co};color:${co};background:${bg}">${n}</span></div>`;
-    });
-    srow += '</div>';
-    irow = '<div class="irow">';
-    s8.forEach((_,i) => {
-      irow += '<div class="ic"></div>';
-      if (i < 7) { const t = tsInts[i]; irow += `<div class="im ${t.toLowerCase()}">${t}</div>`; }
-    });
-    irow += '</div>';
-  }
+  let srow = '<div class="srow">';
+  s8.forEach((n,i) => {
+    if (i > 0) srow += '<div class="sc"></div>';
+    const idx = i===7 ? 0 : i, co = DC[idx], bg = DB[idx];
+    srow += `<div class="sn2"><span class="dg">${i===7?'8':i+1}</span><span class="nc" style="border-color:${co};color:${co};background:${bg}">${n}</span></div>`;
+  });
+  srow += '</div>';
+  let irow = '<div class="irow">';
+  s8.forEach((_,i) => {
+    irow += '<div class="ic"></div>';
+    if (i < 7) { const t = tsInts[i]; irow += `<div class="im ${t.toLowerCase()}">${t}</div>`; }
+  });
+  irow += '</div>';
   let tickRow = '<div class="tick-row">';
   for (let i = 0; i < 7; i++) {
     if (i > 0) tickRow += '<div class="tick-sp" style="flex:1"></div>';
@@ -215,7 +187,7 @@ function renderScaleBlock(scale, triads, cycle, cmap2, tsInts, cints, opts={}) {
   <div class="theory-bottom">
     <div>
       <div class="sl" style="margin-bottom:4px">Cycle of thirds</div>
-      <div class="cywrap">${cycleSVG({cycle}, cmap2, cints)}</div>
+      <div class="cywrap">${cycleSVG({cycle}, cints)}</div>
     </div>
     <div>
       <div class="sl" style="margin-bottom:6px">Tertian (R · 3 · 5)</div>
@@ -241,33 +213,20 @@ function renderKey(key) {
 
   // Major open + dominant 7th chord rows
   let openRow = '<div class="cpair">', seventhRow = '<div class="cpair">';
-  kd.chords.forEach(ch => {
-    const col = gc(ch.name.split(' ')[0], cmap2);
-    const title = `<div class="cgtitle" style="color:${col};margin-bottom:4px">${ch.name}<span class="cgtag">· ${ch.tag}</span></div>`;
-    openRow   += `<div class="citem">${title}<div class="citemsub">${ch.open.lbl}</div>${chordSVG(ch.open, cmap2)}</div>`;
-  });
-  kd.sevenths.forEach(ch => {
-    const col = gc(ch.name.replace(/\d/g,'').trim(), cmap2);
-    const title = `<div class="cgtitle" style="color:${col};margin-bottom:4px">${ch.name}<span class="cgtag">· ${ch.tag}</span></div>`;
-    seventhRow += `<div class="citem">${title}<div class="citemsub">${ch.lbl}</div>${chordSVG(ch, cmap2)}</div>`;
-  });
+  kd.chords.forEach(ch => openRow += chordCard({...ch.open, name: ch.name, tag: ch.tag}, cmap2));
+  kd.sevenths.forEach(ch => seventhRow += chordCard(ch, cmap2));
   openRow += '</div>'; seventhRow += '</div>';
 
   // Minor chord row
   let minorChordRow = '<div class="cpair">';
-  kd.rel.chords.forEach(ch => {
-    const rootNote = ch.name.replace(/m$|°$/,'');
-    const col = gc(rootNote, relCmap);
-    const title = `<div class="cgtitle" style="color:${col};margin-bottom:4px">${ch.name}<span class="cgtag">· ${ch.tag}</span></div>`;
-    minorChordRow += `<div class="citem">${title}<div class="citemsub">${ch.lbl}</div>${chordSVG(ch, relCmap)}</div>`;
-  });
+  kd.rel.chords.forEach(ch => minorChordRow += chordCard(ch, relCmap));
   minorChordRow += '</div>';
 
   // Scale comparison table
   let comp = `<table class="ct"><thead><tr><th class="cdeg">Deg</th><th>${key} major pent</th><th>${key} minor pent</th><th>Note</th></tr></thead><tbody>`;
   kd.comp.forEach(r => {
-    const mj = r.mj ? `<b style="color:var(--mk)">${r.mj}</b>` : `<span style="opacity:0.2">—</span>`;
-    const mn = r.mn ? `<b style="color:var(--nk)">${r.mn}</b>` : `<span style="opacity:0.2">—</span>`;
+    const mj = r.mj ? `<b style="color:var(--pmaj-k)">${r.mj}</b>` : `<span style="opacity:0.2">—</span>`;
+    const mn = r.mn ? `<b style="color:var(--pmin-k)">${r.mn}</b>` : `<span style="opacity:0.2">—</span>`;
     comp += `<tr><td class="cdeg">${r.d}</td><td>${mj}</td><td>${mn}</td><td style="font-size:10px;opacity:0.58">${r.t}</td></tr>`;
   });
   comp += `</tbody></table>`;
@@ -304,29 +263,56 @@ function renderKey(key) {
   ${minorChordRow}
 
   <div class="sh"><span class="sn">§3</span><span class="st">Pentatonic Scales</span></div>
-  <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap">
-    <button id="btn-maj-${key}" onclick="togglePent('${key}','maj')" style="display:flex;align-items:center;gap:8px;padding:8px 16px;border:2px solid #c97b20;background:#fdf0dc;border-radius:6px;cursor:pointer;font-family:'Courier New',monospace;font-size:12px;font-weight:700;color:#8a5010;transition:opacity 0.15s">
-      <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#c97b20"></span>Major pentatonic — ${kd.mpN.join(' ')}
-    </button>
-    <button id="btn-min-${key}" onclick="togglePent('${key}','min')" style="display:flex;align-items:center;gap:8px;padding:8px 16px;border:2px solid #6b2d8b;background:#ede4f5;border-radius:6px;cursor:pointer;font-family:'Courier New',monospace;font-size:12px;font-weight:700;color:#4a1a6b;transition:opacity 0.15s">
-      <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#6b2d8b"></span>Minor pentatonic — ${kd.mnN.join(' ')}
-    </button>
-    <button id="btn-blues-${key}" onclick="togglePent('${key}','blues')" style="display:flex;align-items:center;gap:8px;padding:8px 16px;border:2px solid #1e5fa8;background:#ddeaf8;border-radius:6px;cursor:pointer;font-family:'Courier New',monospace;font-size:12px;font-weight:700;color:#133f75;opacity:0.35;transition:opacity 0.15s">
-      <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#1e5fa8"></span>Blues note — ${NN[kd.bluesIdx]} (b5)
-    </button>
+  <div class="pent-btns">
+    <button class="pent-btn maj" data-key="${key}" data-which="maj" aria-pressed="true"><span class="sw"></span>Major pentatonic — ${kd.mpN.join(' ')}</button>
+    <button class="pent-btn min" data-key="${key}" data-which="min" aria-pressed="true"><span class="sw"></span>Minor pentatonic — ${kd.mnN.join(' ')}</button>
+    <button class="pent-btn blues" data-key="${key}" data-which="blues" aria-pressed="false"><span class="sw"></span>Blues note — ${NN[kd.bluesIdx]} (b5)</button>
   </div>
-  <div style="display:flex;gap:18px;margin-bottom:10px;font-size:11px;flex-wrap:wrap">
-    <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:#c97b20"></span>Major only</span>
-    <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:#6b2d8b"></span>Minor only</span>
-    <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:#2d7a2d"></span>In both</span>
-    <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:#1e5fa8"></span>Blues note (b5)</span>
+  <div class="pent-legend">
+    <span class="maj"><span class="sw"></span>Major only</span>
+    <span class="min"><span class="sw"></span>Minor only</span>
+    <span class="both"><span class="sw"></span>In both</span>
+    <span class="blues"><span class="sw"></span>Blues note (b5)</span>
   </div>
-  <div style="border:1.5px solid var(--faint);border-radius:6px;overflow-x:auto">${overlayFretSVG(kd,ri,key)}</div>
+  <div class="fb-wrap">${overlayFretSVG(kd,ri)}</div>
   <hr class="dv">
   <div class="sl" style="margin-bottom:7px">Scale comparison</div>
   ${comp}
   <div class="insight"><div class="insight-t">Blues tension</div><div class="insight-b">${kd.insight}</div></div>
   <hr class="dv">
   <div class="legend">${leg}</div>
+</div>`;
+}
+
+// ── Chord sheet page (diatonic row + secondary dominants underneath) ─────────
+
+// One chord diagram with its title and fingering label
+function chordCard(ch, cmap) {
+  const col = gc(ch.name.match(/^[A-G]#?/)[0], cmap);
+  return `<div class="citem"><div class="cgtitle" style="color:${col};margin-bottom:4px">${ch.name}<span class="cgtag">· ${ch.tag}</span></div><div class="citemsub">${ch.lbl}</div>${chordSVG(ch, cmap)}</div>`;
+}
+
+function renderChordSheet(id) {
+  const sh = CHORD_SHEETS[id], cmap = cm(sh.scale);
+  const row = (chords, empty) => chords.map(ch => ch ? chordCard(ch, cmap) : `<div class="citem prog-empty">${empty}</div>`).join('');
+  const arrows = sh.secondary.map((ch, i) => `<div class="prog-arrow">${ch ? `↑ resolves to ${sh.diatonic[i].name}` : ''}</div>`).join('');
+  return `
+<div class="key-section" id="key-${id}">
+  <div class="key-banner">
+    <div class="key-letter">${sh.key}</div>
+    <div class="key-info">
+      <div class="key-name">${sh.full}</div>
+      <div class="key-sub">${sh.scale.join(' — ')}</div>
+    </div>
+  </div>
+
+  <div class="sh"><span class="sn">§1</span><span class="st">Diatonic chords — ${sh.diatonic.map(c => c.tag).join(' · ')}</span></div>
+  <div class="prog-wrap">
+    <div class="prog-grid">${row(sh.diatonic, '')}</div>
+    <div class="prog-grid">${arrows}</div>
+    <div class="sl" style="margin:10px 0 8px">Secondary dominants — the V7 of each chord above</div>
+    <div class="prog-grid">${row(sh.secondary, 'no secondary dominant')}</div>
+  </div>
+  <div class="insight"><div class="insight-t">How to use</div><div class="insight-b">Each secondary dominant is the dominant 7th a fifth above its target. Play it right before that chord to pull the ear toward it, e.g. <b>C → A7 → Dm</b>. Grey dots are notes outside ${sh.key} major; most are the leading tone a half step below the target's root.</div></div>
 </div>`;
 }
