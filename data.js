@@ -147,7 +147,7 @@ const CHORD_SHEETS = {
       {name:'C7',tag:'V7/IV', lbl:'open · x32310',sf:0,mu:[0],  dots:[{s:1,f:3},{s:2,f:2},{s:3,f:3},{s:4,f:1}],br:null},
       {name:'D7',tag:'V7/V',  lbl:'open · xx0212',sf:0,mu:[0,1],dots:[{s:3,f:2},{s:4,f:1},{s:5,f:2}],br:null},
       {name:'E7',tag:'V7/vi', lbl:'open · 020100',sf:0,mu:[],   dots:[{s:1,f:2},{s:3,f:1}],br:null},
-      {name:'F#7',tag:'V7/vii',lbl:'barre 2fr · E7 shape',sf:2,mu:[],dots:[{s:1,f:4},{s:3,f:3}],br:{f:2,a:0,b:5}}]}
+      {name:'F#7',tag:'V7/vii',lbl:'2x232x',     sf:0,mu:[1,5],dots:[{s:0,f:2},{s:2,f:2},{s:3,f:3},{s:4,f:2}],br:null}]}
 };
 
 // ── Pure helper functions ─────────────────────────────────────────────────────
