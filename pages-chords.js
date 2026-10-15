@@ -26,7 +26,7 @@ function chordDiagram(root, type, tag, colorOf) {
 
 EXPLORERS.chordBuilder = {
   controls: () => selectCtl('root', 'Root', ROOTS, 'C') +
-    selectCtl('type', 'Type', Object.entries(CHORD_TYPES).filter(([k]) => k !== 'augMaj7').map(([k, t]) => [k, `${t.name} (${t.sym || 'maj'})`]), 'dom7'),
+    selectCtl('type', 'Type', Object.entries(CHORD_TYPES).filter(([k]) => k !== 'augMaj7').map(([k, t]) => [k, `${t.name} (${t.sym || 'maj'})`]), 'maj'),
   render: st => {
     const t = CHORD_TYPES[st.type], notes = chordNotes(st.root, st.type), col = roleColor(st.root, st.type);
     const inversions = ['triad', 'seventh', 'sixth'].includes(t.family)

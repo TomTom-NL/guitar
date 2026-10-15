@@ -70,7 +70,7 @@ function noteMapSVG(marks, opts = {}) {
     const op = m.faint || (opts.focus && !opts.focus(i, f)) ? (opts.focus ? 0.22 : 0.6) : 1;
     const ring = m.root && op >= 0.5;  // faded roots (outside a highlighted box) get no ring
     // each dot is a tap target playing exactly this string and fret (with a slightly larger invisible hit area)
-    s += `<g class="tap"${tapNote(OPEN_MIDI[i] + f, m.label)}><circle cx="${x}" cy="${y}" r="${R + 5}" fill="transparent"/>`;
+    s += `<g class="tap" data-s="${i}" data-f="${f}"${tapNote(OPEN_MIDI[i] + f, m.label)}><circle cx="${x}" cy="${y}" r="${R + 5}" fill="transparent"/>`;
     if (ring) s += `<circle cx="${x}" cy="${y}" r="${R+4}" fill="none" stroke="${m.col}" stroke-width="1" opacity="0.4"/>`;
     s += `<circle cx="${x}" cy="${y}" r="${R}" fill="${m.col}" opacity="${op}"/>`;
     if (ring) s += `<circle cx="${x}" cy="${y}" r="${R}" fill="none" stroke="white" stroke-width="1.8"/>`;
@@ -82,6 +82,30 @@ function noteMapSVG(marks, opts = {}) {
     s += '</g>';
   }, opts.frets);
   return `${hasDeg ? degToggle() : ''}<div class="fb-wrap">${s}</svg></div>`;
+}
+
+// ── Scale positions in explorers ────────────────────────────────────────────
+// Position + speed controls, and the fretboard focus/caption for the chosen position.
+
+function positionCtls(key, def = '1') {
+  const n = positionCount(key), word = isPentKey(key) ? 'Box' : 'Position';
+  return selectCtl('pos', 'Position', [['all', 'whole neck'], ...Array.from({length: n}, (_, i) => [String(i + 1), `${word} ${i + 1}`])], def) +
+    selectCtl('bpm', 'Speed', SPEEDS, '90');
+}
+
+// {focus, frets, caption} for noteMapSVG; whole neck = no focus
+function positionView(root, key, pos) {
+  if (pos === 'all') {
+    // ▶ still plays position 1, so make sure the board reaches its highest fret
+    const hi = Math.max(...scalePosition(root, key, 1).map(p => p.f));
+    return {focus: null, frets: Math.max(15, hi), caption: 'Whole neck shown; ▶ plays position 1. Pick a position to see one shape.'};
+  }
+  const notes = scalePosition(root, key, +pos), keys = new Set(notes.map(p => p.s + ':' + p.f)), fs = notes.map(p => p.f);
+  const lo = Math.min(...fs), hi = Math.max(...fs), first = notes[0];
+  const word = isPentKey(key) ? 'Box' : 'Position';
+  const perString = isPentKey(key) ? 'two' : 'three';
+  return {focus: (s, f) => keys.has(s + ':' + f), frets: Math.max(15, hi),
+    caption: `<b>${word} ${pos}</b> starts on <b>${noteNameAt(first.s, first.f, root, key)}</b> (low E string, fret ${first.f}) and covers frets ${lo}–${hi}, ${perString} notes per string. ▶ plays it up across all six strings and back down; the dots light up as they sound.`};
 }
 
 // ── Notes / degrees toggle ──────────────────────────────────────────────────

@@ -380,3 +380,47 @@ function chordVoicing(root, type) {
   const sh = chordShape(root, type);
   return sh ? shapeMidis(sh) : null;
 }
+
+// ── Scale positions (for playing and highlighting a scale on the neck) ────────
+// Pentatonic / blues scales use the five boxes (pentBox). Seven-note scales use
+// the seven three-notes-per-string positions: position k starts on the k-th
+// scale note on the low E string and climbs the scale three notes per string.
+
+function scaleDegs(key) {
+  if (key.startsWith('mode:')) return MODES.find(m => m.key === key.slice(5)).degs;
+  return SCALES[key].degs;
+}
+function isPentKey(key) { return key in PENT_BASE; }
+function positionCount(key) { return isPentKey(key) ? 5 : 7; }
+
+function nps3Position(root, degs, k) {
+  const pcs = degs.map(d => pcOf(spellDeg(root, d)));
+  const walk = start => {
+    let pitch = OPEN_MIDI[0] + start, idx = k - 1;
+    const pos = [];
+    for (let s = 0; s < 6; s++) for (let n = 0; n < 3; n++) {
+      pos.push({s, f: pitch - OPEN_MIDI[s]});
+      pitch += (pcs[(idx + 1) % 7] - pcs[idx % 7] + 12) % 12;
+      idx++;
+    }
+    return pos;
+  };
+  let start = (pcs[k - 1] - OS[0] + 12) % 12, pos = walk(start);
+  if (pos.some(p => p.f < 0)) { start += 12; pos = walk(start); }
+  return {startFret: start, positions: pos};
+}
+
+// Notes of one position, low to high, each {s, f, midi}; no pitch appears twice
+function scalePosition(root, key, k) {
+  const raw = isPentKey(key) ? pentBox(root, key, k).positions : nps3Position(root, scaleDegs(key), k).positions;
+  const seen = new Set();
+  return raw.map(p => ({...p, midi: OPEN_MIDI[p.s] + p.f}))
+    .sort((a, b) => a.midi - b.midi || a.s - b.s)
+    .filter(p => !seen.has(p.midi) && seen.add(p.midi));
+}
+
+// Play order: up through the position and back down to the first note, top note once
+function scaleRun(root, key, k) {
+  const up = scalePosition(root, key, k);
+  return up.concat(up.slice(0, -1).reverse());
+}

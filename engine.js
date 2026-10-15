@@ -133,7 +133,7 @@ function overlayFretSVG(kd, ri) {
     if (!inM && !inn) return;
     const type = (inM && inn) ? 'shared' : inM ? 'major' : 'minor';
     const col = PENT_COL[type], ir = (ni === ri);
-    s += `<g class="fb-dot tap" data-type="${type}"${tapNote(OPEN_MIDI[i] + f, nameOf(ni))} style="opacity:1;transition:opacity 0.18s">`;
+    s += `<g class="fb-dot tap" data-type="${type}" data-s="${i}" data-f="${f}"${tapNote(OPEN_MIDI[i] + f, nameOf(ni))} style="opacity:1;transition:opacity 0.18s">`;
     if (ir) s += `<circle cx="${x}" cy="${y}" r="${R+4}" fill="none" stroke="${col}" stroke-width="1" opacity="0.3"/>`;
     s += `<circle cx="${x}" cy="${y}" r="${R}" fill="${col}"/>`;
     if (ir) s += `<circle cx="${x}" cy="${y}" r="${R}" fill="none" stroke="white" stroke-width="1.8"/>`;
@@ -142,7 +142,7 @@ function overlayFretSVG(kd, ri) {
   // Blues note (b5) — rendered on top, hidden by default
   eachPosition((i, f, ni, x, y) => {
     if (ni !== kd.bluesIdx) return;
-    s += `<g class="fb-dot tap" data-type="blues"${tapNote(OPEN_MIDI[i] + f, nameOf(ni))} style="opacity:0;transition:opacity 0.18s">`;
+    s += `<g class="fb-dot tap" data-type="blues" data-s="${i}" data-f="${f}"${tapNote(OPEN_MIDI[i] + f, nameOf(ni))} style="opacity:0;transition:opacity 0.18s">`;
     s += `<circle cx="${x}" cy="${y}" r="${R}" fill="${PENT_COL.blues}"/>`;
     s += `<circle cx="${x}" cy="${y}" r="${R}" fill="none" stroke="white" stroke-width="1.8" stroke-dasharray="3 2"/>`;
     s += label(x, y, nameOf(ni)) + `</g>`;
@@ -290,7 +290,7 @@ function renderKey(key) {
     <button class="pent-btn min" data-key="${key}" data-which="min" aria-pressed="true"><span class="sw"></span>Minor pentatonic — ${kd.mnN.join(' ')}</button>
     <button class="pent-btn blues" data-key="${key}" data-which="blues" aria-pressed="false"><span class="sw"></span>Blues note — ${spellDeg(kd.root, 'b5')} (b5)</button>
   </div>
-  ${listen(playBtn({mode: 'scale', notes: kd.mnN, drone: true}, 'minor pentatonic'), playBtn({mode: 'scale', notes: kd.mpN, drone: true}, 'major pentatonic'), playBtn({mode: 'scale', notes: scaleNotes(kd.root, SCALES.blues.degs), drone: true}, 'blues scale'))}
+  ${scalePlayer(kd.root, [['minorPent', 'Minor pentatonic'], ['majorPent', 'Major pentatonic'], ['blues', 'Blues scale']], {drone: true})}
   <div class="pent-legend">
     <span class="maj"><span class="sw"></span>Major only</span>
     <span class="min"><span class="sw"></span>Minor only</span>
