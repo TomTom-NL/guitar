@@ -213,26 +213,13 @@ function renderKey(key) {
 
   // Major open + dominant 7th chord rows
   let openRow = '<div class="cpair">', seventhRow = '<div class="cpair">';
-  kd.chords.forEach(ch => {
-    const col = gc(ch.name.split(' ')[0], cmap2);
-    const title = `<div class="cgtitle" style="color:${col};margin-bottom:4px">${ch.name}<span class="cgtag">· ${ch.tag}</span></div>`;
-    openRow   += `<div class="citem">${title}<div class="citemsub">${ch.open.lbl}</div>${chordSVG(ch.open, cmap2)}</div>`;
-  });
-  kd.sevenths.forEach(ch => {
-    const col = gc(ch.name.replace(/\d/g,'').trim(), cmap2);
-    const title = `<div class="cgtitle" style="color:${col};margin-bottom:4px">${ch.name}<span class="cgtag">· ${ch.tag}</span></div>`;
-    seventhRow += `<div class="citem">${title}<div class="citemsub">${ch.lbl}</div>${chordSVG(ch, cmap2)}</div>`;
-  });
+  kd.chords.forEach(ch => openRow += chordCard({...ch.open, name: ch.name, tag: ch.tag}, cmap2));
+  kd.sevenths.forEach(ch => seventhRow += chordCard(ch, cmap2));
   openRow += '</div>'; seventhRow += '</div>';
 
   // Minor chord row
   let minorChordRow = '<div class="cpair">';
-  kd.rel.chords.forEach(ch => {
-    const rootNote = ch.name.replace(/m$|°$/,'');
-    const col = gc(rootNote, relCmap);
-    const title = `<div class="cgtitle" style="color:${col};margin-bottom:4px">${ch.name}<span class="cgtag">· ${ch.tag}</span></div>`;
-    minorChordRow += `<div class="citem">${title}<div class="citemsub">${ch.lbl}</div>${chordSVG(ch, relCmap)}</div>`;
-  });
+  kd.rel.chords.forEach(ch => minorChordRow += chordCard(ch, relCmap));
   minorChordRow += '</div>';
 
   // Scale comparison table
@@ -294,5 +281,38 @@ function renderKey(key) {
   <div class="insight"><div class="insight-t">Blues tension</div><div class="insight-b">${kd.insight}</div></div>
   <hr class="dv">
   <div class="legend">${leg}</div>
+</div>`;
+}
+
+// ── Chord sheet page (diatonic row + secondary dominants underneath) ─────────
+
+// One chord diagram with its title and fingering label
+function chordCard(ch, cmap) {
+  const col = gc(ch.name.match(/^[A-G]#?/)[0], cmap);
+  return `<div class="citem"><div class="cgtitle" style="color:${col};margin-bottom:4px">${ch.name}<span class="cgtag">· ${ch.tag}</span></div><div class="citemsub">${ch.lbl}</div>${chordSVG(ch, cmap)}</div>`;
+}
+
+function renderChordSheet(id) {
+  const sh = CHORD_SHEETS[id], cmap = cm(sh.scale);
+  const row = (chords, empty) => chords.map(ch => ch ? chordCard(ch, cmap) : `<div class="citem prog-empty">${empty}</div>`).join('');
+  const arrows = sh.secondary.map((ch, i) => `<div class="prog-arrow">${ch ? `↑ resolves to ${sh.diatonic[i].name}` : ''}</div>`).join('');
+  return `
+<div class="key-section" id="key-${id}">
+  <div class="key-banner">
+    <div class="key-letter">${sh.key}</div>
+    <div class="key-info">
+      <div class="key-name">${sh.full}</div>
+      <div class="key-sub">${sh.scale.join(' — ')}</div>
+    </div>
+  </div>
+
+  <div class="sh"><span class="sn">§1</span><span class="st">Diatonic chords — ${sh.diatonic.map(c => c.tag).join(' · ')}</span></div>
+  <div class="prog-wrap">
+    <div class="prog-grid">${row(sh.diatonic, '')}</div>
+    <div class="prog-grid">${arrows}</div>
+    <div class="sl" style="margin:10px 0 8px">Secondary dominants — the V7 of each chord above</div>
+    <div class="prog-grid">${row(sh.secondary, 'no secondary dominant')}</div>
+  </div>
+  <div class="insight"><div class="insight-t">How to use</div><div class="insight-b">Each secondary dominant is the dominant 7th a fifth above its target. Play it right before that chord to pull the ear toward it, e.g. <b>C → A7 → Dm</b>. Grey dots are notes outside ${sh.key} major; most are the leading tone a half step below the target's root.</div></div>
 </div>`;
 }

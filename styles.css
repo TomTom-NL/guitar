@@ -66,6 +66,12 @@ hr.dv{border:none;border-top:1px solid var(--faint);margin:18px 0}
 .citem{text-align:center}
 .citemsub{font-size:9px;opacity:0.36;margin-bottom:4px}
 
+/* chord sheet: 7-column progression grid, scrolls sideways on narrow screens */
+.prog-wrap{overflow-x:auto;padding-bottom:4px}
+.prog-grid{display:grid;grid-template-columns:repeat(7,minmax(104px,1fr));gap:10px;min-width:778px}
+.prog-empty{display:flex;align-items:center;justify-content:center;border:1px dashed var(--faint);border-radius:6px;font-size:9px;opacity:0.45;min-height:120px}
+.prog-arrow{text-align:center;font-size:9px;opacity:0.45;min-height:14px}
+
 /* pentatonic overlay — colours match PENT_COL in engine.js */
 .pent-btns{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
 .pent-btn{display:flex;align-items:center;gap:8px;padding:8px 16px;border:2px solid var(--pc);background:var(--pl);border-radius:6px;cursor:pointer;font-family:'Courier New',monospace;font-size:12px;font-weight:700;color:var(--pk);transition:opacity 0.15s}

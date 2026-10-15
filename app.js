@@ -25,21 +25,27 @@ function togglePent(key, which) {
 
 // ── Render and init ───────────────────────────────────────────────────────────
 
-document.getElementById('tabs').innerHTML = KEY_LIST
-  .map((k, i) => `<button class="tab${i === 0 ? ' active' : ''}" data-key="${k}">${KEYS[k].full}</button>`)
+// One tab per key page, then one per chord sheet
+const PAGES = [
+  ...KEY_LIST.map(k => ({id: k, label: KEYS[k].full, render: renderKey})),
+  ...Object.keys(CHORD_SHEETS).map(id => ({id, label: CHORD_SHEETS[id].tab, render: renderChordSheet}))
+];
+
+document.getElementById('tabs').innerHTML = PAGES
+  .map(p => `<button class="tab" data-key="${p.id}">${p.label}</button>`)
   .join('');
 
-document.getElementById('content').innerHTML = KEY_LIST.map(renderKey).join('');
+document.getElementById('content').innerHTML = PAGES.map(p => p.render(p.id)).join('');
 
 function showKey(key) {
   document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.dataset.key === key));
-  KEY_LIST.forEach(k => {
-    document.getElementById('key-' + k).style.display = k === key ? 'block' : 'none';
+  PAGES.forEach(p => {
+    document.getElementById('key-' + p.id).style.display = p.id === key ? 'block' : 'none';
   });
 }
 
-// Show only the first key on load
-showKey(KEY_LIST[0]);
+// Show only the first page on load
+showKey(PAGES[0].id);
 
 // Tab switching
 document.querySelectorAll('.tab').forEach(btn => {
