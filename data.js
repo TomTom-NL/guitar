@@ -139,7 +139,7 @@ const CHORD_SHEETS = {
       {name:'F', tag:'IV',  lbl:'barre 1fr · E shape', sf:0,mu:[],   dots:[{s:1,f:3},{s:2,f:3},{s:3,f:2}],br:{f:1,a:0,b:5}},
       {name:'G', tag:'V',   lbl:'open · 320003',       sf:0,mu:[],   dots:[{s:0,f:3},{s:1,f:2},{s:5,f:3}],br:null},
       {name:'Am',tag:'vi',  lbl:'open · x02210',       sf:0,mu:[0],  dots:[{s:2,f:2},{s:3,f:2},{s:4,f:1}],br:null},
-      {name:'B°',tag:'vii°',lbl:'x2343x',              sf:0,mu:[0,5],dots:[{s:1,f:2},{s:2,f:3},{s:3,f:4},{s:4,f:3}],br:null}],
+      {name:'Bø7',tag:'viiø7',lbl:'x2323x · Bm7♭5',     sf:0,mu:[0,5],dots:[{s:1,f:2},{s:2,f:3},{s:3,f:2},{s:4,f:3}],br:null}],
     secondary:[
       null,
       {name:'A7',tag:'V7/ii', lbl:'open · x02020',sf:0,mu:[0],  dots:[{s:2,f:2},{s:4,f:2}],br:null},
