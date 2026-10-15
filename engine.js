@@ -145,7 +145,8 @@ function overlayFretSVG(kd, ri) {
 
 // ── Scale theory block (reusable for major + minor) ───────────────────────────
 
-function renderScaleBlock(scale, triads, cycle, cmap2, tsInts, cints) {
+// notes: optional Learn boxes {scale, triads, cycle, tertian}
+function renderScaleBlock(scale, triads, cycle, cmap2, tsInts, cints, notes = {}) {
   const s8 = [...scale, scale[0]];
   let srow = '<div class="srow">';
   s8.forEach((n,i) => {
@@ -182,7 +183,7 @@ function renderScaleBlock(scale, triads, cycle, cmap2, tsInts, cints) {
     tert += `<td class="dc">${i+1}</td><td class="rc">${t.r}</td></tr>`;
   });
   tert += `</tbody></table>`;
-  return `${srow}${irow}${tickRow}${triadRow}
+  return `${notes.scale || ''}${srow}${irow}${tickRow}${triadRow}${notes.triads || ''}
   <hr class="dv">
   <div class="theory-bottom">
     <div>
@@ -193,7 +194,8 @@ function renderScaleBlock(scale, triads, cycle, cmap2, tsInts, cints) {
       <div class="sl" style="margin-bottom:6px">Tertian (R · 3 · 5)</div>
       ${tert}
     </div>
-  </div>`;
+  </div>
+  ${notes.cycle || ''}${notes.tertian || ''}`;
 }
 
 // ── Full key page ─────────────────────────────────────────────────────────────
@@ -204,7 +206,8 @@ function renderKey(key) {
 
   const majorBlock = renderScaleBlock(
     kd.scale, kd.triads, kd.cycle, cmap2,
-    ['T','T','S','T','T','T','S'], null
+    ['T','T','S','T','T','T','S'], null,
+    {scale: LEARN.majorScale(kd), triads: LEARN.triads(kd), cycle: LEARN.cycle(kd), tertian: LEARN.tertian()}
   );
   const minorBlock = renderScaleBlock(
     kd.rel.scale, kd.rel.triads, kd.rel.cycle, relCmap,
@@ -251,18 +254,24 @@ function renderKey(key) {
     <span style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;opacity:0.38;white-space:nowrap">Parallel minor · ${kd.rel.name}</span>
     <hr style="flex:1;border:none;border-top:1px dashed var(--faint);margin:0">
   </div>
+  ${LEARN.parallelMinor(kd)}
   <div class="sl" style="margin-bottom:6px">${kd.rel.root} natural minor — ${kd.rel.scale.join(' — ')}</div>
   ${minorBlock}
 
   <div class="sh"><span class="sn">§2</span><span class="st">Chord Shapes — 1 · 4 · 5</span></div>
+  ${LEARN.chordDiagram()}
+  ${LEARN.openChords(kd)}
   <div class="sl" style="margin-bottom:8px">Open positions</div>
   ${openRow}
+  ${LEARN.seventhChords(kd)}
   <div class="sl" style="margin-top:18px;margin-bottom:8px">Dominant 7th positions</div>
   ${seventhRow}
+  ${LEARN.minorChords(kd)}
   <div class="sl" style="margin-top:18px;margin-bottom:8px">${kd.rel.root} minor positions — i · iv · v</div>
   ${minorChordRow}
 
   <div class="sh"><span class="sn">§3</span><span class="st">Pentatonic Scales</span></div>
+  ${LEARN.pentatonic(kd)}
   <div class="pent-btns">
     <button class="pent-btn maj" data-key="${key}" data-which="maj" aria-pressed="true"><span class="sw"></span>Major pentatonic — ${kd.mpN.join(' ')}</button>
     <button class="pent-btn min" data-key="${key}" data-which="min" aria-pressed="true"><span class="sw"></span>Minor pentatonic — ${kd.mnN.join(' ')}</button>
@@ -276,10 +285,12 @@ function renderKey(key) {
   </div>
   <div class="fb-wrap">${overlayFretSVG(kd,ri)}</div>
   <hr class="dv">
+  ${LEARN.comparison(kd)}
   <div class="sl" style="margin-bottom:7px">Scale comparison</div>
   ${comp}
   <div class="insight"><div class="insight-t">Blues tension</div><div class="insight-b">${kd.insight}</div></div>
   <hr class="dv">
+  ${LEARN.legend()}
   <div class="legend">${leg}</div>
 </div>`;
 }
@@ -307,12 +318,14 @@ function renderChordSheet(id) {
   </div>
 
   <div class="sh"><span class="sn">§1</span><span class="st">Diatonic chords — ${sh.diatonic.map(c => c.tag).join(' · ')}</span></div>
+  ${LEARN.chordDiagram()}
+  ${LEARN.diatonic(sh)}
   <div class="prog-wrap">
     <div class="prog-grid">${row(sh.diatonic, '')}</div>
     <div class="prog-grid">${arrows}</div>
     <div class="sl" style="margin:10px 0 8px">Secondary dominants — the V7 of each chord above</div>
     <div class="prog-grid">${row(sh.secondary, 'no secondary dominant')}</div>
   </div>
-  <div class="insight"><div class="insight-t">How to use</div><div class="insight-b">Each secondary dominant is the dominant 7th a fifth above its target. Play it right before that chord to pull the ear toward it, e.g. <b>C → A7 → Dm</b>. Grey dots are notes outside ${sh.key} major; most are the leading tone a half step below the target's root. G7 is the key's own dominant, and F#7 → Bø7 is rare in practice because a half-diminished chord is an unstable target.</div></div>
+  ${LEARN.secondary(sh)}
 </div>`;
 }

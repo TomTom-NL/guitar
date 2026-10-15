@@ -111,3 +111,14 @@ hr.dv{border:none;border-top:1px solid var(--faint);margin:18px 0}
 .tick-sp{flex:1}
 .theory-bottom{display:grid;grid-template-columns:1fr 190px;gap:22px;align-items:start;margin-top:4px}
 @media(max-width:680px){.theory-bottom{grid-template-columns:1fr}}
+
+/* beginner "Learn" boxes next to each diagram (collapsible) */
+.learn{background:#fffdf6;border:1px solid var(--faint);border-left:3px solid var(--pmaj);border-radius:0 6px 6px 0;margin:10px 0 14px;max-width:760px}
+.learn summary{cursor:pointer;padding:7px 12px;font-family:Georgia,serif;font-size:12px;font-weight:700;list-style-position:inside}
+.learn-tag{display:inline-block;font-family:'Courier New',monospace;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;background:var(--pmaj);color:white;border-radius:3px;padding:1px 5px;margin-right:8px;vertical-align:2px}
+.learn-b{padding:0 14px 10px;font-size:11px;line-height:1.7;color:var(--ink2)}
+.learn-b p{margin:6px 0}
+.learn-b ul{margin:6px 0 6px 18px}
+.learn-b code{background:var(--surface);padding:0 3px;border-radius:2px}
+.learn-big{font-weight:700;letter-spacing:1px;color:var(--ink)}
+.learn-try{background:var(--pmaj-l);border-radius:4px;padding:6px 10px}
