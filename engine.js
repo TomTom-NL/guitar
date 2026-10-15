@@ -183,7 +183,7 @@ function renderScaleBlock(scale, triads, cycle, cmap2, tsInts, cints, notes = {}
     tert += `<td class="dc">${i+1}</td><td class="rc">${t.r}</td></tr>`;
   });
   tert += `</tbody></table>`;
-  return `${notes.scale || ''}${srow}${irow}${tickRow}${triadRow}${notes.triads || ''}
+  return `${notes.scale || ''}<div class="scale-wrap"><div class="scale-inner">${srow}${irow}${tickRow}${triadRow}</div></div>${notes.triads || ''}
   <hr class="dv">
   <div class="theory-bottom">
     <div>
