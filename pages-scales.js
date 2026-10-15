@@ -21,6 +21,7 @@ EXPLORERS.majorKey = {
   render: st => {
     const sc = majorScale(st.key), sig = keySignature(st.key);
     return `<p class="ex-sum"><b>${st.key} major</b> has <b>${sigText(sig)}</b>${sig.count ? `: ${sig.notes.join(' ')}` : ''}. Relative minor: <b>${relativeMinor(st.key)} minor</b>.</p>
+      ${listen(playBtn({mode: 'scale', notes: sc}, 'scale'), playBtn({mode: 'prog', steps: [[0, 2, 4], [3, 5, 0], [4, 6, 1], [0, 2, 4]].map(ix => ix.map(i => sc[i]))}, 'I–IV–V–I'))}
       ${chips([...sc, sc[0]], {colors: [...sc, sc[0]].map((_, i) => DEG_COL[(i % 7) + 1]), under: ['1','2','3','4','5','6','7','8']})}
       ${stepsRow(sc)}
       ${noteMapSVG(degreeMarks(st.key, SCALES.major.degs))}`;
@@ -59,6 +60,7 @@ QUIZZES.scaleDegree = () => {
 
 THEORY_PAGES.push({id: 'major', group: 'Scales & keys', label: 'Major scale & keys', render: () => `
 ${pageHead('major', '1', 'The major scale & key signatures', 'one pattern, twelve keys')}
+${guideIntro('major')}
 
 ${section(1, 'One pattern for every major scale')}
 ${prose(`<p>A <b>major scale</b> is 7 notes chosen by a fixed pattern of whole (W = 2 frets) and half (H = 1 fret) steps:</p>
@@ -82,9 +84,11 @@ ${prose(`<p>Sharps and flats always arrive in a fixed order:</p>
 <p><b>Shortcuts:</b> in a sharp key, the <b>last sharp + a semitone</b> names the key (F♯ C♯ → D). In a flat key, the <b>second-to-last flat</b> names the key (B♭ E♭ A♭ → E♭). One flat is F major.</p>`)}
 ${table(['Key', 'Signature', 'Accidentals', 'Relative minor'],
   CIRCLE_MAJOR.map(k => { const s = keySignature(k); return [`<b>${fmt(k)} major</b>`, sigText(s), s.notes.map(fmt).join(' ') || '—', fmt(relativeMinor(k)) + ' minor']; }))}
+${guideMid('major')}
 ${quiz('keySig', 'Key signatures')}
 ${quiz('keyFromSig', 'Which key?')}
 ${quiz('scaleDegree', 'Scale degrees')}
+${guideEnd('major')}
 </div>`});
 
 // ── Circle of fifths ────────────────────────────────────────────────────────
@@ -128,6 +132,7 @@ EXPLORERS.circle = {
     return `<div class="cof-row"><div class="cof-wrap">${circleSVG(st.key)}</div>
       <div class="cof-info">
         <p><b>${st.key} major</b>: ${sigText(keySignature(st.key))}. Relative minor <b>${relativeMinor(st.key)}m</b>.</p>
+        ${listen(playBtn({mode: 'prog', steps: [0, 3, 4, 0].map(i => chords[i].notes)}, `${chords[0].label}–${chords[3].label}–${chords[4].label}–${chords[0].label}`), playBtn({mode: 'prog', steps: [5, 1, 4, 0].map(i => chords[i].notes)}, 'vi–ii–V–I'))}
         <p>Its neighbours are <b>${IV}</b> (IV, one step anticlockwise) and <b>${V}</b> (V, one step clockwise). Each shares 6 of ${st.key}'s 7 notes.</p>
         <p><b>The key's chords sit in one slice:</b> the three majors on the outside (${IV} · ${st.key} · ${V}) and their relative minors on the inside (${chords[1].label} · ${chords[5].label} · ${chords[2].label}). Only the vii° chord, <b>${chords[6].label}</b>, isn't on the wheel.</p>
       </div></div>`;
@@ -153,6 +158,7 @@ QUIZZES.fifthAbove = () => {
 
 THEORY_PAGES.push({id: 'fifths', group: 'Scales & keys', label: 'Circle of fifths', render: () => `
 ${pageHead('fifths', '○', 'The circle of fifths', 'how all 24 keys relate to each other')}
+${guideIntro('fifths')}
 
 ${section(1, 'Why a circle?')}
 ${prose(`<p>Start at C and keep going <b>up a perfect 5th</b>: C → G → D → A → E → B → F♯… After 12 steps you're back at C. Arrange those 12 keys in a ring and you get the <b>circle of fifths</b>.</p>
@@ -171,8 +177,10 @@ ${prose(`<ul>
   <li><b>Changing key (modulation):</b> neighbouring keys differ by a single note, so moving to them sounds smooth. Keys across the circle sound distant.</li>
   <li><b>Chord progressions:</b> moving <b>anticlockwise</b> = roots falling by 5ths, the strongest root motion in music. Read anticlockwise from E: E → A → D → G → C, which is iii–vi–ii–V–I in C (the "circle progression").</li>
 </ul>`)}
+${guideMid('fifths')}
 ${quiz('relMinor', 'Relative minors')}
 ${quiz('fifthAbove', 'Walking the circle')}
+${guideEnd('fifths')}
 </div>`});
 
 // ── Minor scales ────────────────────────────────────────────────────────────
@@ -186,6 +194,7 @@ EXPLORERS.minor = {
     const natural = SCALES.naturalMinor.degs, raised = degs.map((d, i) => d !== natural[i]);
     const chords = diatonicChords(sc, false), sev = diatonicChords(sc, true);
     return `<p class="ex-sum"><b>${st.root} ${SCALES[st.type].name.toLowerCase()}</b>${raised.some(Boolean) ? `: raised notes highlighted` : ''}. Relative major: <b>${relativeMajor(st.root)} major</b>.</p>
+      ${listen(playBtn({mode: 'scale', notes: sc}, 'scale'), playBtn({mode: 'prog', steps: [chordNotes(st.root, 'min'), chordNotes(spellDeg(st.root, '4'), 'min'), chordNotes(spellDeg(st.root, '5'), 'dom7'), chordNotes(st.root, 'min')]}, 'i–iv–V7–i'))}
       ${chips(sc, {colors: degs.map(d => DEG_COL[degNum(d)]), under: degs, highlight: raised})}
       ${stepsRow(sc)}
       <div class="tbl-wrap"><table class="ref"><thead><tr><th>Chord</th>${chords.map(c => `<th>${c.numeral}</th>`).join('')}</tr></thead><tbody>
@@ -216,6 +225,7 @@ QUIZZES.harmonicV = () => {
 
 THEORY_PAGES.push({id: 'minor', group: 'Scales & keys', label: 'Minor scales', render: () => `
 ${pageHead('minor', 'm', 'Minor scales', 'relative vs parallel · natural, harmonic, melodic')}
+${guideIntro('minor')}
 
 ${section(1, 'Relative vs parallel minor')}
 ${prose(`<ul>
@@ -233,9 +243,12 @@ ${table(['Scale', 'Formula', 'In A', 'Character'], [
 ])}
 ${prose(`<p><b>In practice</b>, a song "in A minor" mixes these freely: natural minor for most chords, but often the <b>major V (E or E7)</b> borrowed from harmonic minor. That's why <b>E7 → Am</b> sounds so convincing (compare <i>Secondary dominants</i> on the Chords in a key page).</p>`)}
 ${explorer('minor', 'Compare the three minors')}
+${guideMid('minor')}
 ${quiz('relMinor', 'Relative minors')}
 ${quiz('relMajor', 'Relative majors')}
 ${quiz('harmonicV', 'The dominant in minor')}
+${quiz('earMinor', 'Ear training: which scale?')}
+${guideEnd('minor')}
 </div>`});
 
 // ── Modes ───────────────────────────────────────────────────────────────────
@@ -247,6 +260,7 @@ EXPLORERS.modes = {
     const parent = parentMajor(st.root, k), chordType = {maj7: 'maj7', '7': 'dom7', m7: 'min7', m7b5: 'm7b5'}[m.chord];
     const isChar = d => m.char && d === m.char;
     return `<p class="ex-sum"><b>${st.root} ${m.name}</b> = the notes of <b>${parent} major</b>, starting on its ${ordinal(k + 1)} note. Mood: ${m.mood}.</p>
+      ${listen(playBtn({mode: 'scale', notes: sc, drone: true}, 'over a drone'), playBtn({mode: 'scale', notes: sc}, 'scale'), playBtn({mode: 'chord', notes: chordNotes(st.root, chordType)}, 'home chord'))}
       ${chips(sc, {colors: m.degs.map(d => isChar(d) ? '#b83800' : DEG_COL[degNum(d)]), under: m.degs, highlight: m.degs.map(isChar)})}
       <p class="cap">${m.char ? `Characteristic note: <b>${m.char}</b> (${sc[m.degs.indexOf(m.char)]}), highlighted. It's what separates ${m.name} from plain ${m.vs}.` : `${m.name} is the plain ${m.vs} scale: the reference the other ${m.vs} modes are compared with.`} Home chord: <b>${chordLabel(st.root, chordType)}</b>.</p>
       ${noteMapSVG(degreeMarks(st.root, m.degs, {colorOf: d => isChar(d) ? '#b83800' : DEG_COL[degNum(d)]}))}`;
@@ -273,6 +287,7 @@ QUIZZES.modeChar = () => {
 
 THEORY_PAGES.push({id: 'modes', group: 'Scales & keys', label: 'Modes', render: () => `
 ${pageHead('modes', '◐', 'Modes', 'seven scales hiding inside the major scale')}
+${guideIntro('modes')}
 
 ${section(1, 'Modes as rotations')}
 ${prose(`<p>Play the notes of C major but start and end on D: D E F G A B C D. Same 7 notes, but D is now home. The pattern of steps changes, so it <b>sounds different</b>. That's the <b>Dorian</b> mode. Starting on each of the 7 notes gives 7 modes:</p>`)}
@@ -284,8 +299,11 @@ ${table(['Mode', 'Compared with', 'Characteristic note', 'Home chord', 'Sound'],
 ${prose(`<p><b>From brightest to darkest</b>, each step lowers exactly one note: <b>Lydian → Ionian → Mixolydian → Dorian → Aeolian → Phrygian → Locrian</b>.</p>
 <p><b>Mixolydian</b> is the scale of the <b>dominant 7th chord</b> (major 3rd + ♭7). Blues lives here and in <b>Dorian</b>, the minor mode with a brighter natural 6th.</p>`)}
 ${explorer('modes', 'Any mode on any root')}
+${guideMid('modes')}
 ${quiz('modeParent', 'Find the parent scale')}
 ${quiz('modeChar', 'Characteristic notes')}
+${quiz('earMode', 'Ear training: which mode?')}
+${guideEnd('modes')}
 </div>`});
 
 // ── Pentatonic & blues scales ───────────────────────────────────────────────
@@ -310,6 +328,7 @@ EXPLORERS.pentatonic = {
       boxText = `<b>Box ${st.box}</b> starts on <b>${scaleNotes(st.root, SCALES[PENT_BASE[st.type]].degs)[st.box - 1]}</b> on the low E string (fret ${b.startFret}) and covers frets ${lo}–${hi}. Faded notes belong to the neighbouring boxes.`;
     }
     return `<p class="ex-sum"><b>${st.root} ${SCALES[st.type].name.toLowerCase()}</b>: ${notes.join(' ')}. Same five notes as <b>${rel} ${isMinor ? 'major' : 'minor'} pentatonic</b>${extraDeg ? ` (plus the blue note ${spellDeg(st.root, extraDeg)})` : ''}.</p>
+      ${listen(playBtn({mode: 'scale', notes, drone: true}, 'over a drone'), playBtn({mode: 'scale', notes}, 'scale'))}
       ${chips(notes, {colors: degs.map(colorOf), under: degs, highlight: degs.map(d => d === extraDeg)})}
       <p class="cap">${boxText || 'All five boxes together cover the whole neck. Pick a box to see one shape.'}</p>
       ${noteMapSVG(degreeMarks(st.root, degs, {colorOf}), {frets: 15, focus})}`;
@@ -361,6 +380,7 @@ QUIZZES.pentRemoved = () => {
 
 THEORY_PAGES.splice(THEORY_PAGES.findIndex(p => p.id === 'modes'), 0, {id: 'pentatonic', group: 'Scales & keys', label: 'Pentatonic & blues', render: () => `
 ${pageHead('pentatonic', '5', 'Pentatonic & blues scales', 'five-note scales · relative pentatonics · the five boxes · the blue note')}
+${guideIntro('pentatonic')}
 
 ${section(1, 'Five notes, no semitones')}
 ${prose(`<p>A <b>pentatonic</b> scale has five notes per octave. The two common ones are cut from the 7-note scales by removing exactly the notes that create <b>semitones</b>:</p>`)}
@@ -386,8 +406,30 @@ ${prose(`<ul>
 <li><b>Major blues scale</b> = major pentatonic + <b>♭3</b> (1 2 <b>♭3</b> 3 5 6). Slide or hammer from the ♭3 into the major 3rd for the sweet, B.B. King / Allman Brothers sound.</li>
 <li>Over a 12-bar blues, players mix the two. Minor pentatonic over a major chord puts the ♭3 against the chord's major 3rd, the "blue third" clash explored on the <a href="#A">Blues pages</a>. Bending the ♭3 slightly sharp is the classic way to play it.</li>
 </ul>`)}
+${guideMid('pentatonic')}
 ${quiz('spellPent', 'Spell the pentatonic')}
 ${quiz('relativePent', 'Relative pentatonics')}
 ${quiz('boxStart', 'Where does the box start?')}
 ${quiz('pentRemoved', 'How the scales are built')}
+${guideEnd('pentatonic')}
 </div>`});
+
+// Ear training: major vs the three minors, and modes over a drone
+QUIZZES.earMinor = () => {
+  const types = ['major', 'naturalMinor', 'harmonicMinor', 'melodicMinor'], t = pick(types), root = pick(['C','D','E','F','G','A']);
+  const name = x => x === 'major' ? 'Major' : SCALES[x].name.replace(' (ascending)', '');
+  return {
+    q: `Listen ${playBtn({mode: 'scale', notes: scaleNotes(root, SCALES[t].degs)})}. Which scale is it?`,
+    answer: name(t), options: shuffle(types.map(name)),
+    why: `${root} ${name(t).toLowerCase()}: ${SCALES[t].degs.join(' ')}. Listen to the 3rd (major or minor), then the 6th and 7th.`
+  };
+};
+
+QUIZZES.earMode = () => {
+  const set = ['lydian','ionian','mixolydian','dorian','aeolian','phrygian'], key = pick(set), m = MODES.find(x => x.key === key), root = pick(['A','D','E','G']);
+  return {
+    q: `Listen ${playBtn({mode: 'scale', notes: scaleNotes(root, m.degs), drone: true})} (over a ${root} drone). Which mode is it?`,
+    answer: m.name, options: optionsFor(m.name, set.map(k => MODES.find(x => x.key === k).name)),
+    why: `${root} ${m.name}: ${m.degs.join(' ')}${m.char ? `. Listen for the ${m.char}` : ''}.`
+  };
+};

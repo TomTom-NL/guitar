@@ -1,9 +1,9 @@
 // ── Beginner theory notes shown next to each diagram ─────────────────────────
-// Each function returns a collapsible "Learn" box. Text is built from the key
+// Each function returns a "Learn" box. Text is built from the key
 // data so the examples always match the page they appear on.
 
 function learnBox(title, body) {
-  return `<details class="learn" open><summary><span class="learn-tag">Learn</span>${title}</summary><div class="learn-b">${body}</div></details>`;
+  return `<div class="learn"><div class="learn-h"><span class="learn-tag">Learn</span>${title}</div><div class="learn-b">${body}</div></div>`;
 }
 
 // Fret of a note on the low E string (0–11)

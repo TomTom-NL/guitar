@@ -31,7 +31,7 @@ EXPLORERS.findNote = {
     const count = TUNING.length * 13;
     let hits = 0;
     eachPosition((i, f, ni) => { if (ni === pc) hits++; });
-    return `<p class="ex-sum"><b>${pcLabel(pc)}</b> appears <b>${hits}</b> times between the open strings and the 12th fret (out of ${count} positions). Look for the repeating <b>octave shapes</b> described below.</p>${noteMapSVG(marks)}`;
+    return `<p class="ex-sum"><b>${pcLabel(pc)}</b> appears <b>${hits}</b> times between the open strings and the 12th fret (out of ${count} positions). Look for the repeating <b>octave shapes</b> described below.</p>${listen(playBtn({mode: 'note', notes: [PC_NAMES[pc].split('/')[0].replace('#', '#')]}, 'hear it'))}${noteMapSVG(marks)}`;
   }
 };
 
@@ -57,6 +57,7 @@ QUIZZES.enharmonic = () => {
 
 THEORY_PAGES.push({id: 'notes', group: 'Foundations', label: 'Notes & fretboard', render: () => `
 ${pageHead('notes', '♪', 'Notes & the fretboard', 'the 12 notes · their names · where they live on the neck')}
+${guideIntro('notes')}
 
 ${section(1, 'The musical alphabet')}
 ${prose(`<p>Western music names notes with just <b>7 letters</b>: A B C D E F G, then it starts again. Between most neighbouring letters there's an extra note. Raising a note by one semitone adds a <b>sharp ♯</b>, lowering it adds a <b>flat ♭</b>.</p>
@@ -84,7 +85,9 @@ ${table(['From a note on…', 'Same note, one octave up', 'Same note, nearby'], 
   ['G string', '2 strings up (high e), <b>3</b> frets higher', 'Next string up (B), <b>4</b> frets lower'],
   ['Low E string', 'High e string, same fret (2 octaves up)', ''],
 ])}
+${guideMid('notes')}
 ${quiz('nameNote', 'Name the note')}
+${guideEnd('notes')}
 </div>`});
 
 // ── Intervals ────────────────────────────────────────────────────────────────
@@ -100,6 +103,7 @@ EXPLORERS.interval = {
     const marks = {[pcOf(st.root)]: {label: st.root, col: '#1a5291', root: true}};
     if (iv.s % 12 !== 0) marks[pcOf(top)] = {label: top, col: '#b83800'};
     return `<p class="ex-sum"><b>${st.root}</b> up a <b>${iv.name.toLowerCase()}</b> is <b>${top}</b>.</p>
+      ${listen(playBtn({mode: 'interval', notes: [st.root], semis: iv.s}, 'hear it: apart, then together'))}
       <ul class="ex-list">
         <li><b>Number:</b> count the letters ${letters.join(' ')} = ${iv.st + 1} letters → a <b>${ordinal(iv.st + 1)}</b>.</li>
         <li><b>Quality:</b> ${iv.s} semitone${iv.s === 1 ? '' : 's'} → <b>${iv.name.split(' ')[0].toLowerCase()}</b>.</li>
@@ -148,6 +152,7 @@ QUIZZES.invertInterval = () => {
 
 THEORY_PAGES.push({id: 'intervals', group: 'Foundations', label: 'Intervals', render: () => `
 ${pageHead('intervals', '↕', 'Intervals', 'the distance between two notes, the building block of everything')}
+${guideIntro('intervals')}
 
 ${section(1, 'Two numbers describe every interval')}
 ${prose(`<p>An <b>interval</b> is the distance between two notes. It has two parts:</p>
@@ -156,8 +161,8 @@ ${prose(`<p>An <b>interval</b> is the distance between two notes. It has two par
   <li><b>Quality:</b> the exact size in <b>semitones</b>. C→E is 4 semitones (a <b>major</b> 3rd); C→E♭ is 3 semitones (a <b>minor</b> 3rd). Same number, different quality.</li>
 </ul>
 <p>The letter count is why spelling matters. C→D♯ and C→E♭ sound the same (3 semitones), but C→D♯ is an <b>augmented 2nd</b> and C→E♭ a <b>minor 3rd</b>. In a chord they play different roles.</p>`)}
-${table(['Short', 'Name', 'Semitones', 'From C', 'Sound', 'Remember it by'],
-  MAIN_INTERVALS.map(i => [`<b>${i.sh}</b>`, i.name + (i.sh === 'A4' ? ' / dim 5th (d5)' : ''), i.s, `C → ${fmt(intervalAbove('C', i.sh))}${i.sh === 'A4' ? ` / ${fmt(intervalAbove('C', 'd5'))}` : ''}`, i.feel, i.song ? `<i>${i.song}</i>` : '—']))}
+${table(['', 'Short', 'Name', 'Semitones', 'From C', 'Sound', 'Remember it by'],
+  MAIN_INTERVALS.map(i => [playBtn({mode: 'interval', notes: ['C'], semis: i.s}), `<b>${i.sh}</b>`, i.name + (i.sh === 'A4' ? ' / dim 5th (d5)' : ''), i.s, `C → ${fmt(intervalAbove('C', i.sh))}${i.sh === 'A4' ? ` / ${fmt(intervalAbove('C', 'd5'))}` : ''}`, i.feel, i.song ? `<i>${i.song}</i>` : '—']))}
 
 ${section(2, 'Perfect, major, minor, augmented, diminished')}
 ${prose(`<ul>
@@ -183,7 +188,23 @@ ${table(['Interval', 'Same string', 'Next string up', 'Two strings up'], [
   ['P5', '+7 frets', '+2 frets', '−3 frets'], ['m6', '+8 frets', '+3 frets', '−2 frets'], ['M6', '+9 frets', '+4 frets', '−1 fret'],
   ['m7', '+10 frets', '', 'same fret'], ['M7', '+11 frets', '', '+1 fret'], ['Octave', '+12 frets', '', '+2 frets'],
 ])}
+${guideMid('intervals')}
 ${quiz('nameInterval', 'Name the interval')}
 ${quiz('buildInterval', 'Build the interval')}
 ${quiz('invertInterval', 'Invert the interval')}
+${quiz('earInterval', 'Ear training: name the interval')}
+${guideEnd('intervals')}
 </div>`});
+
+// Ear training: hear an interval, name it
+const EAR_IVS = ['m2','M2','m3','M3','P4','A4','P5','M6','m7','P8'];
+QUIZZES.earInterval = () => {
+  const sh = pick(EAR_IVS), iv = INTERVALS.find(i => i.sh === sh), root = pick(['C','D','E','F','G','A']);
+  const answer = iv.sh === 'A4' ? 'Tritone' : iv.name;
+  const names = EAR_IVS.map(sh => sh === 'A4' ? 'Tritone' : INTERVALS.find(i => i.sh === sh).name);
+  return {
+    q: `Listen ${playBtn({mode: 'interval', notes: [root], semis: iv.s})}. Which interval is it?`,
+    answer, options: optionsFor(answer, names),
+    why: `It was ${root} up to ${intervalAbove(root, iv.sh)}: ${iv.s} semitones, ${iv.feel}${iv.song ? ` (think <i>${iv.song}</i>)` : ''}.`
+  };
+};

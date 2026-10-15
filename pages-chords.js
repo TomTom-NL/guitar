@@ -15,7 +15,7 @@ function roleColor(root, type) {
 function chordDiagram(root, type, tag, colorOf) {
   const cfg = chordCfg(root, type, tag);
   if (!cfg) return `<div class="citem prog-empty">no shape for ${chordLabel(root, type)} yet</div>`;
-  return chordCard(cfg, colorMap(cfg.names, colorOf));
+  return `<div class="cd">${chordCard(cfg, colorMap(cfg.names, colorOf))}${playBtn({mode: 'chord', notes: chordNotes(root, type)})}</div>`;
 }
 
 // ── Chord construction ──────────────────────────────────────────────────────
@@ -28,6 +28,7 @@ EXPLORERS.chordBuilder = {
     const inversions = ['triad', 'seventh', 'sixth'].includes(t.family)
       ? notes.slice(1).map((n, i) => `<li>${['1st', '2nd', '3rd'][i]} inversion (${['3rd', '5th', '7th'][i]} in the bass): <b>${chordLabel(st.root, st.type)}/${fmt(n)}</b> → ${[...notes.slice(i + 1), ...notes.slice(0, i + 1)].map(fmt).join(' ')}</li>`).join('') : '';
     return `<p class="ex-sum"><b>${chordLabel(st.root, st.type)}</b>: ${t.name.toLowerCase()} chord. Formula <b>${t.degs.join(' ').replace(/b/g, '♭').replace(/#/g, '♯')}</b>.</p>
+      ${listen(playBtn({mode: 'chord', notes}, 'strum'), playBtn({mode: 'chord', notes, arp: true}, 'one note at a time'))}
       ${chips(notes, {colors: notes.map(col), under: t.degs.map(d => DEG_TO_IV[d] || d)})}
       <div class="cb-row"><div class="cpair">${chordDiagram(st.root, st.type, t.name.toLowerCase(), col)}</div>
         <div class="cb-text">${inversions ? `<ul class="ex-list"><li>Root position: <b>${notes.map(fmt).join(' ')}</b></li>${inversions}</ul>` : '<p>Extended chords are usually voiced with notes left out (often the 5th, sometimes the root). The diagram shows one common grip.</p>'}</div></div>
@@ -65,6 +66,7 @@ QUIZZES.chordFormula = () => {
 
 THEORY_PAGES.push({id: 'chords', group: 'Chords', label: 'Chord construction', render: () => `
 ${pageHead('chords', '△', 'Chord construction', 'stacking thirds · triads · 7ths · extensions · inversions')}
+${guideIntro('chords')}
 
 ${section(1, 'Chords are stacked thirds')}
 ${prose(`<p>Take a root, add the note a 3rd above it, then another 3rd on top. That's a <b>triad</b>: root, 3rd, 5th. Chords are written as <b>formulas</b> relative to the major scale of their root, so you can build any chord on any root.</p>
@@ -106,9 +108,12 @@ ${prose(`<ul>
 <li><b>Naming a chord from its notes:</b> rearrange them into stacked 3rds. The bottom of the stack is the root. E G C → C E G = C major (1st inversion).</li>
 </ul>`)}
 ${explorer('chordBuilder', 'Build any chord')}
+${guideMid('chords')}
 ${quiz('spellChord', 'Spell the chord')}
 ${quiz('nameChord', 'Name the chord')}
 ${quiz('chordFormula', 'Chord formulas')}
+${quiz('earTriad', 'Ear training: chord quality')}
+${guideEnd('chords')}
 </div>`});
 
 // ── Chords in a key ─────────────────────────────────────────────────────────
@@ -129,6 +134,7 @@ EXPLORERS.keyChords = {
     }).join('');
     const arrows = triads.map(c => `<div class="prog-arrow">↑ resolves to ${c.label}</div>`).join('');
     return `<p class="ex-sum"><b>${st.key} major</b>: ${chords.map(c => `${c.label} <span class="dim">(${c.numeral})</span>`).join(' · ')}</p>
+      ${listen(playBtn({mode: 'prog', steps: chords.map(c => c.notes), beat: 0.9}, 'all seven'), playBtn({mode: 'prog', steps: [0, 5, 3, 4, 0].map(i => chords[i].notes)}, 'I–vi–IV–V–I'), playBtn({mode: 'prog', steps: [triads[0].notes, chordNotes(secondaryDominant(triads[1].root), 'dom7'), triads[1].notes, chordNotes(triads[4].root, 'dom7'), triads[0].notes]}, `I–V7/ii–ii–V7–I`))}
       <div class="prog-wrap">
         <div class="prog-grid">${top}</div>
         <div class="prog-grid">${func}</div>
@@ -161,6 +167,7 @@ QUIZZES.secDom = () => {
 
 THEORY_PAGES.push({id: 'inkey', group: 'Chords', label: 'Chords in a key', render: () => `
 ${pageHead('inkey', 'I', 'Chords in a key', 'the diatonic family · numerals · secondary dominants')}
+${guideIntro('inkey')}
 
 ${section(1, 'The family of seven chords')}
 ${prose(`<p>Build a triad on every note of a major scale, using only notes from that scale, and the qualities always come out the same:</p>
@@ -177,8 +184,10 @@ ${prose(`<p>V7 → I is the strongest pull in tonal music. A <b>secondary domina
 <li><b>Why it works:</b> the dominant's 3rd is the leading tone of the target. A7 contains C♯, a semitone below D. That note isn't in the key (it's grey in the diagrams), which is what makes the move sound so purposeful.</li>
 <li>V7/I is just the key's own V7. V7/vii° is mostly theoretical: a diminished chord isn't stable enough to feel like a temporary home.</li></ul>
 <p><b>Try in C:</b> C → <b>A7</b> → Dm → G7 → C, or C → <b>E7</b> → Am → <b>D7</b> → G → C.</p>`)}
+${guideMid('inkey')}
 ${quiz('keyChord', 'Chords of a key')}
 ${quiz('secDom', 'Secondary dominants')}
+${guideEnd('inkey')}
 </div>`});
 
 // ── Function & cadences ─────────────────────────────────────────────────────
@@ -216,6 +225,7 @@ EXPLORERS.voiceLead = {
       ['root of V7 (degree 5)', n('5'), n('1'), 'down a 5th (or stays as the 5th of I)', false],
     ];
     return `<p class="ex-sum"><b>${chordLabel(n('5'), 'dom7')} → ${fmt(k)}</b> in ${fmt(k)} major. The two highlighted notes form a <b>tritone</b> (${n('7')}–${n('4')}, a ${intervalBetween(n('7'), n('4')).name.toLowerCase()}) and both move by a semitone.</p>
+      ${listen(playBtn({mode: 'prog', steps: [chordNotes(n('5'), 'dom7'), chordNotes(k, 'maj')], beat: 1.6}, 'V7 → I'))}
       <div class="tbl-wrap"><table class="ref vl"><thead><tr><th>Voice</th><th>${chordLabel(n('5'), 'dom7')}</th><th></th><th>${fmt(k)}</th><th>Motion</th></tr></thead><tbody>
       ${rows.map(([v, a, b, m, hot]) => `<tr${hot ? ' class="hot"' : ''}><td>${v}</td><td><b>${a}</b></td><td>→</td><td><b>${b}</b></td><td>${m}</td></tr>`).join('')}
       </tbody></table></div>`;
@@ -228,6 +238,7 @@ EXPLORERS.cadence = {
   render: st => {
     const c = CADENCES[st.cad], sc = majorScale(st.key), keyCol = n => { const i = sc.indexOf(n); return i < 0 ? '#888' : DEG_COL[i + 1]; };
     return `<p class="ex-sum"><b>${c.name}</b> in ${fmt(st.key)}: ${c.chords.map(([d, t, num]) => `${chordLabel(spellDeg(st.key, d), t)} (${num})`).join(' → ')}. ${c.text}</p>
+      ${listen(playBtn({mode: 'prog', steps: c.chords.map(([d, t]) => chordNotes(spellDeg(st.key, d), t)), beat: 1.4}, 'hear the cadence'))}
       <div class="cpair">${c.chords.map(([d, t, num]) => chordDiagram(spellDeg(st.key, d), t, num, keyCol)).join('<div class="arrow-big">→</div>')}</div>`;
   }
 };
@@ -239,7 +250,7 @@ EXPLORERS.progression = {
     const p = PROGRESSIONS[st.prog], sc = majorScale(st.key), keyCol = n => { const i = sc.indexOf(n); return i < 0 ? '#888' : DEG_COL[i + 1]; };
     const seq = p.steps.map(([d, t]) => ({root: spellDeg(st.key, d), type: t, num: stepNumeral(d, t)}));
     const uniq = [...new Map(seq.map(c => [c.root + c.type, c])).values()];
-    return `<div class="prog-seq">${seq.map(c => `<div class="ps"><b>${chordLabel(c.root, c.type)}</b><span>${c.num}</span></div>`).join('')}</div>
+    return `${listen(playBtn({mode: 'prog', steps: seq.map(c => chordNotes(c.root, c.type)), beat: seq.length > 8 ? 0.75 : 1.1}, 'play it'))}<div class="prog-seq">${seq.map(c => `<div class="ps"><b>${chordLabel(c.root, c.type)}</b><span>${c.num}</span></div>`).join('')}</div>
       <div class="cpair">${uniq.map(c => chordDiagram(c.root, c.type, c.num, keyCol)).join('')}</div>`;
   }
 };
@@ -274,6 +285,7 @@ QUIZZES.transpose = () => {
 
 THEORY_PAGES.push({id: 'function', group: 'Chords', label: 'Function & cadences', render: () => `
 ${pageHead('function', 'V', 'Function & cadences', 'why chords move the way they do')}
+${guideIntro('function')}
 
 ${section(1, 'Three jobs a chord can do')}
 ${prose(`<p>Every chord in a key has a <b>function</b>, a role in the story of tension and release:</p>`)}
@@ -301,7 +313,32 @@ ${explorer('cadence', 'Hear each cadence in any key')}
 ${section(4, 'Progressions and transposing')}
 ${prose(`<p>Because numerals describe <b>function</b> rather than pitch, a progression is a recipe you can cook in any key. Transposing a song = keep the numerals, change the key. The ♭VII in the last progression is <b>borrowed</b> from the parallel minor (Mixolydian territory): a very common rock move.</p>`)}
 ${explorer('progression', 'Progressions in any key')}
+${guideMid('function')}
 ${quiz('functionOf', 'Chord functions')}
 ${quiz('cadenceName', 'Name the cadence')}
 ${quiz('transpose', 'Transpose it')}
+${quiz('earCadence', 'Ear training: name the cadence')}
+${guideEnd('function')}
 </div>`});
+
+// Ear training: chord quality and cadences
+QUIZZES.earTriad = () => {
+  const types = pick([['maj','min','dim','aug'], ['maj7','dom7','min7','m7b5']]), type = pick(types), root = pick(['C','D','E','F','G','A']);
+  const answer = CHORD_TYPES[type].name;
+  return {
+    q: `Listen ${playBtn({mode: 'chord', notes: chordNotes(root, type)})} ${playBtn({mode: 'chord', notes: chordNotes(root, type), arp: true}, 'slowly')}. What kind of chord is it?`,
+    answer, options: shuffle(types.map(t => CHORD_TYPES[t].name)),
+    why: `${chordLabel(root, type)} (${chordNotes(root, type).join(' ')}): ${CHORD_TYPES[type].degs.join(' ')}.`
+  };
+};
+
+QUIZZES.earCadence = () => {
+  const key = pick(Object.keys(CADENCES)), c = CADENCES[key], k = pick(['C','G','D','F','A']);
+  // lead-in chord so the ear hears the key first
+  const steps = [chordNotes(k, 'maj'), ...c.chords.map(([d, t]) => chordNotes(spellDeg(k, d), t))];
+  return {
+    q: `Listen ${playBtn({mode: 'prog', steps, beat: 1.3})} (the first chord is just I, to set the key). How does the phrase end?`,
+    answer: c.name, options: shuffle(Object.values(CADENCES).map(x => x.name)),
+    why: `${c.chords.map(x => x[2]).join(' → ')} in ${k}: ${c.text}`
+  };
+};

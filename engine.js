@@ -239,6 +239,9 @@ function renderKey(key) {
   });
   comp += `</tbody></table>`;
 
+  // 12-bar blues: I I I I | IV IV I I | V IV I V, as chord note lists
+  const twelveBar = type => [1,1,1,1,4,4,1,1,5,4,1,5].map(d => chordNotes(spellDeg(kd.root, String(d)), type));
+
   const leg = kd.scale.map((n,i) => `<div class="li"><b style="color:${DC[i]}">■</b><span>${n} (${i+1})</span></div>`).join('');
 
   return `
@@ -251,6 +254,7 @@ function renderKey(key) {
     </div>
   </div>
 
+  ${guideIntro(key)}
   <div class="sh"><span class="sn">§1</span><span class="st">Scale &amp; Theory</span></div>
   <div class="sl" style="margin-bottom:6px">${key} major — ${kd.scale.join(' — ')}</div>
   ${majorBlock}
@@ -271,6 +275,7 @@ function renderKey(key) {
   ${LEARN.seventhChords(kd)}
   <div class="sl" style="margin-top:18px;margin-bottom:8px">Dominant 7th positions</div>
   ${seventhRow}
+  ${listen(playBtn({mode: 'prog', steps: twelveBar('maj'), beat: 0.75}, '12-bar with triads'), playBtn({mode: 'prog', steps: twelveBar('dom7'), beat: 0.75}, '12-bar with 7ths'))}
   ${LEARN.minorChords(kd)}
   <div class="sl" style="margin-top:18px;margin-bottom:8px">${kd.rel.root} minor positions — i · iv · v</div>
   ${minorChordRow}
@@ -282,6 +287,7 @@ function renderKey(key) {
     <button class="pent-btn min" data-key="${key}" data-which="min" aria-pressed="true"><span class="sw"></span>Minor pentatonic — ${kd.mnN.join(' ')}</button>
     <button class="pent-btn blues" data-key="${key}" data-which="blues" aria-pressed="false"><span class="sw"></span>Blues note — ${spellDeg(kd.root, 'b5')} (b5)</button>
   </div>
+  ${listen(playBtn({mode: 'scale', notes: kd.mnN, drone: true}, 'minor pentatonic'), playBtn({mode: 'scale', notes: kd.mpN, drone: true}, 'major pentatonic'), playBtn({mode: 'scale', notes: scaleNotes(kd.root, SCALES.blues.degs), drone: true}, 'blues scale'))}
   <div class="pent-legend">
     <span class="maj"><span class="sw"></span>Major only</span>
     <span class="min"><span class="sw"></span>Minor only</span>
@@ -297,6 +303,9 @@ function renderKey(key) {
   <hr class="dv">
   ${LEARN.legend()}
   <div class="legend">${leg}</div>
+  ${guideMid(key)}
+  ${quiz('blues' + key, 'Blues in ' + key)}
+  ${guideEnd(key)}
 </div>`;
 }
 

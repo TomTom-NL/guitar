@@ -113,9 +113,9 @@ hr.dv{border:none;border-top:1px solid var(--faint);margin:18px 0}
 .theory-bottom{display:grid;grid-template-columns:1fr 190px;gap:22px;align-items:start;margin-top:4px}
 @media(max-width:680px){.theory-bottom{grid-template-columns:1fr}}
 
-/* beginner "Learn" boxes next to each diagram (collapsible) */
+/* "Learn" boxes next to each diagram on the Blues pages */
 .learn{background:#fffdf6;border:1px solid var(--faint);border-left:3px solid var(--pmaj);border-radius:0 6px 6px 0;margin:10px 0 14px;max-width:760px}
-.learn summary{cursor:pointer;padding:7px 12px;font-family:Georgia,serif;font-size:12px;font-weight:700;list-style-position:inside}
+.learn-h{padding:8px 12px 2px;font-family:Georgia,serif;font-size:12px;font-weight:700}
 .learn-tag{display:inline-block;font-family:'Courier New',monospace;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;background:var(--pmaj);color:white;border-radius:3px;padding:1px 5px;margin-right:8px;vertical-align:2px}
 .learn-b{padding:0 14px 10px;font-size:11px;line-height:1.7;color:var(--ink2)}
 .learn-b p{margin:6px 0}
@@ -218,3 +218,44 @@ table.ref.vl tr.hot td{background:#fde8e0}
 .ctl{min-width:0;max-width:100%}
 .ctl select{min-width:0;max-width:100%}
 @media(max-width:700px){.ctl{width:100%}.ctl select{flex:1}}
+
+/* ── Sound ──────────────────────────────────────────────────────────────── */
+.listen{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 8px}
+.play{font-family:'Courier New',monospace;font-size:11px;font-weight:700;padding:4px 10px;border:1.5px solid var(--pblues);border-radius:14px;background:var(--pblues-l);color:var(--pblues-k);cursor:pointer;white-space:nowrap}
+.play:hover{background:var(--pblues);color:white}
+table.ref td .play{padding:2px 8px}
+.quiz-q .play{margin:0 2px;vertical-align:1px}
+.cd{display:flex;flex-direction:column;align-items:center;gap:2px}
+.cd .play{padding:2px 10px;font-size:10px}
+
+/* ── Guided path: intro, takeaways, practice, next ─────────────────────── */
+.guide-intro{border:1px solid var(--faint);border-radius:8px;background:white;padding:12px 16px;margin:0 0 20px;max-width:820px;font-size:12px;line-height:1.7}
+.gi-why{margin-bottom:8px}
+.gi-tag,.from{display:inline-block;font-family:'Courier New',monospace;font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;background:var(--ink);color:#f5f0e0;border-radius:3px;padding:1px 6px;margin-right:8px;vertical-align:2px}
+.gi-goals ul{margin:4px 0 4px 20px}
+.gi-builds{font-size:11px;opacity:0.75;margin-top:6px}
+.guide-intro a,.from a{color:inherit}
+.from{display:table;margin-bottom:6px;background:var(--faint);color:var(--ink)}
+.takeaways{font-size:12px;line-height:1.75;max-width:780px;margin:0 0 6px 20px}
+.takeaways li{margin:3px 0}
+.practice{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:4px 0 8px}
+.pr{border-radius:8px;padding:10px 12px;font-size:11.5px;line-height:1.65;border:1.5px solid}
+.pr-h{font-weight:700;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:4px}
+.pr-guitar{background:var(--pmaj-l);border-color:var(--pmaj)} .pr-guitar .pr-h{color:var(--pmaj-k)}
+.pr-ear{background:var(--pblues-l);border-color:var(--pblues)} .pr-ear .pr-h{color:var(--pblues-k)}
+.pr-music{background:var(--pmin-l);border-color:var(--pmin)} .pr-music .pr-h{color:var(--pmin-k)}
+.guide-end{display:flex;flex-wrap:wrap;gap:14px;align-items:stretch;margin:22px 0 8px;padding-top:14px;border-top:1.5px solid var(--faint)}
+.done-btn,.reset-btn{font-family:'Courier New',monospace;font-size:12px;font-weight:700;padding:10px 16px;border:1.5px solid var(--pboth);border-radius:8px;background:white;color:var(--pboth);cursor:pointer}
+.done-btn.is-done{background:var(--pboth);color:white}
+.reset-btn{border-color:#c44;color:#c44;padding:5px 10px;font-size:10px}
+.next-link{flex:1;min-width:220px;display:flex;flex-direction:column;gap:2px;text-decoration:none;color:var(--ink);border:1.5px solid var(--ink);border-radius:8px;padding:8px 14px}
+.next-link span{font-size:9px;letter-spacing:1.2px;text-transform:uppercase;opacity:0.6}
+.next-link b{font-family:Georgia,serif;font-size:14px}
+.next-link small{font-size:11px;opacity:0.7}
+.next-link:hover{background:var(--surface)}
+.gcount{font-size:9px;opacity:0.75;margin-left:4px}
+.tick{color:var(--pboth)}
+.tab.active .tick{color:#9fd49f}
+.bar{display:inline-block;width:70px;height:7px;background:var(--faint);border-radius:4px;vertical-align:1px;margin-right:4px;overflow:hidden}
+.bar span{display:block;height:100%}
+table.ref a,.ex-sum a,.prose a{color:var(--ink);text-decoration-color:var(--faint)}
