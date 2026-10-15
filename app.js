@@ -100,6 +100,11 @@ let start = location.hash.slice(1);
 if (!pageById(start)) { try { start = localStorage.getItem('atlas:page'); } catch (e) { start = null; } }
 showPage(pageById(start) ? start : PAGES[0].id);
 
+// Notes / degrees view (remembered)
+let degPref = false;
+try { degPref = localStorage.getItem('atlas:deg') === '1'; } catch (e) {}
+setDegreeMode(degPref);
+
 // Done buttons and progress reset
 refreshDoneButtons();
 content.addEventListener('click', e => {

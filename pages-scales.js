@@ -107,20 +107,20 @@ function circleSVG(sel) {
   // shade the key's slice (IV · I · V and their relative minors)
   [11, 0, 1].forEach(o => {
     const j = (k + o) % 12, [x, y] = pos(j, ro), [mx, my] = pos(j, ri);
-    s += `<circle cx="${x}" cy="${y}" r="21" fill="${o === 0 ? '#1a5291' : '#c97b20'}" opacity="${o === 0 ? 1 : 0.9}"/>`;
-    s += `<circle cx="${mx}" cy="${my}" r="17" fill="#6b2d8b" opacity="0.85"/>`;
+    s += `<circle cx="${x}" cy="${y}" r="21" fill="${o === 0 ? COL.deg[1] : COL.major}"/>`;
+    s += `<circle cx="${mx}" cy="${my}" r="17" fill="${COL.minor}"/>`;
   });
   CIRCLE_MAJOR.forEach((m, j) => {
     const [x, y] = pos(j, ro), [mx, my] = pos(j, ri), [sx, sy] = pos(j, ro + 36), on = role(j);
     const sig = keySignature(m);
     s += `<text x="${x}" y="${y + 4}" text-anchor="middle" font-size="13" font-weight="700" font-family="Georgia,serif" fill="${on ? 'white' : 'var(--ink)'}">${fmt(m)}</text>`;
-    if (alt[j]) s += `<text x="${x}" y="${y + 15}" text-anchor="middle" font-size="7" fill="${on ? 'white' : '#888'}" font-family="Courier New">${alt[j]}</text>`;
+    if (alt[j]) s += `<text x="${x}" y="${y + 15}" text-anchor="middle" font-size="8" fill="${on ? 'white' : COL.mute}" font-family="Courier New">${alt[j]}</text>`;
     s += `<text x="${mx}" y="${my + 4}" text-anchor="middle" font-size="10" font-weight="700" font-family="Courier New" fill="${mrole(j) ? 'white' : 'var(--ink2)'}">${fmt(CIRCLE_MINOR[j])}m</text>`;
-    s += `<text x="${sx}" y="${sy + 3}" text-anchor="middle" font-size="8" fill="#998f7a" font-family="Courier New">${sig.count ? sig.count + (sig.type === '#' ? '♯' : '♭') : '0'}</text>`;
-    if (on) s += `<text x="${x}" y="${y - 25}" text-anchor="middle" font-size="9" font-weight="700" fill="#1c1a14" font-family="Courier New">${on}</text>`;
+    s += `<text x="${sx}" y="${sy + 3}" text-anchor="middle" font-size="9.5" fill="${COL.mute}" font-family="Courier New">${sig.count ? sig.count + (sig.type === '#' ? '♯' : '♭') : '0'}</text>`;
+    if (on) s += `<text x="${x}" y="${y - 25}" text-anchor="middle" font-size="10" font-weight="700" fill="#1c1a14" font-family="Courier New">${on}</text>`;
   });
-  s += `<text x="${cx}" y="${cy - 4}" text-anchor="middle" font-size="9" fill="#998f7a" font-family="Courier New">outer: major</text>`;
-  s += `<text x="${cx}" y="${cy + 9}" text-anchor="middle" font-size="9" fill="#998f7a" font-family="Courier New">inner: minor</text>`;
+  s += `<text x="${cx}" y="${cy - 4}" text-anchor="middle" font-size="10" fill="${COL.mute}" font-family="Courier New">outer: major</text>`;
+  s += `<text x="${cx}" y="${cy + 9}" text-anchor="middle" font-size="10" fill="${COL.mute}" font-family="Courier New">inner: minor</text>`;
   return s + `</svg>`;
 }
 
@@ -261,9 +261,9 @@ EXPLORERS.modes = {
     const isChar = d => m.char && d === m.char;
     return `<p class="ex-sum"><b>${st.root} ${m.name}</b> = the notes of <b>${parent} major</b>, starting on its ${ordinal(k + 1)} note. Mood: ${m.mood}.</p>
       ${listen(playBtn({mode: 'scale', notes: sc, drone: true}, 'over a drone'), playBtn({mode: 'scale', notes: sc}, 'scale'), playBtn({mode: 'chord', notes: chordNotes(st.root, chordType)}, 'home chord'))}
-      ${chips(sc, {colors: m.degs.map(d => isChar(d) ? '#b83800' : DEG_COL[degNum(d)]), under: m.degs, highlight: m.degs.map(isChar)})}
+      ${chips(sc, {colors: m.degs.map(d => isChar(d) ? COL.accent : DEG_COL[degNum(d)]), under: m.degs, highlight: m.degs.map(isChar)})}
       <p class="cap">${m.char ? `Characteristic note: <b>${m.char}</b> (${sc[m.degs.indexOf(m.char)]}), highlighted. It's what separates ${m.name} from plain ${m.vs}.` : `${m.name} is the plain ${m.vs} scale: the reference the other ${m.vs} modes are compared with.`} Home chord: <b>${chordLabel(st.root, chordType)}</b>.</p>
-      ${noteMapSVG(degreeMarks(st.root, m.degs, {colorOf: d => isChar(d) ? '#b83800' : DEG_COL[degNum(d)]}))}`;
+      ${noteMapSVG(degreeMarks(st.root, m.degs, {colorOf: d => isChar(d) ? COL.accent : DEG_COL[degNum(d)]}))}`;
   }
 };
 
@@ -309,7 +309,7 @@ ${guideEnd('modes')}
 // ── Pentatonic & blues scales ───────────────────────────────────────────────
 
 const PENT_TYPES = [['minorPent', 'Minor pentatonic'], ['majorPent', 'Major pentatonic'], ['blues', 'Blues scale (minor + ♭5)'], ['majorBlues', 'Major blues (major + ♭3)']];
-const BLUE_COL = '#1e5fa8';
+const BLUE_COL = COL.blues;
 
 EXPLORERS.pentatonic = {
   controls: () => selectCtl('root', 'Root', ROOTS, 'A') + selectCtl('type', 'Scale', PENT_TYPES, 'minorPent') +

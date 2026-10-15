@@ -1,14 +1,15 @@
 // ── Chords: construction, chords in a key, function & cadences ───────────────
 
 // Colour per chord role: root, 3rd, 5th, 7th, extensions
-const ROLE_COL = {1:'#1a5291', 2:'#0e7a7a', 3:'#b83800', 4:'#0e7a7a', 5:'#2d6a1e', 6:'#8b5e00', 7:'#6b2d8b'};
+// Chord roles use the degree colours: root = 1, 3rd = 3, 5th = 5, 7th = 7, 9th = 2…
+const ROLE_COL = COL.deg;
 const DEG_TO_IV = {'1':'R', 'b3':'m3', '3':'M3', '2':'M2', '4':'P4', 'b5':'d5', '5':'P5', '#5':'A5', '6':'M6', 'bb7':'d7', 'b7':'m7', '7':'M7', '9':'M9', '13':'M13'};
 const MAIN_CHORDS = ['maj','min','dim','aug','maj7','dom7','min7','m7b5','dim7'];
 const QUIZ_CHORD_ROOTS = ['C','D','E','F','G','A','B','Bb','Eb','Ab','F#'];
 
 function roleColor(root, type) {
   const notes = chordNotes(root, type), degs = CHORD_TYPES[type].degs;
-  return n => ROLE_COL[degNum(degs[notes.indexOf(n)] || '1')] || '#888';
+  return n => ROLE_COL[degNum(degs[notes.indexOf(n)] || '1')] || COL.out;
 }
 
 // Chord diagram card for a root/type, coloured by a note → colour function
@@ -118,14 +119,14 @@ ${guideEnd('chords')}
 
 // ── Chords in a key ─────────────────────────────────────────────────────────
 
-const FUNC_COL = {T: '#1a5291', S: '#2d6a1e', D: '#b83800'};
+const FUNC_COL = {T: COL.T, S: COL.S, D: COL.D};
 
 EXPLORERS.keyChords = {
   controls: () => selectCtl('key', 'Key', CIRCLE_MAJOR.map(k => [k, fmt(k) + ' major']), 'C') +
     selectCtl('view', 'Show', [['triads', 'Triads'], ['sevenths', 'Seventh chords']], 'triads'),
   render: st => {
     const sc = majorScale(st.key), triads = diatonicChords(sc, false), chords = st.view === 'sevenths' ? diatonicChords(sc, true) : triads;
-    const keyCol = n => { const i = sc.indexOf(n); return i < 0 ? '#888' : DEG_COL[i + 1]; };
+    const keyCol = n => { const i = sc.indexOf(n); return i < 0 ? COL.out : DEG_COL[i + 1]; };
     const top = chords.map(c => chordDiagram(c.root, c.type, c.numeral, keyCol)).join('');
     const func = chords.map((c, i) => { const f = FUNCTION_OF_DEGREE[i]; return `<div class="func" style="color:${FUNC_COL[f]}">${FUNCTION_NAMES[f].split(' ')[0]}</div>`; }).join('');
     const sec = triads.map((c, i) => {
@@ -236,7 +237,7 @@ EXPLORERS.cadence = {
   controls: () => selectCtl('key', 'Key', CIRCLE_MAJOR.map(k => [k, fmt(k) + ' major']), 'C') +
     selectCtl('cad', 'Cadence', Object.entries(CADENCES).map(([k, c]) => [k, c.name]), 'authentic'),
   render: st => {
-    const c = CADENCES[st.cad], sc = majorScale(st.key), keyCol = n => { const i = sc.indexOf(n); return i < 0 ? '#888' : DEG_COL[i + 1]; };
+    const c = CADENCES[st.cad], sc = majorScale(st.key), keyCol = n => { const i = sc.indexOf(n); return i < 0 ? COL.out : DEG_COL[i + 1]; };
     return `<p class="ex-sum"><b>${c.name}</b> in ${fmt(st.key)}: ${c.chords.map(([d, t, num]) => `${chordLabel(spellDeg(st.key, d), t)} (${num})`).join(' → ')}. ${c.text}</p>
       ${listen(playBtn({mode: 'prog', steps: c.chords.map(([d, t]) => chordNotes(spellDeg(st.key, d), t)), beat: 1.4}, 'hear the cadence'))}
       <div class="cpair">${c.chords.map(([d, t, num]) => chordDiagram(spellDeg(st.key, d), t, num, keyCol)).join('<div class="arrow-big">→</div>')}</div>`;
@@ -247,7 +248,7 @@ EXPLORERS.progression = {
   controls: () => selectCtl('key', 'Key', CIRCLE_MAJOR.map(k => [k, fmt(k) + ' major']), 'G') +
     selectCtl('prog', 'Progression', Object.entries(PROGRESSIONS).map(([k, p]) => [k, p.name]), 'twofive'),
   render: st => {
-    const p = PROGRESSIONS[st.prog], sc = majorScale(st.key), keyCol = n => { const i = sc.indexOf(n); return i < 0 ? '#888' : DEG_COL[i + 1]; };
+    const p = PROGRESSIONS[st.prog], sc = majorScale(st.key), keyCol = n => { const i = sc.indexOf(n); return i < 0 ? COL.out : DEG_COL[i + 1]; };
     const seq = p.steps.map(([d, t]) => ({root: spellDeg(st.key, d), type: t, num: stepNumeral(d, t)}));
     const uniq = [...new Map(seq.map(c => [c.root + c.type, c])).values()];
     return `${listen(playBtn({mode: 'prog', steps: seq.map(c => chordNotes(c.root, c.type)), beat: seq.length > 8 ? 0.75 : 1.1}, 'play it'))}<div class="prog-seq">${seq.map(c => `<div class="ps"><b>${chordLabel(c.root, c.type)}</b><span>${c.num}</span></div>`).join('')}</div>

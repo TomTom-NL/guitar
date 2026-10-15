@@ -25,8 +25,8 @@ EXPLORERS.findNote = {
     const pc = +st.pc, marks = {};
     for (let p = 0; p < 12; p++) {
       const natural = !PC_NAMES[p].includes('/');
-      if (p === pc) marks[p] = {label: PC_NAMES[p].split('/')[0], col: '#b83800', root: true};
-      else if (st.show === 'all' || (st.show === 'nat' && natural)) marks[p] = {label: PC_NAMES[p].split('/')[0], col: '#7a7262', faint: true};
+      if (p === pc) marks[p] = {label: PC_NAMES[p].split('/')[0], col: COL.accent, root: true};
+      else if (st.show === 'all' || (st.show === 'nat' && natural)) marks[p] = {label: PC_NAMES[p].split('/')[0], col: COL.out, faint: true};
     }
     const count = TUNING.length * 13;
     let hits = 0;
@@ -100,8 +100,8 @@ EXPLORERS.interval = {
     const iv = INTERVALS.find(i => i.sh === st.iv), top = intervalAbove(st.root, st.iv);
     const inv = invertInterval(st.iv), invIv = INTERVALS.find(i => i.sh === inv);
     const letters = Array.from({length: iv.st + 1}, (_, k) => LETTERS[(LETTERS.indexOf(st.root[0]) + k) % 7]);
-    const marks = {[pcOf(st.root)]: {label: st.root, col: '#1a5291', root: true}};
-    if (iv.s % 12 !== 0) marks[pcOf(top)] = {label: top, col: '#b83800'};
+    const marks = {[pcOf(st.root)]: {label: st.root, col: COL.deg[1], root: true}};
+    if (iv.s % 12 !== 0) marks[pcOf(top)] = {label: top, col: COL.accent};
     return `<p class="ex-sum"><b>${st.root}</b> up a <b>${iv.name.toLowerCase()}</b> is <b>${top}</b>.</p>
       ${listen(playBtn({mode: 'interval', notes: [st.root], semis: iv.s}, 'hear it: apart, then together'))}
       <ul class="ex-list">
