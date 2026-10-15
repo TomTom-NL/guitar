@@ -37,7 +37,7 @@ const path = require('path');
         const tx = +t.getAttribute('x'), ty = +t.getAttribute('y') - 4;
         [...svg.querySelectorAll('circle, rect')].filter(sh => sh.compareDocumentPosition(t) & Node.DOCUMENT_POSITION_FOLLOWING).forEach(sh => {
           const f = sh.getAttribute('fill');
-          if (!f || f === 'none' || f.startsWith('rgba(255,255,255,0.08') || f === '#18100a') return;
+          if (!f || f === 'none' || f === 'transparent' || f.startsWith('rgba(255,255,255,0.08') || f === '#18100a') return;
           const inside = sh.tagName === 'circle'
             ? Math.hypot(+sh.getAttribute('cx') - tx, +sh.getAttribute('cy') - ty) <= +sh.getAttribute('r')
             : tx >= +sh.getAttribute('x') && tx <= +sh.getAttribute('x') + +sh.getAttribute('width') && ty >= +sh.getAttribute('y') && ty <= +sh.getAttribute('y') + +sh.getAttribute('height');

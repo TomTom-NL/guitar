@@ -276,3 +276,13 @@ table.ref a,.ex-sum a,.prose a{color:var(--ink);text-decoration-color:var(--fain
 
 .play.is-playing{background:var(--pblues);color:white}
 .play.is-playing::after{content:' ■'}
+
+/* Clickable notes and chords */
+[data-midi],[data-chord]{cursor:pointer}
+svg .tap:hover{filter:brightness(1.18)}
+.chip-n[data-midi]:hover,.nc[data-midi]:hover,.chr[data-midi]:hover,.ps[data-chord]:hover,.tn[data-chord]:hover,.cgtitle[data-chord]:hover{box-shadow:0 0 0 3px var(--pblues-l)}
+td[data-midi]:hover,.tns div[data-midi]:hover{text-decoration:underline}
+[data-midi]:focus-visible,[data-chord]:focus-visible{outline:2.5px solid var(--pblues);outline-offset:2px}
+@keyframes tapflash{0%{filter:brightness(1.7) drop-shadow(0 0 6px rgba(255,255,255,0.9))}100%{filter:none}}
+.tapped{animation:tapflash 0.45s ease-out}
+.cgtitle[data-chord]{border-radius:4px}

@@ -365,13 +365,15 @@ function pentBox(root, type, k) {
 }
 
 // MIDI notes of a chord shape, low string to high (what a guitar actually sounds)
+// Fret played on string s by a shape (null = not played)
+function stringFret(sh, s) {
+  if (sh.mu.includes(s)) return null;
+  const d = sh.dots.find(x => x.s === s);
+  return d ? d.f : sh.br && s >= sh.br.a && s <= sh.br.b ? sh.br.f : sh.sf === 0 ? 0 : null;
+}
+
 function shapeMidis(sh) {
-  return [0, 1, 2, 3, 4, 5].flatMap(s => {
-    if (sh.mu.includes(s)) return [];
-    const d = sh.dots.find(x => x.s === s);
-    const f = d ? d.f : sh.br && s >= sh.br.a && s <= sh.br.b ? sh.br.f : sh.sf === 0 ? 0 : null;
-    return f === null ? [] : [OPEN_MIDI[s] + f];
-  });
+  return [0, 1, 2, 3, 4, 5].flatMap(s => { const f = stringFret(sh, s); return f === null ? [] : [OPEN_MIDI[s] + f]; });
 }
 
 function chordVoicing(root, type) {

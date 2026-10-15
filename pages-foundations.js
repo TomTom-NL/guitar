@@ -9,7 +9,7 @@ const ENHARMONIC_PAIRS = [['C#','Db'],['D#','Eb'],['F#','Gb'],['G#','Ab'],['A#',
 function chromaticStrip() {
   const cells = PC_NAMES.map((n, pc) => {
     const black = n.includes('/');
-    return `<div class="chr${black ? ' blk' : ''}">${black ? n.split('/').map(fmt).join('<br>') : n}<span class="chr-pc">${pc}</span></div>`;
+    return `<div class="chr${black ? ' blk' : ''}"${tapNote(48 + pc, n.split('/')[0], true)}>${black ? n.split('/').map(fmt).join('<br>') : n}<span class="chr-pc">${pc}</span></div>`;
   });
   // mark the two natural semitones (E–F, B–C)
   cells.splice(5, 0, '<div class="chr-gap" title="no note between E and F">½</div>');

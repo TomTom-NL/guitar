@@ -20,8 +20,9 @@ function chordSVG(cfg, cmap) {
       s += `<text x="${sx[i]}" y="33" text-anchor="middle" font-size="12" fill="${COL.mute}">✕</text>`;
     } else if (n && !hd && !ib) {
       const col = gc(n,cmap);
+      s += `<g class="tap"${tapNote(OPEN_MIDI[i], n)}><circle cx="${sx[i]}" cy="33" r="13" fill="transparent"/>`;
       s += `<circle cx="${sx[i]}" cy="33" r="8.5" fill="none" stroke="${col}" stroke-width="1.5"/>`;
-      s += `<text x="${sx[i]}" y="37" text-anchor="middle" font-size="8" fill="${col}" font-weight="700" font-family="Courier New">${n}</text>`;
+      s += `<text x="${sx[i]}" y="37" text-anchor="middle" font-size="8" fill="${col}" font-weight="700" font-family="Courier New">${n}</text></g>`;
     }
   }
   if (cfg.br) {
@@ -30,13 +31,13 @@ function chordSVG(cfg, cmap) {
   }
   cfg.dots.forEach(dot => {
     const x = sx[dot.s], y = dy(dot.f,cfg.sf), n = noteAt(dot.s, dot.f, cfg.names), col = gc(n,cmap), fs = n.length > 1 ? 8.5 : 10;
-    s += `<circle cx="${x}" cy="${y}" r="12" fill="${col}"/>`;
-    s += `<text x="${x}" y="${y+4}" text-anchor="middle" font-size="${fs}" fill="white" font-weight="700" font-family="Courier New">${n}</text>`;
+    s += `<g class="tap"${tapNote(OPEN_MIDI[dot.s] + dot.f, n)}><circle cx="${x}" cy="${y}" r="12" fill="${col}"/>`;
+    s += `<text x="${x}" y="${y+4}" text-anchor="middle" font-size="${fs}" fill="white" font-weight="700" font-family="Courier New">${n}</text></g>`;
   });
   const ns = Array.from({length:6}, (_,i) => nat(i,cfg));
   ns.forEach((n,i) => {
     if (!n) s += `<text x="${sx[i]}" y="195" text-anchor="middle" font-size="10" fill="${COL.mute}" font-family="Courier New">—</text>`;
-    else { const col = gc(n,cmap); s += `<text x="${sx[i]}" y="195" text-anchor="middle" font-size="10" fill="${col}" font-weight="700" font-family="Courier New">${n}</text>`; }
+    else { const col = gc(n,cmap); s += `<text class="tap"${tapNote(OPEN_MIDI[i] + stringFret(cfg, i), n)} x="${sx[i]}" y="195" text-anchor="middle" font-size="10" fill="${col}" font-weight="700" font-family="Courier New">${n}</text>`; }
   });
   s += `<text x="${(sx[0]+sx[5])/2}" y="212" text-anchor="middle" font-size="9" fill="${COL.mute}" font-family="Courier New">${ns.filter(Boolean).join(' · ')}</text>`;
   return s + `</svg>`;
@@ -69,9 +70,9 @@ function cycleSVG(kd, cints) {
   }
   for (let i = 0; i < 7; i++) {
     const p = pts[i], n = kd.cycle[i], fill = cc[i]||'white', tc = cc[i]?'white':'var(--ink)', sc2 = cc[i]?'rgba(255,255,255,0.92)':'var(--ink2)';
-    s += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="19" fill="${fill}" stroke="var(--faint)" stroke-width="1.5"/>`;
+    s += `<g class="tap"${tapNote(noteMidi(n, 3), n, true)}><circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="19" fill="${fill}" stroke="var(--faint)" stroke-width="1.5"/>`;
     s += `<text x="${p.x.toFixed(1)}" y="${(p.y-3).toFixed(1)}" text-anchor="middle" font-size="11" fill="${tc}" font-weight="700" font-family="Courier New">${n}</text>`;
-    s += `<text x="${p.x.toFixed(1)}" y="${(p.y+9).toFixed(1)}" text-anchor="middle" font-size="8.5" fill="${sc2}" font-family="Courier New">${dl[i]}</text>`;
+    s += `<text x="${p.x.toFixed(1)}" y="${(p.y+9).toFixed(1)}" text-anchor="middle" font-size="8.5" fill="${sc2}" font-family="Courier New">${dl[i]}</text></g>`;
   }
   return s + `</svg>`;
 }
@@ -132,7 +133,7 @@ function overlayFretSVG(kd, ri) {
     if (!inM && !inn) return;
     const type = (inM && inn) ? 'shared' : inM ? 'major' : 'minor';
     const col = PENT_COL[type], ir = (ni === ri);
-    s += `<g class="fb-dot" data-type="${type}" style="opacity:1;transition:opacity 0.18s">`;
+    s += `<g class="fb-dot tap" data-type="${type}"${tapNote(OPEN_MIDI[i] + f, nameOf(ni))} style="opacity:1;transition:opacity 0.18s">`;
     if (ir) s += `<circle cx="${x}" cy="${y}" r="${R+4}" fill="none" stroke="${col}" stroke-width="1" opacity="0.3"/>`;
     s += `<circle cx="${x}" cy="${y}" r="${R}" fill="${col}"/>`;
     if (ir) s += `<circle cx="${x}" cy="${y}" r="${R}" fill="none" stroke="white" stroke-width="1.8"/>`;
@@ -141,7 +142,7 @@ function overlayFretSVG(kd, ri) {
   // Blues note (b5) — rendered on top, hidden by default
   eachPosition((i, f, ni, x, y) => {
     if (ni !== kd.bluesIdx) return;
-    s += `<g class="fb-dot" data-type="blues" style="opacity:0;transition:opacity 0.18s">`;
+    s += `<g class="fb-dot tap" data-type="blues"${tapNote(OPEN_MIDI[i] + f, nameOf(ni))} style="opacity:0;transition:opacity 0.18s">`;
     s += `<circle cx="${x}" cy="${y}" r="${R}" fill="${PENT_COL.blues}"/>`;
     s += `<circle cx="${x}" cy="${y}" r="${R}" fill="none" stroke="white" stroke-width="1.8" stroke-dasharray="3 2"/>`;
     s += label(x, y, nameOf(ni)) + `</g>`;
@@ -153,12 +154,12 @@ function overlayFretSVG(kd, ri) {
 
 // notes: optional Learn boxes {scale, triads, cycle, tertian}
 function renderScaleBlock(scale, triads, cycle, cmap2, tsInts, cints, notes = {}) {
-  const s8 = [...scale, scale[0]];
+  const s8 = [...scale, scale[0]], s8m = voiceUp(s8, 3);
   let srow = '<div class="srow">';
   s8.forEach((n,i) => {
     if (i > 0) srow += '<div class="sc"></div>';
     const idx = i===7 ? 0 : i, co = DC[idx], bg = DB[idx];
-    srow += `<div class="sn2"><span class="dg">${i===7?'8':i+1}</span><span class="nc" style="border-color:${co};color:${co};background:${bg}">${n}</span></div>`;
+    srow += `<div class="sn2"><span class="dg">${i===7?'8':i+1}</span><span class="nc"${tapNote(s8m[i], n, true)} style="border-color:${co};color:${co};background:${bg}">${n}</span></div>`;
   });
   srow += '</div>';
   let irow = '<div class="irow">';
@@ -177,15 +178,17 @@ function renderScaleBlock(scale, triads, cycle, cmap2, tsInts, cints, notes = {}
   let triadRow = '<div class="tir">';
   triads.forEach((t,i) => {
     if (i > 0) triadRow += '<div class="sp"></div>';
-    const ns = t.n.map(n => `<div style="color:${gc(n,cmap2)}">${n}</div>`).reverse().join('');
-    triadRow += `<div class="tri-slot ${t.q}"><div class="tn">${t.c}<span class="qs">${qSym[t.q]}</span></div><div class="tns">${ns}</div><div class="trm">${t.r}</div></div>`;
+    const tm = voiceUp(t.n, 3);
+    const ns = t.n.map((n, k) => `<div${tapNote(tm[k], n)} style="color:${gc(n,cmap2)}">${n}</div>`).reverse().join('');
+    triadRow += `<div class="tri-slot ${t.q}"><div class="tn"${tapChord(chordMidis(t.n), t.c)}>${t.c}<span class="qs">${qSym[t.q]}</span></div><div class="tns">${ns}</div><div class="trm">${t.r}</div></div>`;
   });
   triadRow += '<div class="sp"></div><div class="es"></div></div>';
   const qr = {maj:'rm', min:'rn', dim:'rd'};
   let tert = `<table class="tt"><thead><tr><th>R</th><th>3</th><th>5</th><th class="dc">#</th><th class="rc">—</th></tr></thead><tbody>`;
   triads.forEach((t,i) => {
     tert += `<tr class="${qr[t.q]}">`;
-    t.n.forEach(n => tert += `<td style="color:${gc(n,cmap2)}">${n}</td>`);
+    const tm = voiceUp(t.n, 3);
+    t.n.forEach((n, k) => tert += `<td${tapNote(tm[k], n)} style="color:${gc(n,cmap2)}">${n}</td>`);
     tert += `<td class="dc">${i+1}</td><td class="rc">${t.r}</td></tr>`;
   });
   tert += `</tbody></table>`;
@@ -314,5 +317,5 @@ function renderKey(key) {
 // One chord diagram with its title and fingering label
 function chordCard(ch, cmap) {
   const col = gc(ch.root || ch.name.match(/^[A-G](#|b)?/)[0], cmap);
-  return `<div class="citem"><div class="cgtitle" style="color:${col};margin-bottom:4px">${ch.name}<span class="cgtag">· ${ch.tag}</span></div><div class="citemsub">${ch.lbl}</div>${chordSVG(ch, cmap)}</div>`;
+  return `<div class="citem"><div class="cgtitle"${tapChord(shapeMidis(ch), ch.name)} style="color:${col};margin-bottom:4px">${ch.name}<span class="cgtag">· ${ch.tag}</span></div><div class="citemsub">${ch.lbl}</div>${chordSVG(ch, cmap)}</div>`;
 }

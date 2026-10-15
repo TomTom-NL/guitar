@@ -168,6 +168,7 @@ function guideIntro(id) {
     <div class="gi-why"><span class="gi-tag">Why this matters</span>${g.why}</div>
     <div class="gi-goals"><b>After this page you'll be able to:</b><ul>${g.goals.map(x => `<li>${x}</li>`).join('')}</ul></div>
     ${builds}
+    <p class="gi-builds">Tip: click any note, dot or chord name on this page to hear it, even while a track is playing.</p>
   </div>`;
 }
 
