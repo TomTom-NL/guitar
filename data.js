@@ -93,10 +93,10 @@ const KEYS = {
     triads:[{c:'C',q:'maj',n:['C','E','G'],r:'I'},{c:'Dm',q:'min',n:['D','F','A'],r:'ii'},{c:'Em',q:'min',n:['E','G','B'],r:'iii'},{c:'F',q:'maj',n:['F','A','C'],r:'IV'},{c:'G',q:'maj',n:['G','B','D'],r:'V'},{c:'Am',q:'min',n:['A','C','E'],r:'vi'},{c:'B°',q:'dim',n:['B','D','F'],r:'vii°'}],
     cycle:['C','E','G','B','D','F','A'],
     mpIdx:[0,2,4,7,9], mpN:['C','D','E','G','A'],
-    mnIdx:[0,3,5,7,10],mnN:['C','D#','F','G','A#'],
-    bluesIdx:6,  // F# · b5 of C minor pentatonic
-    comp:[{d:'1',mj:'C',mn:'C',t:'Shared — root'},{d:'2',mj:'D',mn:null,t:'Major only'},{d:'b3',mj:null,mn:'D#',t:'Blue third — D#/Eb vs E over C chord'},{d:'3',mj:'E',mn:null,t:'Major only — bright'},{d:'4',mj:null,mn:'F',t:'Minor only'},{d:'5',mj:'G',mn:'G',t:'Shared — fifth'},{d:'6',mj:'A',mn:null,t:'Major only'},{d:'b7',mj:null,mn:'A#',t:'Minor only — bluesy'}],
-    insight:'The key clash is <b>D#/Eb vs E natural</b>. Minor pent has Eb (b3), but the C major chord has E. Bending Eb toward E is the blues tension in C.',
+    mnIdx:[0,3,5,7,10],mnN:['C','Eb','F','G','Bb'],
+    bluesIdx:6,  // Gb · b5 of C minor pentatonic
+    comp:[{d:'1',mj:'C',mn:'C',t:'Shared — root'},{d:'2',mj:'D',mn:null,t:'Major only'},{d:'b3',mj:null,mn:'Eb',t:'Blue third — Eb vs E over C chord'},{d:'3',mj:'E',mn:null,t:'Major only — bright'},{d:'4',mj:null,mn:'F',t:'Minor only'},{d:'5',mj:'G',mn:'G',t:'Shared — fifth'},{d:'6',mj:'A',mn:null,t:'Major only'},{d:'b7',mj:null,mn:'Bb',t:'Minor only — bluesy'}],
+    insight:'The key clash is <b>Eb vs E natural</b>. Minor pent has Eb (b3), but the C major chord has E. Bending Eb toward E is the blues tension in C.',
     chords:[
       {name:'C major',tag:'I',
        open:{lbl:'open · x32010',sf:0,mu:[0],dots:[{s:1,f:3},{s:2,f:2},{s:4,f:1}],br:null},
@@ -111,43 +111,20 @@ const KEYS = {
       {name:'C7',tag:'I7', lbl:'open · x32310',sf:0,mu:[0],  dots:[{s:1,f:3},{s:2,f:2},{s:3,f:3},{s:4,f:1}],br:null},
       {name:'F7',tag:'IV7',lbl:'open · xx3241',sf:0,mu:[0,1],dots:[{s:2,f:3},{s:3,f:2},{s:4,f:4},{s:5,f:1}],br:null},
       {name:'G7',tag:'V7', lbl:'open · 320001',sf:0,mu:[],   dots:[{s:0,f:3},{s:1,f:2},{s:5,f:1}],br:null}],
-    rel:{root:'C',name:'C natural minor',scale:['C','D','D#','F','G','G#','A#'],
+    rel:{root:'C',name:'C natural minor',scale:['C','D','Eb','F','G','Ab','Bb'],
       triads:[
-        {c:'Cm', q:'min',n:['C','D#','G'],   r:'i'},
-        {c:'D°', q:'dim',n:['D','F','G#'],   r:'ii°'},
-        {c:'D#', q:'maj',n:['D#','G','A#'],  r:'III'},
-        {c:'Fm', q:'min',n:['F','G#','C'],   r:'iv'},
-        {c:'Gm', q:'min',n:['G','A#','D'],   r:'v'},
-        {c:'G#', q:'maj',n:['G#','C','D#'],  r:'VI'},
-        {c:'A#', q:'maj',n:['A#','D','F'],   r:'VII'}],
-      cycle:['C','D#','G','A#','D','F','G#'],
+        {c:'Cm', q:'min',n:['C','Eb','G'],   r:'i'},
+        {c:'D°', q:'dim',n:['D','F','Ab'],   r:'ii°'},
+        {c:'Eb', q:'maj',n:['Eb','G','Bb'],  r:'III'},
+        {c:'Fm', q:'min',n:['F','Ab','C'],   r:'iv'},
+        {c:'Gm', q:'min',n:['G','Bb','D'],   r:'v'},
+        {c:'Ab', q:'maj',n:['Ab','C','Eb'],  r:'VI'},
+        {c:'Bb', q:'maj',n:['Bb','D','F'],   r:'VII'}],
+      cycle:['C','Eb','G','Bb','D','F','Ab'],
       chords:[
         {name:'Cm',tag:'i',  lbl:'barre 3fr · A shape', sf:3,mu:[0],dots:[{s:2,f:5},{s:3,f:5},{s:4,f:4}],br:{f:3,a:1,b:5}},
         {name:'Fm',tag:'iv', lbl:'barre 1fr · Em shape',sf:0,mu:[],  dots:[{s:1,f:3},{s:2,f:3}],br:{f:1,a:0,b:5}},
         {name:'Gm',tag:'v',  lbl:'open · 310033',       sf:0,mu:[],  dots:[{s:0,f:3},{s:1,f:1},{s:4,f:3},{s:5,f:3}],br:null}]}}
-};
-
-// ── Chord sheets ─────────────────────────────────────────────────────────────
-// secondary[i] is the V7 that resolves to diatonic[i]
-
-const CHORD_SHEETS = {
-  'C-chords':{key:'C',tab:'Chords in C',full:'Chords in C major',scale:KEYS.C.scale,
-    diatonic:[
-      {name:'C', tag:'I',   lbl:'open · x32010',       sf:0,mu:[0],  dots:[{s:1,f:3},{s:2,f:2},{s:4,f:1}],br:null},
-      {name:'Dm',tag:'ii',  lbl:'open · xx0231',       sf:0,mu:[0,1],dots:[{s:3,f:2},{s:4,f:3},{s:5,f:1}],br:null},
-      {name:'Em',tag:'iii', lbl:'open · 022000',       sf:0,mu:[],   dots:[{s:1,f:2},{s:2,f:2}],br:null},
-      {name:'F', tag:'IV',  lbl:'barre 1fr · E shape', sf:0,mu:[],   dots:[{s:1,f:3},{s:2,f:3},{s:3,f:2}],br:{f:1,a:0,b:5}},
-      {name:'G', tag:'V',   lbl:'open · 320003',       sf:0,mu:[],   dots:[{s:0,f:3},{s:1,f:2},{s:5,f:3}],br:null},
-      {name:'Am',tag:'vi',  lbl:'open · x02210',       sf:0,mu:[0],  dots:[{s:2,f:2},{s:3,f:2},{s:4,f:1}],br:null},
-      {name:'Bø7',tag:'viiø7',lbl:'x2323x · Bm7♭5',     sf:0,mu:[0,5],dots:[{s:1,f:2},{s:2,f:3},{s:3,f:2},{s:4,f:3}],br:null}],
-    secondary:[
-      {name:'G7',tag:'V7/I',  lbl:'open · 320001',sf:0,mu:[],   dots:[{s:0,f:3},{s:1,f:2},{s:5,f:1}],br:null},
-      {name:'A7',tag:'V7/ii', lbl:'open · x02020',sf:0,mu:[0],  dots:[{s:2,f:2},{s:4,f:2}],br:null},
-      {name:'B7',tag:'V7/iii',lbl:'open · x21202',sf:0,mu:[0],  dots:[{s:1,f:2},{s:2,f:1},{s:3,f:2},{s:5,f:2}],br:null},
-      {name:'C7',tag:'V7/IV', lbl:'open · x32310',sf:0,mu:[0],  dots:[{s:1,f:3},{s:2,f:2},{s:3,f:3},{s:4,f:1}],br:null},
-      {name:'D7',tag:'V7/V',  lbl:'open · xx0212',sf:0,mu:[0,1],dots:[{s:3,f:2},{s:4,f:1},{s:5,f:2}],br:null},
-      {name:'E7',tag:'V7/vi', lbl:'open · 020100',sf:0,mu:[],   dots:[{s:1,f:2},{s:3,f:1}],br:null},
-      {name:'F#7',tag:'V7/vii',lbl:'2x232x',     sf:0,mu:[1,5],dots:[{s:0,f:2},{s:2,f:2},{s:3,f:3},{s:4,f:2}],br:null}]}
 };
 
 // ── Pure helper functions ─────────────────────────────────────────────────────
@@ -166,9 +143,9 @@ function gc(n, m) { return m[n]?.c || '#888'; }
 function nat(s, cfg) {
   if (cfg.mu.includes(s)) return null;
   const d = cfg.dots.find(x => x.s === s);
-  if (d) return NN[(OS[s] + d.f) % 12];
-  if (cfg.br && s >= cfg.br.a && s <= cfg.br.b) return NN[(OS[s] + cfg.br.f) % 12];
-  return cfg.sf === 0 ? NN[OS[s]] : null;
+  if (d) return noteAt(s, d.f, cfg.names);
+  if (cfg.br && s >= cfg.br.a && s <= cfg.br.b) return noteAt(s, cfg.br.f, cfg.names);
+  return cfg.sf === 0 ? noteAt(s, 0, cfg.names) : null;
 }
 
 // Y position of a fret on a chord diagram

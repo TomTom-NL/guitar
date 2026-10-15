@@ -129,7 +129,7 @@ const LEARN = {
         <li><b>Minor pentatonic</b> = degrees 1 b3 4 5 b7 (${kd.mnN.join(' ')}): the classic rock and blues sound.</li>
       </ul>
       <p><b>Reading the fretboard:</b> unlike the chord diagrams, this one lies <b>sideways like tab</b>. The <b>top line is the thin high e</b>, the bottom line is the thick low E, and frets are numbered along the bottom. Every dot is a place you can play a scale note. The <b>root ${kd.root}</b> has a white ring.</p>
-      <p>Use the buttons to switch each scale on or off and see where they overlap (green = in both). The <b>Blues note</b> button adds the <b>b5</b> (${NN[kd.bluesIdx]}), the "blue note". Use it as a quick passing note between the 4 and the 5, rather than a note to stay on.</p>
+      <p>Use the buttons to switch each scale on or off and see where they overlap (green = in both). The <b>Blues note</b> button adds the <b>b5</b> (${spellDeg(kd.root, 'b5')}), the "blue note". Use it as a quick passing note between the 4 and the 5, rather than a note to stay on.</p>
       <p class="learn-try"><b>Try it:</b> turn off major, then find the ${kd.root} on the low E string at ${where}. Play the purple and green notes from there across 4 frets, one finger per fret. That's the famous <b>minor pentatonic "box 1"</b>.</p>`);
   },
 
@@ -145,39 +145,5 @@ const LEARN = {
   },
 
   legend: () => learnBox('Colour key', `
-    <p>Each of the 7 scale degrees always has the same colour on this page: in the scale row, inside chord diagrams and in the tables. Grey means the note is outside the scale.</p>`),
-
-  // ── Chords-in-a-key page ─────────────────────────────────────────────────
-
-  diatonic: sh => {
-    const d = sh.diatonic, n = i => d[i].name;
-    return learnBox(`The 7 chords of ${sh.key} major`, `
-      <p>Every key has a family of 7 chords that use only notes from its scale. They're built by stacking every other scale note (see the triad explanation on the Blues pages). ${sh.key} major has no sharps or flats, so it's the easiest key to see the pattern in.</p>
-      <ul>
-        <li><b>CAPITAL numerals</b> (I, IV, V) = <b>major</b> chords: ${n(0)}, ${n(3)}, ${n(4)}.</li>
-        <li><b>lowercase</b> (ii, iii, vi) = <b>minor</b> chords: ${n(1)}, ${n(2)}, ${n(5)}.</li>
-        <li><b>vii</b> is the odd one out. Here it's played as <b>${n(6)}</b> (B · D · F · A), a 4-note version of B diminished that's easier to finger.</li>
-      </ul>
-      <p class="learn-try"><b>Famous progressions to try:</b><br>
-        I–V–vi–IV: <b>${n(0)} ${n(4)} ${n(5)} ${n(3)}</b> (countless pop songs)<br>
-        I–vi–IV–V: <b>${n(0)} ${n(5)} ${n(3)} ${n(4)}</b> (50s doo-wop)<br>
-        ii–V–I: <b>${n(1)} ${n(4)} ${n(0)}</b> (the jazz workhorse)</p>`);
-  },
-
-  secondary: sh => {
-    const d = sh.diatonic, s = sh.secondary;
-    // Count five scale notes up from the ii chord's root to show where its V7 comes from
-    const i0 = sh.scale.indexOf(d[1].name.match(/^[A-G]#?/)[0]);
-    const count = [0, 1, 2, 3, 4].map(k => sh.scale[(i0 + k) % 7] + `(${k + 1})`);
-    count[4] = `<b>${count[4]}</b>`;
-    return learnBox('Secondary dominants', `
-      <p><b>${s[0].name} → ${d[0].name}</b> is the strongest pull in music. ${s[0].name} is the <b>dominant</b> (V7) of ${sh.key}, and it wants to resolve "home" to ${d[0].name}.</p>
-      <p>A <b>secondary dominant</b> borrows that pull for the other chords. Play the V7 of a chord just before it, and that chord briefly feels like home.</p>
-      <p><b>How to find one:</b> count 5 scale notes up from the target and play a 7th chord there. For ${d[1].name}: ${count.join(' ')} → <b>${s[1].name}</b>.</p>
-      <p>The <b>grey notes</b> aren't in ${sh.key} major. In ${s[1].name}, the C# sits one fret below D and pulls into it. That's what makes the move so strong.</p>
-      <p>${s[0].name} under ${d[0].name} is simply the key's own dominant. ${s[6].name} → ${d[6].name} is mostly theoretical, because a diminished-type chord doesn't feel like a place to land.</p>
-      <p class="learn-try"><b>Try it:</b><br>
-        <b>${d[0].name} → ${s[1].name} → ${d[1].name} → ${s[0].name} → ${d[0].name}</b><br>
-        <b>${d[0].name} → ${s[5].name} → ${d[5].name} → ${s[4].name} → ${d[4].name} → ${d[0].name}</b></p>`);
-  }
+    <p>Each of the 7 scale degrees always has the same colour on this page: in the scale row, inside chord diagrams and in the tables. Grey means the note is outside the scale.</p>`)
 };
