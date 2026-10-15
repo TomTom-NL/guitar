@@ -25,10 +25,10 @@ function togglePent(key, which) {
 
 // ── Render and init ───────────────────────────────────────────────────────────
 
-// One tab per key page, then one per chord sheet
+// One tab per chord sheet, then one per key page
 const PAGES = [
-  ...KEY_LIST.map(k => ({id: k, label: KEYS[k].full, render: renderKey})),
-  ...Object.keys(CHORD_SHEETS).map(id => ({id, label: CHORD_SHEETS[id].tab, render: renderChordSheet}))
+  ...Object.keys(CHORD_SHEETS).map(id => ({id, label: CHORD_SHEETS[id].tab, render: renderChordSheet})),
+  ...KEY_LIST.map(k => ({id: k, label: KEYS[k].full, render: renderKey}))
 ];
 
 document.getElementById('tabs').innerHTML = PAGES
