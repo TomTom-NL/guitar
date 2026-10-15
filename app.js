@@ -1,17 +1,17 @@
 // ── Pentatonic toggle state ───────────────────────────────────────────────────
 
-const pentState = {
-  A: {maj: true, min: true, blues: false},
-  E: {maj: true, min: true, blues: false},
-  C: {maj: true, min: true, blues: false}
-};
+const KEY_LIST = Object.keys(KEYS);
+
+const pentState = Object.fromEntries(
+  KEY_LIST.map(k => [k, {maj: true, min: true, blues: false}])
+);
 
 function togglePent(key, which) {
   pentState[key][which] = !pentState[key][which];
   const st = pentState[key];
-  document.getElementById(`btn-maj-${key}`).style.opacity   = st.maj   ? '1' : '0.35';
-  document.getElementById(`btn-min-${key}`).style.opacity   = st.min   ? '1' : '0.35';
-  document.getElementById(`btn-blues-${key}`).style.opacity = st.blues ? '1' : '0.35';
+  document.querySelectorAll(`#key-${key} .pent-btn`).forEach(b => {
+    b.setAttribute('aria-pressed', String(st[b.dataset.which]));
+  });
   document.querySelectorAll(`#key-${key} .fb-dot`).forEach(g => {
     const t = g.dataset.type;
     const show = t === 'shared' ? (st.maj || st.min)
@@ -25,20 +25,31 @@ function togglePent(key, which) {
 
 // ── Render and init ───────────────────────────────────────────────────────────
 
-document.getElementById('content').innerHTML =
-  renderKey('A') + renderKey('E') + renderKey('C');
+document.getElementById('tabs').innerHTML = KEY_LIST
+  .map((k, i) => `<button class="tab${i === 0 ? ' active' : ''}" data-key="${k}">${KEYS[k].full}</button>`)
+  .join('');
 
-// Hide non-active keys on load
-['E','C'].forEach(k => document.getElementById('key-' + k).style.display = 'none');
+document.getElementById('content').innerHTML = KEY_LIST.map(renderKey).join('');
+
+function showKey(key) {
+  document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.dataset.key === key));
+  KEY_LIST.forEach(k => {
+    document.getElementById('key-' + k).style.display = k === key ? 'block' : 'none';
+  });
+}
+
+// Show only the first key on load
+showKey(KEY_LIST[0]);
 
 // Tab switching
 document.querySelectorAll('.tab').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    ['A','E','C'].forEach(k => {
-      document.getElementById('key-' + k).style.display = btn.dataset.key === k ? 'block' : 'none';
-    });
+    showKey(btn.dataset.key);
     window.scrollTo({top: 0, behavior: 'smooth'});
   });
+});
+
+// Pentatonic toggles
+document.querySelectorAll('.pent-btn').forEach(btn => {
+  btn.addEventListener('click', () => togglePent(btn.dataset.key, btn.dataset.which));
 });

@@ -18,10 +18,10 @@ const KEYS = {
   A:{root:'A',full:'Blues in A',scale:['A','B','C#','D','E','F#','G#'],
     triads:[{c:'A',q:'maj',n:['A','C#','E'],r:'I'},{c:'Bm',q:'min',n:['B','D','F#'],r:'ii'},{c:'C#m',q:'min',n:['C#','E','G#'],r:'iii'},{c:'D',q:'maj',n:['D','F#','A'],r:'IV'},{c:'E',q:'maj',n:['E','G#','B'],r:'V'},{c:'F#m',q:'min',n:['F#','A','C#'],r:'vi'},{c:'G#°',q:'dim',n:['G#','B','D'],r:'vii°'}],
     cycle:['A','C#','E','G#','B','D','F#'],
-    mpIdx:[9,11,1,4,6],mpN:['A','B','C#','E','F#'],mpF:'1 — 2 — 3 — 5 — 6',mpD:['1=A','2=B','3=C#','5=E','6=F#'],
-    mnIdx:[9,0,2,4,7], mnN:['A','C','D','E','G'], mnF:'1 — b3 — 4 — 5 — b7',mnD:['1=A','b3=C','4=D','5=E','b7=G'],
+    mpIdx:[9,11,1,4,6],mpN:['A','B','C#','E','F#'],
+    mnIdx:[9,0,2,4,7], mnN:['A','C','D','E','G'],
     bluesIdx:3,  // D# · b5 of A minor pentatonic
-    comp:[{d:'1',mj:'A',mn:'A',sh:1,t:'Shared — root'},{d:'2',mj:'B',mn:null,sh:0,t:'Major only'},{d:'b3',mj:null,mn:'C',sh:0,t:'Blues note — C vs C# over A chord'},{d:'3',mj:'C#',mn:null,sh:0,t:'Major only — bright'},{d:'4',mj:null,mn:'D',sh:0,t:'Minor only'},{d:'5',mj:'E',mn:'E',sh:1,t:'Shared — fifth'},{d:'6',mj:'F#',mn:null,sh:0,t:'Major only'},{d:'b7',mj:null,mn:'G',sh:0,t:'Minor only — bluesy'}],
+    comp:[{d:'1',mj:'A',mn:'A',t:'Shared — root'},{d:'2',mj:'B',mn:null,t:'Major only'},{d:'b3',mj:null,mn:'C',t:'Blue third — C vs C# over A chord'},{d:'3',mj:'C#',mn:null,t:'Major only — bright'},{d:'4',mj:null,mn:'D',t:'Minor only'},{d:'5',mj:'E',mn:'E',t:'Shared — fifth'},{d:'6',mj:'F#',mn:null,t:'Major only'},{d:'b7',mj:null,mn:'G',t:'Minor only — bluesy'}],
     insight:'The key clash is <b>C natural vs C#</b>. Minor pent has C (b3), but the A major chord has C#. Bending C toward C# is the defining blues move in A.',
     chords:[
       {name:'A major',tag:'I',
@@ -55,10 +55,10 @@ const KEYS = {
   E:{root:'E',full:'Blues in E',scale:['E','F#','G#','A','B','C#','D#'],
     triads:[{c:'E',q:'maj',n:['E','G#','B'],r:'I'},{c:'F#m',q:'min',n:['F#','A','C#'],r:'ii'},{c:'G#m',q:'min',n:['G#','B','D#'],r:'iii'},{c:'A',q:'maj',n:['A','C#','E'],r:'IV'},{c:'B',q:'maj',n:['B','D#','F#'],r:'V'},{c:'C#m',q:'min',n:['C#','E','G#'],r:'vi'},{c:'D#°',q:'dim',n:['D#','F#','A'],r:'vii°'}],
     cycle:['E','G#','B','D#','F#','A','C#'],
-    mpIdx:[4,6,8,11,1],mpN:['E','F#','G#','B','C#'],mpF:'1 — 2 — 3 — 5 — 6',mpD:['1=E','2=F#','3=G#','5=B','6=C#'],
-    mnIdx:[4,7,9,11,2],mnN:['E','G','A','B','D'], mnF:'1 — b3 — 4 — 5 — b7',mnD:['1=E','b3=G','4=A','5=B','b7=D'],
+    mpIdx:[4,6,8,11,1],mpN:['E','F#','G#','B','C#'],
+    mnIdx:[4,7,9,11,2],mnN:['E','G','A','B','D'],
     bluesIdx:10, // A# · b5 of E minor pentatonic
-    comp:[{d:'1',mj:'E',mn:'E',sh:1,t:'Shared — root'},{d:'2',mj:'F#',mn:null,sh:0,t:'Major only'},{d:'b3',mj:null,mn:'G',sh:0,t:'Blues note — G vs G# over E chord'},{d:'3',mj:'G#',mn:null,sh:0,t:'Major only — bright'},{d:'4',mj:null,mn:'A',sh:0,t:'Minor only'},{d:'5',mj:'B',mn:'B',sh:1,t:'Shared — fifth'},{d:'6',mj:'C#',mn:null,sh:0,t:'Major only'},{d:'b7',mj:null,mn:'D',sh:0,t:'Minor only — bluesy'}],
+    comp:[{d:'1',mj:'E',mn:'E',t:'Shared — root'},{d:'2',mj:'F#',mn:null,t:'Major only'},{d:'b3',mj:null,mn:'G',t:'Blue third — G vs G# over E chord'},{d:'3',mj:'G#',mn:null,t:'Major only — bright'},{d:'4',mj:null,mn:'A',t:'Minor only'},{d:'5',mj:'B',mn:'B',t:'Shared — fifth'},{d:'6',mj:'C#',mn:null,t:'Major only'},{d:'b7',mj:null,mn:'D',t:'Minor only — bluesy'}],
     insight:'The key clash is <b>G natural vs G#</b>. Minor pent has G (b3), but the E major chord has G#. Bending G toward G# is the defining SRV/BB King blues move in E.',
     chords:[
       {name:'E major',tag:'I',
@@ -92,10 +92,10 @@ const KEYS = {
   C:{root:'C',full:'Blues in C',scale:['C','D','E','F','G','A','B'],
     triads:[{c:'C',q:'maj',n:['C','E','G'],r:'I'},{c:'Dm',q:'min',n:['D','F','A'],r:'ii'},{c:'Em',q:'min',n:['E','G','B'],r:'iii'},{c:'F',q:'maj',n:['F','A','C'],r:'IV'},{c:'G',q:'maj',n:['G','B','D'],r:'V'},{c:'Am',q:'min',n:['A','C','E'],r:'vi'},{c:'B°',q:'dim',n:['B','D','F'],r:'vii°'}],
     cycle:['C','E','G','B','D','F','A'],
-    mpIdx:[0,2,4,7,9], mpN:['C','D','E','G','A'],  mpF:'1 — 2 — 3 — 5 — 6', mpD:['1=C','2=D','3=E','5=G','6=A'],
-    mnIdx:[0,3,5,7,10],mnN:['C','D#','F','G','A#'],mnF:'1 — b3 — 4 — 5 — b7',mnD:['1=C','b3=D#','4=F','5=G','b7=A#'],
+    mpIdx:[0,2,4,7,9], mpN:['C','D','E','G','A'],
+    mnIdx:[0,3,5,7,10],mnN:['C','D#','F','G','A#'],
     bluesIdx:6,  // F# · b5 of C minor pentatonic
-    comp:[{d:'1',mj:'C',mn:'C',sh:1,t:'Shared — root'},{d:'2',mj:'D',mn:null,sh:0,t:'Major only'},{d:'b3',mj:null,mn:'D#',sh:0,t:'Blues note — D#/Eb vs E over C chord'},{d:'3',mj:'E',mn:null,sh:0,t:'Major only — bright'},{d:'4',mj:null,mn:'F',sh:0,t:'Minor only'},{d:'5',mj:'G',mn:'G',sh:1,t:'Shared — fifth'},{d:'6',mj:'A',mn:null,sh:0,t:'Major only'},{d:'b7',mj:null,mn:'A#',sh:0,t:'Minor only — bluesy'}],
+    comp:[{d:'1',mj:'C',mn:'C',t:'Shared — root'},{d:'2',mj:'D',mn:null,t:'Major only'},{d:'b3',mj:null,mn:'D#',t:'Blue third — D#/Eb vs E over C chord'},{d:'3',mj:'E',mn:null,t:'Major only — bright'},{d:'4',mj:null,mn:'F',t:'Minor only'},{d:'5',mj:'G',mn:'G',t:'Shared — fifth'},{d:'6',mj:'A',mn:null,t:'Major only'},{d:'b7',mj:null,mn:'A#',t:'Minor only — bluesy'}],
     insight:'The key clash is <b>D#/Eb vs E natural</b>. Minor pent has Eb (b3), but the C major chord has E. Bending Eb toward E is the blues tension in C.',
     chords:[
       {name:'C major',tag:'I',
