@@ -223,3 +223,44 @@ document.addEventListener('click', e => {
   playing = token;
   setTimeout(() => { if (playing === token) { b.classList.remove('is-playing'); playing = null; } }, secs * 1000);
 });
+
+// ── Clickable notes ──────────────────────────────────────────────────────────
+// Any element with data-midi="52" plays that note; data-chord="48 52 55 60 64"
+// strums those notes. Taps don't stop a running track, so you can play along.
+// Elements that are invisible (opacity 0, e.g. hidden blue-note dots) are ignored.
+
+// Attributes for a tappable note/chord. focus = reachable with Tab + Enter/Space.
+function tapNote(midi, label, focus = false) {
+  return ` data-midi="${midi}"${focus ? ` role="button" tabindex="0" aria-label="Play ${label}"` : ''}`;
+}
+function tapChord(midis, label, focus = true) {
+  return ` data-chord="${midis.join(' ')}"${focus ? ` role="button" tabindex="0" aria-label="Play ${label} chord"` : ''}`;
+}
+
+function isShown(el) {
+  for (let e = el; e && e.nodeType === 1; e = e.parentElement) if (getComputedStyle(e).opacity === '0') return false;
+  return true;
+}
+
+function tap(el) {
+  if (!audioOut()) return;
+  const t = AUDIO.ctx.currentTime + 0.01;
+  if (el.dataset.chord) strum(el.dataset.chord.split(' ').map(Number), t, 2.6);
+  else pluck(+el.dataset.midi, t, 1.8, 0.5);
+  el.classList.remove('tapped');
+  void el.getBoundingClientRect();          // restart the flash animation
+  el.classList.add('tapped');
+  setTimeout(() => el.classList.remove('tapped'), 450);
+}
+
+document.addEventListener('click', e => {
+  if (e.target.closest('.play')) return;
+  const el = e.target.closest('[data-midi], [data-chord]');
+  if (el && isShown(el)) tap(el);
+});
+document.addEventListener('keydown', e => {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('[data-midi], [data-chord]')) {
+    e.preventDefault();
+    tap(e.target);
+  }
+});

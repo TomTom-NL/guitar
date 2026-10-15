@@ -30,11 +30,12 @@ function table(head, rows, cls = '') {
 
 // Inline row of note "chips", optionally coloured and with a caption under each
 function chips(notes, opts = {}) {
+  const midis = voiceUp(notes, 3);   // ascending, so clicking along the row climbs the scale
   return `<div class="chips">${notes.map((n, i) => {
     const col = opts.colors ? opts.colors[i] : null;
     const style = col ? ` style="border-color:${col};color:${col}"` : '';
     const hl = opts.highlight && opts.highlight[i] ? ' hl' : '';
-    return `<div class="chip${hl}"><span class="chip-n"${style}>${fmt(n)}</span>${opts.under ? `<span class="chip-u">${String(opts.under[i]).replace(/^bb/, '𝄫').replace(/^b/, '♭').replace(/^#/, '♯')}</span>` : ''}</div>`;
+    return `<div class="chip${hl}"><span class="chip-n"${tapNote(midis[i], n, true)}${style}>${fmt(n)}</span>${opts.under ? `<span class="chip-u">${String(opts.under[i]).replace(/^bb/, '𝄫').replace(/^b/, '♭').replace(/^#/, '♯')}</span>` : ''}</div>`;
   }).join('')}</div>`;
 }
 
@@ -68,6 +69,8 @@ function noteMapSVG(marks, opts = {}) {
     if (!m) return;
     const op = m.faint || (opts.focus && !opts.focus(i, f)) ? (opts.focus ? 0.22 : 0.6) : 1;
     const ring = m.root && op >= 0.5;  // faded roots (outside a highlighted box) get no ring
+    // each dot is a tap target playing exactly this string and fret (with a slightly larger invisible hit area)
+    s += `<g class="tap"${tapNote(OPEN_MIDI[i] + f, m.label)}><circle cx="${x}" cy="${y}" r="${R + 5}" fill="transparent"/>`;
     if (ring) s += `<circle cx="${x}" cy="${y}" r="${R+4}" fill="none" stroke="${m.col}" stroke-width="1" opacity="0.4"/>`;
     s += `<circle cx="${x}" cy="${y}" r="${R}" fill="${m.col}" opacity="${op}"/>`;
     if (ring) s += `<circle cx="${x}" cy="${y}" r="${R}" fill="none" stroke="white" stroke-width="1.8"/>`;
@@ -76,6 +79,7 @@ function noteMapSVG(marks, opts = {}) {
     const text = (t, cls) => `<text class="${cls}" x="${x}" y="${y+4}" text-anchor="middle" font-size="${t.length > 2 ? 8 : t.length > 1 ? 9 : 10}" fill="${fill}" font-weight="700" font-family="Courier New"${op < 0.5 && f > 0 ? ' opacity="0.6"' : ''}>${t}</text>`;
     s += text(m.label, 'lbl-n');
     if (m.deg) s += text(degLabel(m.deg), 'lbl-d');
+    s += '</g>';
   }, opts.frets);
   return `${hasDeg ? degToggle() : ''}<div class="fb-wrap">${s}</svg></div>`;
 }

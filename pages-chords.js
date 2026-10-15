@@ -257,7 +257,7 @@ EXPLORERS.progression = {
     const play = st.prog === 'blues'
       ? playBtn({mode: 'shuffle', root: st.key, style: 'strum'}, 'play it as a shuffle')
       : playBtn({mode: 'prog', steps: seq.map(c => guitarMidis(c.root, c.type)), beat: 1.2}, 'play it');
-    return `${listen(play)}<div class="prog-seq">${seq.map(c => `<div class="ps"><b>${chordLabel(c.root, c.type)}</b><span>${c.num}</span></div>`).join('')}</div>
+    return `${listen(play)}<div class="prog-seq">${seq.map(c => `<div class="ps"${tapChord(guitarMidis(c.root, c.type), chordLabel(c.root, c.type))}><b>${chordLabel(c.root, c.type)}</b><span>${c.num}</span></div>`).join('')}</div>
       <div class="cpair">${uniq.map(c => chordDiagram(c.root, c.type, c.num, keyCol)).join('')}</div>`;
   }
 };

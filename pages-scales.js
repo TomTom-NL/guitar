@@ -119,6 +119,12 @@ function circleSVG(sel) {
     s += `<text x="${sx}" y="${sy + 3}" text-anchor="middle" font-size="9.5" fill="${COL.mute}" font-family="Courier New">${sig.count ? sig.count + (sig.type === '#' ? '♯' : '♭') : '0'}</text>`;
     if (on) s += `<text x="${x}" y="${y - 25}" text-anchor="middle" font-size="10" font-weight="700" fill="#1c1a14" font-family="Courier New">${on}</text>`;
   });
+  // invisible tap targets on top: outer ring plays the major chord, inner ring the minor chord
+  CIRCLE_MAJOR.forEach((m, j) => {
+    const [x, y] = pos(j, ro), [mx, my] = pos(j, ri), mi = CIRCLE_MINOR[j];
+    s += `<circle cx="${x}" cy="${y}" r="21" fill="transparent"${tapChord(chordMidis(chordNotes(m, 'maj')), fmt(m))}/>`;
+    s += `<circle cx="${mx}" cy="${my}" r="17" fill="transparent"${tapChord(chordMidis(chordNotes(mi, 'min')), fmt(mi) + ' minor')}/>`;
+  });
   s += `<text x="${cx}" y="${cy - 4}" text-anchor="middle" font-size="10" fill="${COL.mute}" font-family="Courier New">outer: major</text>`;
   s += `<text x="${cx}" y="${cy + 9}" text-anchor="middle" font-size="10" fill="${COL.mute}" font-family="Courier New">inner: minor</text>`;
   return s + `</svg>`;
