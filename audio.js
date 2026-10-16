@@ -43,9 +43,47 @@ function audioOut() {
     const ctx = new Ctx();
     AUDIO = {ctx, out: buildChain(ctx)};
   }
-  if (AUDIO.ctx.state === 'suspended' && AUDIO.ctx.resume) AUDIO.ctx.resume().catch(() => {});
+  // 'suspended' (autoplay rules) or 'interrupted' (iOS after a call, app switch or screen lock)
+  if (AUDIO.ctx.state !== 'running' && AUDIO.ctx.resume) AUDIO.ctx.resume().catch(() => {});
   return AUDIO;
 }
+
+// ── Mobile unlock ────────────────────────────────────────────────────────────
+// Phones only allow sound after a touch, and iOS plays Web Audio as "ambient"
+// sound, which the silent switch mutes. On the first touch anywhere we:
+//  1. declare this page as playback audio (Safari 17+: navigator.audioSession),
+//     or on older iOS play a short silent HTML <audio> clip, which has the same effect;
+//  2. create/resume the audio context and start a silent buffer inside the gesture.
+// We keep listening until the context is really running, and resume again when
+// the page comes back to the foreground.
+const SILENT_WAV = 'data:audio/wav;base64,UklGRkQDAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YSADAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA==';
+let silentTag = null;
+
+function unlockAudio() {
+  try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
+  if (!navigator.audioSession && !silentTag) {
+    silentTag = document.createElement('audio');
+    silentTag.setAttribute('playsinline', '');
+    silentTag.setAttribute('x-webkit-airplay', 'deny');
+    silentTag.preload = 'auto';
+    silentTag.src = SILENT_WAV;
+    const p = silentTag.play();
+    if (p && p.catch) p.catch(() => {});
+  }
+  const a = audioOut();
+  if (!a) return;
+  try {
+    const src = a.ctx.createBufferSource();
+    src.buffer = a.ctx.createBuffer(1, 1, a.ctx.sampleRate);
+    src.connect(a.ctx.destination);
+    src.start(0);
+  } catch (e) {}
+  if (a.ctx.state === 'running') ['touchend', 'pointerdown', 'keydown'].forEach(t => document.removeEventListener(t, unlockAudio, true));
+}
+['touchend', 'pointerdown', 'keydown'].forEach(t => document.addEventListener(t, unlockAudio, true));
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && AUDIO && AUDIO.ctx.state !== 'running') AUDIO.ctx.resume().catch(() => {});
+});
 
 function stopSound() {
   voices.forEach(n => { try { n.stop(); } catch (e) {} });
