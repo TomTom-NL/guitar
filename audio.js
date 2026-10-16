@@ -89,7 +89,7 @@ function stopSound() {
   voices.forEach(n => { try { n.stop(); } catch (e) {} });
   voices = [];
   litTimers.forEach(clearTimeout); litTimers = [];
-  document.querySelectorAll('.lit').forEach(el => el.classList.remove('lit'));
+  document.querySelectorAll('.lit').forEach(el => { el.classList.remove('lit'); removeRing(el); });
   if (playing) { playing.btn && playing.btn.classList.remove('is-playing'); playing = null; }
 }
 
@@ -246,8 +246,34 @@ function lightAt(board, s, f, t, dur) {
   const dot = board.querySelector(`[data-s="${s}"][data-f="${f}"]`);
   if (!dot) return;
   const now = AUDIO.ctx.currentTime;
-  litTimers.push(setTimeout(() => dot.classList.add('lit'), Math.max(0, (t - now) * 1000)));
-  litTimers.push(setTimeout(() => dot.classList.remove('lit'), Math.max(0, (t + dur - now) * 1000)));
+  litTimers.push(setTimeout(() => { dot.classList.add('lit'); addRing(dot); keepInView(board, dot); }, Math.max(0, (t - now) * 1000)));
+  litTimers.push(setTimeout(() => { dot.classList.remove('lit'); removeRing(dot); }, Math.max(0, (t + dur - now) * 1000)));
+}
+
+// The highlight is a real SVG ring (gold inside, dark outside so it shows on
+// the wood and on the light page). CSS filters alone don't render on SVG
+// shapes in Safari, which is why phones showed nothing.
+const SVG_NS = 'http://www.w3.org/2000/svg';
+function addRing(dot) {
+  const c = [...dot.querySelectorAll('circle')].pop();
+  if (!c || dot.querySelector('.lit-ring')) return;
+  const cx = c.getAttribute('cx'), cy = c.getAttribute('cy'), r = +c.getAttribute('r');
+  [[r + 7, '#1c1a14', 2], [r + 4.5, '#ffcf33', 3.5]].forEach(([rr, col, w]) => {
+    const ring = document.createElementNS(SVG_NS, 'circle');
+    ring.setAttribute('class', 'lit-ring');
+    ring.setAttribute('cx', cx); ring.setAttribute('cy', cy); ring.setAttribute('r', rr);
+    ring.setAttribute('fill', 'none'); ring.setAttribute('stroke', col); ring.setAttribute('stroke-width', w);
+    dot.appendChild(ring);
+  });
+}
+function removeRing(dot) { dot.querySelectorAll('.lit-ring').forEach(r => r.remove()); }
+
+// On a phone the fretboard scrolls sideways: keep the sounding note on screen
+function keepInView(board, dot) {
+  if (board.scrollWidth <= board.clientWidth + 2) return;
+  const b = board.getBoundingClientRect(), d = dot.getBoundingClientRect(), margin = 40;
+  if (d.left < b.left + margin || d.right > b.right - margin)
+    board.scrollTo({left: board.scrollLeft + (d.left + d.width / 2) - (b.left + b.width / 2), behavior: 'smooth'});
 }
 
 // The fretboard that belongs to a play button (same explorer output or page section)
